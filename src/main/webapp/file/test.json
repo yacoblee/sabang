@@ -1,0 +1,18 @@
+{
+"result": {
+  "items": [
+	{
+	  "id": 55,
+	  "mstCorpname": "회사명1",
+	  "mstPartname": "사업지구명1",
+	  "totcnt": 6
+	},
+	{
+	  "id": 668,
+	  "mstCorpname": "회사명1",
+	  "mstPartname": "사업지구명2",
+	  "totcnt": 2
+	}
+  ]
+}
+}

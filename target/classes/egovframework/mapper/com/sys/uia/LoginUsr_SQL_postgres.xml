@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- 
+   수정일                 수정자            수정내용
+  =========     =======    =================================================
+  2011.08.26   	서준식     	   SSO 로그인을 위한 쿼리 추가
+  2011.09.27    서준식            컬럼 변경 SUB_DN 을  CRTFC_DN_VALUE 로 변경
+  2011.09.28    서준식            컬럼 변경 entrprsmber_id 을  ENTRPRS_MBER_ID 로 변경
+  2020.07.06    신용호            비밀번호 만료여부 조회
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LoginUsr">
+
+
+	<!-- 로그인 처리를 위한 resultMap -->
+	<resultMap id="login" type="egovframework.com.cmm.LoginVO">
+		<result property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="password" column="password"/>
+		<result property="uniqId" column="uniqId"/>		
+	</resultMap>
+	
+	<!-- 아이디 찾기를 위한 resultMap -->
+	<resultMap id="id" type="egovframework.com.cmm.LoginVO">
+		<result property="id" column="id"/>
+	</resultMap>
+	
+	<!-- 비밀번호 처리를 위한 resultMap -->
+	<resultMap id="password" type="egovframework.com.cmm.LoginVO">
+		<result property="password" column="password"/>
+	</resultMap>
+	
+	<!-- SSO용 ESNTL_ID를 이용한 로그인(2011.8.26) -->
+	<select id="ssoLoginByEsntlId" resultMap="login">
+		<!-- 일반회원 -->
+		SELECT mber_id AS id
+			, mber_nm AS name
+			, password AS password
+			, ESNTL_ID AS uniqId
+		FROM TN_FEIS_GNRLMBER
+		WHERE ESNTL_ID = #{uniqId}
+		AND mber_sttus = 'P'
+	</select>
+	
+	
+	<!-- 일반 로그인 -->
+	<select id="actionLogin" resultMap="login">
+		<!-- 일반회원 -->
+		SELECT mber_id AS id
+		     , mber_nm AS name
+		     , password AS password
+		     , esntl_id AS uniqId
+		FROM TN_FEIS_GNRLMBER
+		WHERE mber_id = #{id}
+		AND password = #{password}
+		AND mber_sttus = 'P'
+	</select>
+	
+	<!-- 로그인인증제한 조회 -->
+	<select id="selectLoginIncorrect" resultType="egovMap">
+	<!-- 일반회원 -->
+	<![CDATA[
+	SELECT  MBER_ID AS USER_ID
+         ,  PASSWORD AS USER_PW
+	     ,  MBER_NM AS USER_NM
+	     ,  ESNTL_ID AS UNIQ_ID
+	     ,  COALESCE(LOCK_AT,'N') LOCK_AT
+	     ,  COALESCE(LOCK_CNT,0) AS LOCK_CNT
+      FROM  TN_FEIS_GNRLMBER
+	 WHERE  MBER_ID = #{id} 
+	]]>
+	</select>
+
+	<!-- 로그인인증제한 변경 > 일반회원 -->
+	<update id="updateLoginIncorrect">
+		<!-- LOCK 해제 -->
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isEquals(updateAt,'E')">
+			<![CDATA[
+			UPDATE  TN_FEIS_GNRLMBER
+			   SET  LOCK_AT = NULL
+			     ,  LOCK_CNT  = NULL
+			     ,  LOCK_LAST_PNTTM = NULL     
+			   WHERE MBER_ID = #{id}
+			]]>
+		</if>
+		<!-- LOCK 설정 -->
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isEquals(updateAt,'L')">
+			<![CDATA[
+			UPDATE  TN_FEIS_GNRLMBER
+			   SET  LOCK_AT = 'Y'
+			     ,  LOCK_CNT  = LOCK_CNT+1
+			     ,  LOCK_LAST_PNTTM = NOW()
+		      WHERE MBER_ID = #{id}
+			]]>
+		</if>
+		<!-- LOCK 카운트 설정 -->
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isEquals(updateAt,'C')">
+			<![CDATA[
+			UPDATE  TN_FEIS_GNRLMBER
+			   SET  LOCK_CNT  = COALESCE(LOCK_CNT,0)+1
+			     ,  LOCK_LAST_PNTTM = NOW()     
+			   WHERE MBER_ID = #{id}
+			]]>
+		</if>
+	</update>
+	
+	<select id="idCheck" parameterType="String" resultType="int">
+	    SELECT CAST(COUNT(*) AS bit) AS expr
+		FROM TN_FEIS_GNRLMBER
+		WHERE MBER_ID = #{mberId}
+	</select>
+</mapper>

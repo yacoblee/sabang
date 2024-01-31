@@ -1,0 +1,355 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_UNCAUGHT_CXX_EXCEPTION (0xe06d7363) at pc=0x00007ff9c25a4fd9, pid=20584, tid=12260
+#
+# JRE version: Java(TM) SE Runtime Environment (8.0_45-b15) (build 1.8.0_45-b15)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.45-b02 mixed mode windows-amd64 compressed oops)
+# Problematic frame:
+# C  [KERNELBASE.dll+0x34fd9]
+#
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000000002f53800):  JavaThread "main" [_thread_in_native, id=12260, stack(0x0000000002e50000,0x0000000002f50000)]
+
+siginfo: ExceptionCode=0xe06d7363, ExceptionInformation=0x0000000019930520 0x0000000002f4de60 0x00007ff9a3b333e8 0x00007ff9a3ad0000 
+
+Registers:
+RAX=0x0000000000000000, RBX=0x00007ff9a3b333e8, RCX=0x0000000000000000, RDX=0x0000000000e11bc0
+RSP=0x0000000002f4dd00, RBP=0x0000000002f4df99, RSI=0x0000000002f4de60, RDI=0x0000000019930520
+R8 =0x0000000000e10cc0, R9 =0x0000000000000090, R10=0x0000000000000000, R11=0x0000000000000000
+R12=0x00000000000078cc, R13=0x000000004576d780, R14=0x0000000000000080, R15=0x0000000000005280
+RIP=0x00007ff9c25a4fd9, EFLAGS=0x0000000000000206
+
+Top of Stack: (sp=0x0000000002f4dd00)
+0x0000000002f4dd00:   0000000000010000 00007ff9a3b333e8
+0x0000000002f4dd10:   0000000002f4de60 0000000002f4ddc0
+0x0000000002f4dd20:   00000001e06d7363 0000000000000000
+0x0000000002f4dd30:   00007ff9c25a4fd9 0000000000000004
+0x0000000002f4dd40:   0000000019930520 0000000002f4de60
+0x0000000002f4dd50:   00007ff9a3b333e8 00007ff9a3ad0000
+0x0000000002f4dd60:   000000004576d780 00000000000078cc
+0x0000000002f4dd70:   0000000002f4de60 0000000002f4df99
+0x0000000002f4dd80:   0000000002f4de00 00007ff9c4c44a5f
+0x0000000002f4dd90:   0000000019930520 00007ff900000000
+0x0000000002f4dda0:   0000000000000000 000000000000001c
+0x0000000002f4ddb0:   00007ff9a3b57000 00007ff9a3ad0000
+0x0000000002f4ddc0:   00007faf496d628e 00007ff9a46261be
+0x0000000002f4ddd0:   00007ff9a3b333e8 00007ff9a4626480
+0x0000000002f4dde0:   0000000002f4df30 000000002e197be5
+0x0000000002f4ddf0:   0000000000000080 00007ff9a3b0a96c 
+
+Instructions: (pc=0x00007ff9c25a4fd9)
+0x00007ff9c25a4fb9:   8b d1 44 0f 47 c0 44 89 44 24 38 49 c1 e0 03 e8
+0x00007ff9c25a4fc9:   0a 1e 06 00 48 8d 4c 24 20 48 ff 15 27 e6 18 00
+0x00007ff9c25a4fd9:   0f 1f 44 00 00 48 8b 8c 24 c0 00 00 00 48 33 cc
+0x00007ff9c25a4fe9:   e8 52 96 05 00 48 81 c4 d8 00 00 00 c3 cc 83 64 
+
+
+Register to memory mapping:
+
+RAX=0x0000000000000000 is an unknown value
+RBX=0x00007ff9a3b333e8 is an unknown value
+RCX=0x0000000000000000 is an unknown value
+RDX=0x0000000000e11bc0 is an unknown value
+RSP=0x0000000002f4dd00 is pointing into the stack for thread: 0x0000000002f53800
+RBP=0x0000000002f4df99 is pointing into the stack for thread: 0x0000000002f53800
+RSI=0x0000000002f4de60 is pointing into the stack for thread: 0x0000000002f53800
+RDI=0x0000000019930520 is an unknown value
+R8 =0x0000000000e10cc0 is an unknown value
+R9 =0x0000000000000090 is an unknown value
+R10=0x0000000000000000 is an unknown value
+R11=0x0000000000000000 is an unknown value
+R12=0x00000000000078cc is an unknown value
+R13=0x000000004576d780 is an unknown value
+R14=0x0000000000000080 is an unknown value
+R15=0x0000000000005280 is an unknown value
+
+
+Stack: [0x0000000002e50000,0x0000000002f50000],  sp=0x0000000002f4dd00,  free space=1015k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [KERNELBASE.dll+0x34fd9]
+C  [VCRUNTIME140.dll+0x6480]
+C  [MSVCP140.dll+0x3acd2]
+C  0x0000000031b4fae0
+C  0x0000000031c25ad7
+C  0x0000000031c2addd
+C  0x0000000031c28908
+C  0x0000000031c2832b
+C  [WrapjAnalyst.dll+0x791ec]
+C  0x000000000323dfcc
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  com.supermap.analyst.spatialanalyst.StatisticsAnalystNative.jni_ZonalStatisticsOnRasterValue(JLjava/lang/String;JIJLjava/lang/String;JLjava/lang/String;Z)[J+0
+j  com.supermap.analyst.spatialanalyst.StatisticsAnalyst.zonalStatisticsOnRasterValue(Lcom/supermap/analyst/spatialanalyst/ZonalStatisticsAnalystParameter;[Lcom/supermap/data/SteppedListener;)Lcom/supermap/analyst/spatialanalyst/ZonalStatisticsAnalystResult;+240
+j  com.supermap.analyst.spatialanalyst.StatisticsAnalyst.zonalStatisticsOnRasterValue(Lcom/supermap/analyst/spatialanalyst/ZonalStatisticsAnalystParameter;)Lcom/supermap/analyst/spatialanalyst/ZonalStatisticsAnalystResult;+12
+j  ZonalStatisticsTest.main([Ljava/lang/String;)V+203
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x000000002b069800 JavaThread "Service Thread" daemon [_thread_blocked, id=20392, stack(0x000000002be00000,0x000000002bf00000)]
+  0x000000002afec800 JavaThread "C1 CompilerThread11" daemon [_thread_blocked, id=14568, stack(0x000000002bd00000,0x000000002be00000)]
+  0x000000002afef000 JavaThread "C1 CompilerThread10" daemon [_thread_blocked, id=19020, stack(0x000000002bc00000,0x000000002bd00000)]
+  0x000000002afec000 JavaThread "C1 CompilerThread9" daemon [_thread_blocked, id=18540, stack(0x000000002bb00000,0x000000002bc00000)]
+  0x000000002afeb000 JavaThread "C1 CompilerThread8" daemon [_thread_blocked, id=20176, stack(0x000000002ba00000,0x000000002bb00000)]
+  0x000000002afdc000 JavaThread "C2 CompilerThread7" daemon [_thread_blocked, id=10256, stack(0x000000002b900000,0x000000002ba00000)]
+  0x000000002af39800 JavaThread "C2 CompilerThread6" daemon [_thread_blocked, id=19652, stack(0x000000002b800000,0x000000002b900000)]
+  0x000000002af36800 JavaThread "C2 CompilerThread5" daemon [_thread_blocked, id=17324, stack(0x000000002b700000,0x000000002b800000)]
+  0x000000002af36000 JavaThread "C2 CompilerThread4" daemon [_thread_blocked, id=20028, stack(0x000000002b500000,0x000000002b600000)]
+  0x000000002af35000 JavaThread "C2 CompilerThread3" daemon [_thread_blocked, id=2440, stack(0x000000002b400000,0x000000002b500000)]
+  0x000000002af32800 JavaThread "C2 CompilerThread2" daemon [_thread_blocked, id=4184, stack(0x000000002b300000,0x000000002b400000)]
+  0x000000002af31800 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=18028, stack(0x000000002b200000,0x000000002b300000)]
+  0x000000002af2d000 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=20304, stack(0x000000002b100000,0x000000002b200000)]
+  0x00000000284ed800 JavaThread "JDWP Command Reader" daemon [_thread_in_native, id=19576, stack(0x000000002a800000,0x000000002a900000)]
+  0x00000000284e9800 JavaThread "JDWP Event Helper Thread" daemon [_thread_blocked, id=5048, stack(0x000000002a700000,0x000000002a800000)]
+  0x000000002848d800 JavaThread "JDWP Transport Listener: dt_socket" daemon [_thread_blocked, id=8088, stack(0x000000002a600000,0x000000002a700000)]
+  0x00000000284da000 JavaThread "Attach Listener" daemon [_thread_blocked, id=17444, stack(0x000000002a3b0000,0x000000002a4b0000)]
+  0x00000000284d9000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=6272, stack(0x000000002a2b0000,0x000000002a3b0000)]
+  0x000000002678d800 JavaThread "Finalizer" daemon [_thread_blocked, id=20740, stack(0x000000002a0b0000,0x000000002a1b0000)]
+  0x000000002678a800 JavaThread "Reference Handler" daemon [_thread_blocked, id=16508, stack(0x0000000029fb0000,0x000000002a0b0000)]
+=>0x0000000002f53800 JavaThread "main" [_thread_in_native, id=12260, stack(0x0000000002e50000,0x0000000002f50000)]
+
+Other Threads:
+  0x0000000028435800 VMThread [stack: 0x0000000029eb0000,0x0000000029fb0000] [id=11372]
+  0x000000002af73000 WatcherThread [stack: 0x000000002bf00000,0x000000002c000000] [id=20856]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap:
+ PSYoungGen      total 152576K, used 78726K [0x0000000716900000, 0x0000000721300000, 0x00000007c0000000)
+  eden space 131072K, 60% used [0x0000000716900000,0x000000071b5e1990,0x000000071e900000)
+  from space 21504K, 0% used [0x000000071fe00000,0x000000071fe00000,0x0000000721300000)
+  to   space 21504K, 0% used [0x000000071e900000,0x000000071e900000,0x000000071fe00000)
+ ParOldGen       total 348160K, used 0K [0x00000005c3a00000, 0x00000005d8e00000, 0x0000000716900000)
+  object space 348160K, 0% used [0x00000005c3a00000,0x00000005c3a00000,0x00000005d8e00000)
+ Metaspace       used 9865K, capacity 10056K, committed 10368K, reserved 1058816K
+  class space    used 996K, capacity 1091K, committed 1152K, reserved 1048576K
+
+Card table byte_map: [0x00000000125e0000,0x00000000135d0000] byte_map_base: 0x000000000f7c3000
+
+Marking Bits: (ParMarkBitMap*) 0x000000006eb24040
+ Begin Bits: [0x0000000014f70000, 0x000000001ce88000)
+ End Bits:   [0x000000001ce88000, 0x0000000024da0000)
+
+Polling page: 0x0000000000a80000
+
+CodeCache: size=245760Kb used=5743Kb max_used=5743Kb free=240016Kb
+ bounds [0x0000000003220000, 0x00000000037c0000, 0x0000000012220000]
+ total_blobs=1318 nmethods=950 adapters=286
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 7.257 Thread 0x000000002afec000 nmethod 947 0x00000000037b8910 code [0x00000000037b8a60, 0x00000000037b8b70]
+Event: 7.257 Thread 0x000000002afec000  949       3       java.lang.reflect.Modifier::isFinal (13 bytes)
+Event: 7.257 Thread 0x000000002afeb000 nmethod 944 0x00000000037b8bd0 code [0x00000000037b8d40, 0x00000000037b8f88]
+Event: 7.257 Thread 0x000000002afeb000  948       1       com.supermap.data.Enum::value (5 bytes)
+Event: 7.257 Thread 0x000000002afeb000 nmethod 948 0x00000000037b9050 code [0x00000000037b91a0, 0x00000000037b92b0]
+Event: 7.257 Thread 0x000000002afef000 nmethod 945 0x00000000037b9310 code [0x00000000037b9480, 0x00000000037b97d0]
+Event: 7.257 Thread 0x000000002afec000 nmethod 949 0x00000000037b9990 code [0x00000000037b9ae0, 0x00000000037b9c70]
+Event: 7.257 Thread 0x000000002afec800 nmethod 950 0x00000000037b9cd0 code [0x00000000037b9e40, 0x00000000037ba050]
+Event: 7.258 Thread 0x000000002afeb000  951  s    3       java.util.Vector::elementAt (48 bytes)
+Event: 7.258 Thread 0x000000002afeb000 nmethod 951 0x00000000037ba750 code [0x00000000037ba960, 0x00000000037bb508]
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (3 events):
+Event: 0.457 Thread 0x0000000002f53800 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00000000035e4ec4 method=java.io.WinNTFileSystem.normalize(Ljava/lang/String;)Ljava/lang/String; @ 128
+Event: 5.624 Thread 0x0000000002f53800 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00000000035319cc method=org.eclipse.jdt.launching.internal.org.objectweb.asm.ClassReader.readUtf(II[C)Ljava/lang/String; @ 41
+Event: 5.709 Thread 0x0000000002f53800 Uncommon trap: reason=unstable_if action=reinterpret pc=0x000000000366dc44 method=org.eclipse.jdt.launching.internal.org.objectweb.asm.ByteVector.putShort(I)Lorg/eclipse/jdt/launching/internal/org/objectweb/asm/ByteVector; @ 13
+
+Internal exceptions (10 events):
+Event: 0.259 Thread 0x0000000002f53800 Exception <a 'java/security/PrivilegedActionException'> (0x00000007171244d8) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\jvm.cpp, line 1382]
+Event: 0.259 Thread 0x0000000002f53800 Exception <a 'java/security/PrivilegedActionException'> (0x0000000717124690) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\jvm.cpp, line 1382]
+Event: 0.437 Thread 0x0000000002f53800 Exception <a 'java/lang/NoSuchFieldError': method resolution failed> (0x0000000718287f88) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\methodHandles.cpp, line 1125]
+Event: 0.439 Thread 0x0000000002f53800 Exception <a 'java/lang/NoSuchFieldError': method resolution failed> (0x00000007182970f0) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\methodHandles.cpp, line 1125]
+Event: 0.445 Thread 0x0000000002f53800 Exception <a 'java/security/PrivilegedActionException'> (0x00000007185c0788) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\jvm.cpp, line 1382]
+Event: 0.445 Thread 0x0000000002f53800 Exception <a 'java/security/PrivilegedActionException'> (0x00000007185c0940) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\jvm.cpp, line 1382]
+Event: 0.446 Thread 0x0000000002f53800 Exception <a 'java/security/PrivilegedActionException'> (0x00000007185c3140) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\jvm.cpp, line 1382]
+Event: 0.446 Thread 0x0000000002f53800 Exception <a 'java/security/PrivilegedActionException'> (0x00000007185c32f8) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\jvm.cpp, line 1382]
+Event: 0.451 Thread 0x0000000002f53800 Exception <a 'java/io/FileNotFoundException'> (0x0000000718610bb8) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\prims\jni.cpp, line 709]
+Event: 5.614 Thread 0x0000000002f53800 Exception <a 'java/lang/NoClassDefFoundError': supermap/shaded/org/slf4j/impl/StaticLoggerBinder> (0x0000000718801960) thrown at [C:\re\workspace\8-2-build-windows-amd64-cygwin\jdk8u45\3627\hotspot\src\share\vm\classfile\systemDictionary.cpp, line 199]
+
+Events (10 events):
+Event: 27.016 loading class com/supermap/data/DatasetsNative
+Event: 27.016 loading class com/supermap/data/DatasetsNative done
+Event: 27.025 loading class com/supermap/analyst/spatialanalyst/InternalHandle
+Event: 27.025 loading class com/supermap/analyst/spatialanalyst/InternalHandle done
+Event: 27.034 loading class com/supermap/analyst/spatialanalyst/InternalEnum
+Event: 27.034 loading class com/supermap/analyst/spatialanalyst/InternalEnum done
+Event: 27.043 loading class com/supermap/analyst/spatialanalyst/StatisticsAnalystNative
+Event: 27.043 loading class com/supermap/analyst/spatialanalyst/StatisticsAnalystNative done
+Event: 30.979 loading class com/supermap/data/SteppedEvent
+Event: 30.979 loading class com/supermap/data/SteppedEvent done
+
+
+Dynamic libraries:
+0x00007ff6a1ea0000 - 0x00007ff6a1ed7000 	D:\Java\8.0\jdk1.8.0_45\bin\javaw.exe
+0x00007ff9c4c10000 - 0x00007ff9c4e08000 	C:\Windows\SYSTEM32\ntdll.dll
+0x00007ff9c3810000 - 0x00007ff9c38cd000 	C:\Windows\System32\KERNEL32.DLL
+0x00007ff9c2570000 - 0x00007ff9c283e000 	C:\Windows\System32\KERNELBASE.dll
+0x00007ff9c3f70000 - 0x00007ff9c401e000 	C:\Windows\System32\ADVAPI32.dll
+0x00007ff9c4b30000 - 0x00007ff9c4bce000 	C:\Windows\System32\msvcrt.dll
+0x00007ff9c2da0000 - 0x00007ff9c2e3c000 	C:\Windows\System32\sechost.dll
+0x00007ff9c49d0000 - 0x00007ff9c4af5000 	C:\Windows\System32\RPCRT4.dll
+0x00007ff9c4040000 - 0x00007ff9c41e0000 	C:\Windows\System32\USER32.dll
+0x00007ff9c2bd0000 - 0x00007ff9c2bf2000 	C:\Windows\System32\win32u.dll
+0x00007ff9c4b00000 - 0x00007ff9c4b2a000 	C:\Windows\System32\GDI32.dll
+0x00007ff9c2330000 - 0x00007ff9c243b000 	C:\Windows\System32\gdi32full.dll
+0x00007ff9c2440000 - 0x00007ff9c24dd000 	C:\Windows\System32\msvcp_win.dll
+0x00007ff9c2840000 - 0x00007ff9c2940000 	C:\Windows\System32\ucrtbase.dll
+0x00007ff9b6880000 - 0x00007ff9b6b1a000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.19041.1110_none_60b5254171f9507e\COMCTL32.dll
+0x00007ff9c3e20000 - 0x00007ff9c3e50000 	C:\Windows\System32\IMM32.DLL
+0x000000006d870000 - 0x000000006d942000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\msvcr100.dll
+0x000000006e320000 - 0x000000006eba3000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\server\jvm.dll
+0x00007ff9c2c70000 - 0x00007ff9c2c78000 	C:\Windows\System32\PSAPI.DLL
+0x00007ff997660000 - 0x00007ff997669000 	C:\Windows\SYSTEM32\WSOCK32.dll
+0x00007ff9c3db0000 - 0x00007ff9c3e1b000 	C:\Windows\System32\WS2_32.dll
+0x00007ff9bb2e0000 - 0x00007ff9bb307000 	C:\Windows\SYSTEM32\WINMM.dll
+0x00007ff9bc0d0000 - 0x00007ff9bc0da000 	C:\Windows\SYSTEM32\VERSION.dll
+0x000000006f6e0000 - 0x000000006f6ef000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\verify.dll
+0x000000006f6b0000 - 0x000000006f6d9000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\java.dll
+0x000000006d830000 - 0x000000006d865000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\jdwp.dll
+0x000000006d820000 - 0x000000006d828000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\npt.dll
+0x000000006d650000 - 0x000000006d673000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\instrument.dll
+0x000000006f690000 - 0x000000006f6a6000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\zip.dll
+0x00007ff9c3010000 - 0x00007ff9c3754000 	C:\Windows\System32\SHELL32.dll
+0x00007ff9c0450000 - 0x00007ff9c0be4000 	C:\Windows\SYSTEM32\windows.storage.dll
+0x00007ff9c3a50000 - 0x00007ff9c3da4000 	C:\Windows\System32\combase.dll
+0x00007ff9c1d90000 - 0x00007ff9c1dc0000 	C:\Windows\SYSTEM32\Wldp.dll
+0x00007ff9c3760000 - 0x00007ff9c380d000 	C:\Windows\System32\SHCORE.dll
+0x00007ff9c2d40000 - 0x00007ff9c2d95000 	C:\Windows\System32\shlwapi.dll
+0x00007ff9c2270000 - 0x00007ff9c228f000 	C:\Windows\SYSTEM32\profapi.dll
+0x000000006d640000 - 0x000000006d649000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\dt_socket.dll
+0x00007ff988310000 - 0x00007ff988327000 	C:\Windows\system32\napinsp.dll
+0x00007ff9882f0000 - 0x00007ff98830b000 	C:\Windows\system32\pnrpnsp.dll
+0x00007ff9ad3d0000 - 0x00007ff9ad3e5000 	C:\Windows\system32\wshbth.dll
+0x00007ff9bdf90000 - 0x00007ff9bdfad000 	C:\Windows\system32\NLAapi.dll
+0x00007ff9c1790000 - 0x00007ff9c17cb000 	C:\Windows\SYSTEM32\IPHLPAPI.DLL
+0x00007ff9c1af0000 - 0x00007ff9c1b5a000 	C:\Windows\System32\mswsock.dll
+0x00007ff9c17d0000 - 0x00007ff9c189b000 	C:\Windows\SYSTEM32\DNSAPI.dll
+0x00007ff9c3000000 - 0x00007ff9c3008000 	C:\Windows\System32\NSI.dll
+0x00007ff988260000 - 0x00007ff988272000 	C:\Windows\System32\winrnr.dll
+0x000000006f590000 - 0x000000006f5b6000 	C:\Program Files\Bonjour\mdnsNSP.dll
+0x00007ff9b9c40000 - 0x00007ff9b9cc0000 	C:\Windows\System32\fwpuclnt.dll
+0x00007ff9c2ba0000 - 0x00007ff9c2bc7000 	C:\Windows\System32\bcrypt.dll
+0x00007ff9bbe20000 - 0x00007ff9bbe2a000 	C:\Windows\System32\rasadhlp.dll
+0x000000006d680000 - 0x000000006d818000 	D:\Java\8.0\jdk1.8.0_45\jre\bin\awt.dll
+0x00007ff9c38d0000 - 0x00007ff9c399d000 	C:\Windows\System32\OLEAUT32.dll
+0x00007ff9bfb90000 - 0x00007ff9bfc20000 	C:\Windows\SYSTEM32\apphelp.dll
+0x00007ff93bb40000 - 0x00007ff93bcef000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\WrapjCore.dll
+0x00007ff9a3ad0000 - 0x00007ff9a3b5d000 	C:\Windows\SYSTEM32\MSVCP140.dll
+0x0000000180000000 - 0x0000000180038000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuBase.dll
+0x00007ff9a4620000 - 0x00007ff9a463b000 	C:\Windows\SYSTEM32\VCRUNTIME140.dll
+0x00007ff9a42a0000 - 0x00007ff9a42ac000 	C:\Windows\SYSTEM32\VCRUNTIME140_1.dll
+0x00007ff98fc50000 - 0x00007ff98fc6b000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuTileStorage.dll
+0x000000006d110000 - 0x000000006d63c000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\Qt5Core.dll
+0x00007ff9c43a0000 - 0x00007ff9c44ca000 	C:\Windows\System32\ole32.dll
+0x00007ff9b6b20000 - 0x00007ff9b6b3d000 	C:\Windows\SYSTEM32\MPR.dll
+0x00007ff98fab0000 - 0x00007ff98fac9000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\zlib.dll
+0x000000002a4b0000 - 0x000000002a4e3000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuStream.dll
+0x000000002e180000 - 0x000000002e316000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuToolkit.dll
+0x000000002e320000 - 0x000000002e3a6000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuProjection.dll
+0x000000002a4f0000 - 0x000000002a512000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuElement.dll
+0x000000002e3b0000 - 0x000000002e46c000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeometryCAD.geo
+0x000000002e480000 - 0x000000002e58e000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeometry.dll
+0x000000002e590000 - 0x000000002e6ed000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuAlgorithm.dll
+0x000000002e6f0000 - 0x000000002e714000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuOGDC.dll
+0x000000002e730000 - 0x000000002e86c000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeoOperation.dll
+0x000000002e880000 - 0x000000002e8a4000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuSpatialIndex.dll
+0x000000002e8e0000 - 0x000000002e9f7000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuFileParser.dll
+0x000000002ea10000 - 0x000000002ea5c000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuParticleSystem.dll
+0x000000002ea60000 - 0x000000002ebc2000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGraphics3D.dll
+0x000000002edc0000 - 0x000000002ef88000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuEngine.dll
+0x000000002ebd0000 - 0x000000002eda8000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeometry3D.geo
+0x000000002efa0000 - 0x000000002f057000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuSymbol.dll
+0x000000002f080000 - 0x000000002f196000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGraphics.dll
+0x000000002f1a0000 - 0x000000002f25f000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuDataExchange.dll
+0x000000002f270000 - 0x000000002f9b7000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuBase3D.dll
+0x000000002f9d0000 - 0x000000002fa61000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuRepresentation.dll
+0x000000002fa80000 - 0x000000002faa6000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuWrapc.dll
+0x000000002fac0000 - 0x000000002fb3f000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuWorkspace.dll
+0x000000002fb60000 - 0x000000002fbcb000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeometryConverter.dll
+0x000000002fbd0000 - 0x000000002fc59000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuMosaic.dll
+0x00007ff945c60000 - 0x00007ff945d49000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\libiconv.dll
+0x00007ff98f600000 - 0x00007ff98f62d000 	C:\Windows\SYSTEM32\VCOMP140.DLL
+0x00007ff9aad60000 - 0x00007ff9aad7a000 	C:\Windows\SYSTEM32\NETAPI32.dll
+0x00007ff98f6f0000 - 0x00007ff98f701000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\libImageOperator.dll
+0x00007ff93a540000 - 0x00007ff93a690000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuChartToolkit.dll
+0x00007ff93ea20000 - 0x00007ff93eb53000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\geos352.dll
+0x00007ff98ae90000 - 0x00007ff98af64000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\MSVCR110.dll
+0x000000002fce0000 - 0x000000002fd3e000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuNetToolkit.dll
+0x000000002fd50000 - 0x000000002fe74000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\liblzmafile.dll
+0x000000002fe80000 - 0x000000002fedd000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuChartBase.dll
+0x000000002fee0000 - 0x000000002ff04000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuCompactFile.dll
+0x000000002ff10000 - 0x0000000030015000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuTopoBuilder.dll
+0x0000000030040000 - 0x00000000300e8000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuSpatialQuery.dll
+0x00000000300f0000 - 0x00000000301a1000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuAlgorithm3D.dll
+0x00000000301d0000 - 0x00000000306a9000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeometryPlot.geo
+0x00000000306c0000 - 0x00000000307bf000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuDataCheck.dll
+0x00000000307c0000 - 0x00000000308c9000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuTopoBase.dll
+0x0000000030910000 - 0x000000003095d000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuToolkit3D.dll
+0x00007ff93a340000 - 0x00007ff93a532000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\sqlite328.dll
+0x00007ff939b50000 - 0x00007ff93a335000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\spatialite.dll
+0x00007ff98be00000 - 0x00007ff98be4c000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\geos352_c.dll
+0x00007ff939a00000 - 0x00007ff939b49000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\libxml2.dll
+0x00007ff9c1ce0000 - 0x00007ff9c1cec000 	C:\Windows\SYSTEM32\CRYPTBASE.DLL
+0x00007ff9c24e0000 - 0x00007ff9c2562000 	C:\Windows\System32\bcryptPrimitives.dll
+0x0000000030b70000 - 0x0000000030b90000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuNetToolkitCurl.cul
+0x00007ff97a1b0000 - 0x00007ff97a230000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\libcurl.dll
+0x00007ff9c2c80000 - 0x00007ff9c2cd6000 	C:\Windows\System32\WLDAP32.dll
+0x00007ff9c2990000 - 0x00007ff9c2ae6000 	C:\Windows\System32\CRYPT32.dll
+0x00007ff9c41e0000 - 0x00007ff9c41e8000 	C:\Windows\System32\Normaliz.dll
+0x00007ff9a49e0000 - 0x00007ff9a49ec000 	C:\Windows\SYSTEM32\secur32.dll
+0x00007ff9c21f0000 - 0x00007ff9c2222000 	C:\Windows\SYSTEM32\SSPICLI.DLL
+0x00007ff939880000 - 0x00007ff9399f1000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\WrapjAnalyst.dll
+0x00007ff939710000 - 0x00007ff939879000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuStatisticsAnalyst.dll
+0x00007ff9395c0000 - 0x00007ff939705000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuSchematic.dll
+0x0000000030bd0000 - 0x0000000030caf000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuOverlay.dll
+0x0000000030cc0000 - 0x0000000030d1b000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuProximity.dll
+0x00000000314a0000 - 0x00000000314f9000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuRectify.dll
+0x0000000031500000 - 0x0000000031660000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeoCode.dll
+0x0000000031660000 - 0x0000000031724000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuNetworkEnvironment.dll
+0x0000000031730000 - 0x000000003196e000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuGeneralization.dll
+0x0000000031980000 - 0x0000000031aa2000 	D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin\SuPathAnalyst.dll
+
+VM Arguments:
+jvm_args: -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:55474 -javaagent:D:\Project\sabang\eGovFrameDev-3.10.0-64bit\eclipse\configuration\org.eclipse.osgi\413\0\.cp\lib\javaagent-shaded.jar -Dfile.encoding=UTF-8 
+java_command: ZonalStatisticsTest
+java_class_path (initial): D:\Project\sabang\eGovFrameDev-3.10.0-64bit\workspace\sabang\target\classes;C:\Users\ygjung\.m2\repository\egovframework\rte\egovframework.rte.ptl.mvc\3.10.0\egovframework.rte.ptl.mvc-3.10.0.jar;C:\Users\ygjung\.m2\repository\egovframework\rte\egovframework.rte.fdl.cmmn\3.10.0\egovframework.rte.fdl.cmmn-3.10.0.jar;C:\Users\ygjung\.m2\repository\org\aspectj\aspectjweaver\1.8.14\aspectjweaver-1.8.14.jar;C:\Users\ygjung\.m2\repository\org\aspectj\aspectjrt\1.8.14\aspectjrt-1.8.14.jar;C:\Users\ygjung\.m2\repository\org\apache\commons\commons-lang3\3.8.1\commons-lang3-3.8.1.jar;C:\Users\ygjung\.m2\repository\org\springframework\spring-webmvc\4.3.25.RELEASE\spring-webmvc-4.3.25.RELEASE.jar;C:\Users\ygjung\.m2\repository\org\springframework\spring-expression\4.3.25.RELEASE\spring-expression-4.3.25.RELEASE.jar;C:\Users\ygjung\.m2\repository\org\springmodules\spring-modules-validation\0.9\spring-modules-validation-0.9.jar;C:\Users\ygjung\.m2\repository\commons-validator\commons-validator\1.6\commons-validator-1.6.jar;C:\Users\ygjung\.m2\repository\commons-beanutils\commons-beanutils\1.9.2\commons-beanutils-1.9.2.jar;C:\Users\ygjung\.m2\repository\commons-digester\commons-digester\1.8.1\commons-digester-1.8.1.jar;C:\Users\ygjung\.m2\repository\egovframework\rte\egovframework.rte.psl.dataaccess\3.10.0\egovframework.rte.psl.dataaccess-3.10.0.jar;C:\Users\ygjung\.m2\repository\egovframework\rte\egovframework.rte.fdl.logging\3.10.0\egovframework.rte.fdl.logging-3.10.0.jar;C:\Users\ygjung\.m2\repository\org\apache\logging\log4j\log4j-core\2.12.4\log4j-core-2.12.4.jar;C:\Users\ygjung\.m2\repository\org\apache\logging\log4j\log4j-api\2.12.4\log4j-api-2.12.4.jar;C:\Users\ygjung\.m2\repository\org\apache\logging\log4j\log4j-slf4j-impl\2.12.4\log4j-slf4j-impl-2.12.4.jar;C:\Users\ygjung\.m2\repository\org\slf4j\jcl-over-slf4j\1.7.30\jcl-over-slf4j-1.7.30.jar;C:\Users\ygjung\.m2\repository\org\slf4j\log4j-over-slf4j\1.7.30\log4j-over-slf4j-1.7.30.jar;C:\Users
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=D:\Java\8.0\jdk1.8.0_45
+PATH=D:\Java\8.0\jdk1.8.0_45\jre\bin;D:/Java/8.0/jdk1.8.0_45/bin/../jre/bin/server;D:/Java/8.0/jdk1.8.0_45/bin/../jre/bin;D:/Java/8.0/jdk1.8.0_45/bin/../jre/lib/amd64;C:\Program Files (x86)\Windows Resource Kits\Tools\;D:\oracle\product\11.2.0\client_32;D:\oracle\product\11.2.0\client_64;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;D:\Java\8.0\jdk1.8.0_45\bin;C:\Program Files\PuTTY\;C:\Program Files (x86)\Clipsoft\CLIP report 4.0\jre\bin;C:\Program Files (x86)\PuTTY\;D:\Project\sabang\eGovFrameDev-3.10.0-64bit\supermap-iobjectsjava-10.2.0-20128-90283-win64-all-Bin\Bin;C:\Users\ygjung\AppData\Local\Microsoft\WindowsApps;;D:\Project\sabang\eGovFrameDev-3.10.0-64bit\eclipse;
+USERNAME=ygjung
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 151 Stepping 2, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 10.0 , 64 bit Build 19041 (10.0.19041.1806)
+
+CPU:total 20 (10 cores per cpu, 2 threads per core) family 6 model 151 stepping 2, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, 3dnowpref, lzcnt, ht, tsc, tscinvbit, bmi1, bmi2, adx
+
+Memory: 4k page, physical 33310220k(15218492k free), swap 50067612k(21303948k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (25.45-b02) for windows-amd64 JRE (1.8.0_45-b15), built on Apr 30 2015 12:40:44 by "java_re" with MS VC++ 10.0 (VS2010)
+
+time: Wed Aug 10 15:19:50 2022
+elapsed time: 82 seconds (0d 0h 1m 22s)
+

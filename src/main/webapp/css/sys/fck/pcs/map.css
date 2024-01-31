@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+
+.WkaBoardDetail table td {
+/*     font-size: 12px; */
+}
+.BoardDetail table th {
+	height : 50px;
+ 	line-height: 130%;
+    font-size: 13px;
+}

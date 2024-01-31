@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="analServiceDAO">
+	
+	<update id="updateWaterShedAnalId">
+		UPDATE TN_FEIS_ANALFILE
+			SET ANAL_ID = #{analId}
+		WHERE MST_ID = #{mstId}
+		AND SLD_ID = #{sldId}
+		AND ANAL_TYPE = '유역분석'
+	</update>
+	
+	<insert id="insertEcrtcnlGeom">
+		INSERT INTO TF_FEIS_ECRTCNL
+		(SMGEOMETRY,MST_ID,SLD_ID,ANAL_ID,SVY_TYPE,CREAT_USER,CREAT_DT)
+		VALUES
+		(
+			ST_GEOMFROMTEXT(#{ecrtcnlWkt},5186)
+			, #{mstId}
+			, #{sldId}
+			, #{analId}
+			, #{svyType}
+			, #{creatUser}
+			, now()
+		)
+		ON CONFLICT ON CONSTRAINT TF_FEIS_ECRTCNL_UN
+		DO UPDATE
+		SET SMGEOMETRY = ST_GEOMFROMTEXT(#{ecrtcnlWkt},5186)
+			, CREAT_USER = #{creatUser}
+	</insert>
+	
+	<update id="updateEcrtcnlGeom">
+		UPDATE TF_FEIS_ECRTCNL
+			SET ANAL_ID = #{analId}
+		WHERE MST_ID = #{mstId}
+		AND SLD_ID = #{sldId}
+		AND ANAL_ID = #{oldAnalId}
+	</update>
+	
+	<insert id="insertWaterShedGeom">
+		INSERT INTO TF_FEIS_WATERSHED
+		(SMGEOMETRY,MST_ID,SLD_ID,ANAL_ID,SVY_TYPE,CREAT_USER,CREAT_DT)
+		VALUES
+		(
+			ST_GEOMFROMTEXT(#{waterShedWkt},5186)
+			, #{mstId}
+			, #{sldId}
+			, #{analId}
+			, #{svyType}
+			, #{creatUser}
+			, now()
+		)
+	</insert>
+	
+    <insert id="insertAnalFile">
+        INSERT INTO TN_FEIS_ANALFILE
+		( MST_ID,SLD_ID,FILE_EXTSN,FILE_SIZE,FILE_STRE_COURS,STRE_FILE_NM,ORIGNL_FILE_NM,ANAL_TYPE,ANAL_ID,CREAT_USER,STAT_DATA )
+		VALUES
+		(
+			#{mstId}
+			, #{sldId}
+			, #{fileExtsn}
+			, CAST(#{fileSize} AS INT)
+			, #{fileStreCours}
+			, #{streFileNm}
+			, #{orignlFileNm}
+			, #{analType}
+			, #{analId}
+			, #{creatUser}
+			, #{statData}
+		)
+		ON CONFLICT (MST_ID,SLD_ID,ANAL_TYPE,FILE_EXTSN)
+		DO UPDATE
+		SET 
+			MST_ID = #{mstId}
+			, SLD_ID = #{sldId}
+			, FILE_EXTSN = #{fileExtsn}
+			, FILE_SIZE = CAST(#{fileSize} AS INT)
+			, FILE_STRE_COURS = #{fileStreCours}
+			, STRE_FILE_NM = #{streFileNm}
+			, ORIGNL_FILE_NM = #{orignlFileNm}
+			, ANAL_TYPE = #{analType}
+			, ANAL_ID = #{analId}
+			, CREAT_USER = #{creatUser}
+			, STAT_DATA = #{statData}
+    </insert>
+    
+    <select id="selectAnalFileDownDetail" resultType="or.sabang.sys.gis.service.AnalFileVO" parameterType="string">
+    	SELECT 
+    		  GID AS gid
+    		, MST_ID AS mstId
+    		, SLD_ID AS sldId
+    		, ANAL_ID AS analId
+    		, FILE_STRE_COURS AS fileStreCours
+    		, STRE_FILE_NM AS streFileNm
+    		, ORIGNL_FILE_NM AS orignlFileNm
+    		, FILE_EXTSN AS fileExtsn
+    		, FILE_SIZE AS fileSize
+    		, ANAL_TYPE AS analType
+    		, TO_CHAR(CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS creatDt
+    		, CREAT_USER AS creatUser
+    	FROM TN_FEIS_ANALFILE
+    	WHERE GID = CAST(#{sn} AS INTEGER)
+    </select>
+    
+    <select id="selectIntersectAdminCode" resultType="String">
+    	SELECT
+    		A1
+    	FROM TF_FEIS_LGSTR
+    	WHERE ST_INTERSECTS(SMGEOMETRY,
+    		(
+    			SELECT
+	    			SMGEOMETRY
+	    		FROM TF_FEIS_ECRTCNL
+	    		WHERE MST_ID = #{mstId}
+	    		AND SLD_ID = #{sldId}
+	    		AND ANAL_ID = #{analId}
+    		)
+    	)
+    </select>
+    
+    <select id="selectEcrtcnlLonLatText" resultType="String">
+    	SELECT
+    		SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(SMGEOMETRY ,4326), 'D°M''S.SS"'),' ',2)||' '||SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(SMGEOMETRY ,4326), 'D°M''S.SS"'),' ',1)
+    	FROM TF_FEIS_ECRTCNL
+    	WHERE MST_ID = #{mstId}
+		AND SLD_ID = #{sldId}
+		AND ANAL_ID = #{analId}
+    </select>
+    
+    <delete id="deleteMntnTrnt" parameterType="java.util.Map">
+    	<![CDATA[
+      	    DELETE FROM TF_FEIS_MNTNTRNT
+      	    WHERE ANAL_ID = #{analId}
+      	]]>
+    </delete>
+</mapper>

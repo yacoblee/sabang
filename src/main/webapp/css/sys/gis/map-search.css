@@ -1,0 +1,71 @@
+/*조사관련 CSS*/
+
+/* 2023.08.16 추가 S*/
+.acc-container input[type=text]:not(.topsearch > input) {
+    height: 30px;
+}
+.acc-container input[type=date]{
+    font-size: 13px;
+    height: 30px;
+    border: 1px solid #ccc;
+}
+
+.acc-container select {
+    width: 71%;
+    font-size: 13px;
+    height: 30px;
+}
+
+.acc-container ul ul li input+label,
+.acc-container ul ul li select+label {
+	min-width: 70px;
+	margin-left: .5em;
+}
+
+.acc-container label+input[type=date],
+.acc-container label+select {
+	margin-left: 0.8em;
+}
+.acc-container label+input[type=text]:not(.topsearch > input) {
+	margin-left:0.8em;
+	height: 30px;
+}
+.acc-container select+input[type=text] {
+	margin-left:0.5em;
+}
+.acc-container .w2{
+    width: 32% !important;
+}
+.acc-container .w2-t{
+    width: 32% !important;
+    margin-left: 0 !important;
+}
+.acc-container .w3{
+    width: 20% !important;
+}
+.acc-container .w3-t{
+    width: 20% !important;
+    margin-left: 0 !important;
+}
+.acc-container .w4{
+    width: 16% !important;
+}
+.acc-container .w4-t{
+    width: 16% !important;
+    margin-left: 0 !important;
+}
+.acc-container-detail li > div{
+	padding: 5px 20px !important;
+}
+/*상세조회 패널 활성화*/
+.ExmnBtnDetail.on { background-color: #1f4d9c; }
+
+/*조사 조회 관련 */
+.search_contents div {
+	padding: 5px;
+}
+
+.search_result {
+	min-height: 400px;
+}
+/* 2023.08.16 추가 E*/

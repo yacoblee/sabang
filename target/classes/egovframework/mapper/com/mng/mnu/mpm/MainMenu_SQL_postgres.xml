@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="menuManageDAO">
+	
+	<select id="selectMainMenuHead" parameterType="or.sabang.mng.mnu.mpm.service.MenuManageVO" resultType="string">
+		 	SELECT ARRAY_TO_JSON(ARRAY_AGG(FC)) AS RESULT
+			FROM (
+	            SELECT
+				      B.MENU_NO AS "menuNo"
+					, B.MENU_ORDR AS "menuOrdr"
+					, B.MENU_NM AS "menuNm"
+					, B.UPPER_MENU_NO AS "upperMenuId"
+					, B.MENU_DC AS "menuDc"
+					, B.RELATE_IMAGE_PATH AS "relateImagePath"
+					, B.RELATE_IMAGE_NM AS "relateImageNm"
+					, B.PROGRM_FILE_NM AS "progrmFileNm"
+					, (SELECT C.URL FROM TN_FEIS_PROGRMLIST C WHERE B.PROGRM_FILE_NM = C.PROGRM_FILE_NM) AS "chkURL"
+				FROM TN_FEIS_MENUCREATDTLS A, TN_FEIS_MENUINFO B 
+				WHERE  B.Menu_NO between 0 and 8999999
+<!-- 				AND    B.UPPER_MENU_NO IN (0,1000000,2000000,3000000,4000000,5000000,6000000,7000000,8000000)   -->
+				AND    A.MENU_NO  = B.MENU_NO 
+				AND    A.AUTHOR_CODE = (SELECT C.AUTHOR_CODE from TN_FEIS_EMPLYRSCRTYESTBS C
+		                                WHERE  C.SCRTY_DTRMN_TRGET_ID = #{tmpUniqId})
+				ORDER BY B.MENU_NO
+			) AS FC
+		 
+	</select>
+
+	<select id="selectMainMenuLeft" parameterType="or.sabang.mng.mnu.mpm.service.MenuManageVO" resultType="egovMap">
+		 
+			SELECT
+			       B.MENU_NO AS "menuNo"
+				 , B.MENU_ORDR AS "menuOrdr"
+				 , B.MENU_NM AS "menuNm"
+				 , B.UPPER_MENU_NO AS "upperMenuId"
+				 , B.RELATE_IMAGE_PATH AS "relateImagePath"
+				 , B.RELATE_IMAGE_NM AS "relateImageNm"
+				 , (SELECT C.URL FROM TN_FEIS_PROGRMLIST C WHERE B.PROGRM_FILE_NM = C.PROGRM_FILE_NM) AS "chkURL"	
+			FROM   TN_FEIS_MENUCREATDTLS A, TN_FEIS_MENUINFO B
+			WHERE  A.MENU_NO  = B.MENU_NO 
+			AND    A.AUTHOR_CODE = (SELECT AUTHOR_CODE from TN_FEIS_EMPLYRSCRTYESTBS
+	                                WHERE  SCRTY_DTRMN_TRGET_ID = #{tmpUniqId})
+			ORDER BY B.MENU_NO
+		 
+	</select>
+
+	<select id="selectLastMenuURL" parameterType="or.sabang.mng.mnu.mpm.service.MenuManageVO" resultType="String">
+		 
+			SELECT URL 
+			FROM   TN_FEIS_PROGRMLIST
+			WHERE  PROGRM_FILE_NM =
+			       (SELECT PROGRM_FILE_NM FROM TN_FEIS_MENUINFO
+				    WHERE MENU_NO = #{menuNo})
+		 
+	</select>
+
+	<select id="selectLastMenuNo" parameterType="or.sabang.mng.mnu.mpm.service.MenuManageVO" resultType="int">
+		 
+			select MIN(MENU_NO) 
+			from   TN_FEIS_MENUINFO
+			where  UPPER_MENU_NO = #{menuNo}
+			and    MENU_ORDR =
+			      (select MIN(MENU_ORDR) 
+			       from TN_FEIS_MENUCREATDTLS A, TN_FEIS_MENUINFO B
+			       where A.MENU_NO = B.MENU_NO
+			       AND   A.AUTHOR_CODE = (SELECT AUTHOR_CODE from TN_FEIS_EMPLYRSCRTYESTBS
+	                                      WHERE  SCRTY_DTRMN_TRGET_ID = #{tempValue})
+			       AND   B.UPPER_MENU_NO = #{menuNo})
+		 
+	</select>
+
+	<select id="selectLastMenuNoCnt" parameterType="or.sabang.mng.mnu.mpm.service.MenuManageVO" resultType="int">
+		 
+			select count(MENU_NO) 
+			from   TN_FEIS_MENUINFO
+			where  UPPER_MENU_NO = #{menuNo}
+			and    MENU_ORDR =
+			      (select MIN(MENU_ORDR) 
+			       from TN_FEIS_MENUCREATDTLS A, TN_FEIS_MENUINFO B
+			       where A.MENU_NO = B.MENU_NO
+			       AND   A.AUTHOR_CODE = (SELECT AUTHOR_CODE from TN_FEIS_EMPLYRSCRTYESTBS
+	                                      WHERE  SCRTY_DTRMN_TRGET_ID = #{tempValue})
+			       AND   B.UPPER_MENU_NO = #{menuNo})
+		 
+	</select>
+</mapper>

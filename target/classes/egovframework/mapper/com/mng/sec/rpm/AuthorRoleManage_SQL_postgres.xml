@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="authorRoleManageDAO">
+
+    <resultMap id="authorRole" type="or.sabang.mng.sec.rpm.service.AuthorRoleManageVO">
+        <result property="authorCode" column="AUTHOR_CODE"/>
+        <result property="authorNm" column="AUTHOR_NM"/>
+        <result property="roleCode" column="ROLE_CODE"/>
+        <result property="roleNm" column="ROLE_NM"/>
+        <result property="rolePtn" column="ROLE_PTTRN"/>
+        <result property="roleDc" column="ROLE_DC"/>
+        <result property="roleTyp" column="ROLE_TY"/>
+        <result property="roleSort" column="ROLE_SORT"/>
+        <result property="authorCode" column="AUTHOR_CODE"/>
+        <result property="regYn" column="REG_YN"/>
+        <result property="creatDt" column="CREAT_DT"/>
+    </resultMap>
+
+    <!-- <select id="selectAuthorRoleList" parameterType="or.sabang.mng.sec.ram.service.AuthorRoleManageVO" resultMap="authorRole">
+        
+            SELECT A.ROLE_CODE,
+                   A.ROLE_NM,
+                   A.ROLE_PTTRN,
+                   A.ROLE_DC,
+                   A.ROLE_TY,
+                   A.ROLE_SORT,
+                   B.AUTHOR_CODE,
+                   B.CREAT_DT,
+                   (CASE WHEN B.ROLE_CODE IS NULL THEN 'N'
+                         ELSE 'Y' 
+                     END) AS REG_YN
+              FROM TN_FEIS_ROLEINFO A 
+                   LEFT OUTER JOIN (SELECT AUTHOR_CODE , ROLE_CODE, CREAT_DT FROM TN_FEIS_AUTHORROLERELATE WHERE AUTHOR_CODE = #{searchKeyword}) B
+                ON A.ROLE_CODE = B.ROLE_CODE	
+             LIMIT #{recordCountPerPage} OFFSET #{firstIndex}	         
+        
+    </select> -->
+    <select id="selectAuthorRoleList" parameterType="or.sabang.mng.sec.rpm.service.AuthorRoleManageVO" resultMap="authorRole">
+		SELECT A.AUTHOR_CODE
+			, B.AUTHOR_NM
+			, A.ROLE_CODE
+			, C.ROLE_NM
+			, A.CREAT_DT
+		FROM TN_FEIS_AUTHORROLERELATE A 
+			INNER JOIN TN_FEIS_AUTHORINFO B
+				ON A.AUTHOR_CODE = B.AUTHOR_CODE
+			INNER JOIN TN_FEIS_ROLEINFO C 
+				ON A.ROLE_CODE = C.ROLE_CODE 
+		WHERE NOT(A.AUTHOR_CODE = 'IS_AUTHENTICATED_ANONYMOUSLY' OR A.AUTHOR_CODE = 'IS_AUTHENTICATED_REMEMBERED' OR A.AUTHOR_CODE = 'IS_AUTHENTICATED_FULLY')
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">		
+		<if test="searchCondition == 0">
+			<![CDATA[
+				AND (A.AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+					OR B.AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+					OR A.ROLE_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+					OR C.ROLE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+				)
+			]]>
+		</if>
+		<if test="searchCondition == 1">
+ 			<![CDATA[
+				AND A.AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		<if test="searchCondition == 2">
+ 			<![CDATA[
+				AND B.AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		<if test="searchCondition == 3">
+ 			<![CDATA[
+				AND A.ROLE_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		<if test="searchCondition == 4">
+ 			<![CDATA[
+				AND C.ROLE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		</if>
+		ORDER BY A.ROLE_CODE
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<select id="selectAuthorRoleListTotCnt" parameterType="or.sabang.mng.sec.rpm.service.AuthorRoleManageVO" resultType="int">
+		SELECT COUNT(*) totcnt
+		FROM TN_FEIS_AUTHORROLERELATE A 
+			INNER JOIN TN_FEIS_AUTHORINFO B
+				ON A.AUTHOR_CODE = B.AUTHOR_CODE
+			INNER JOIN TN_FEIS_ROLEINFO C 
+				ON A.ROLE_CODE = C.ROLE_CODE 
+		WHERE NOT(A.AUTHOR_CODE = 'IS_AUTHENTICATED_ANONYMOUSLY' OR A.AUTHOR_CODE = 'IS_AUTHENTICATED_REMEMBERED' OR A.AUTHOR_CODE = 'IS_AUTHENTICATED_FULLY')
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">		
+		<if test="searchCondition == 0">
+			<![CDATA[
+				AND (A.AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+					OR B.AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+					OR A.ROLE_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+					OR C.ROLE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+				)
+			]]>
+		</if>
+		<if test="searchCondition == 1">
+ 			<![CDATA[
+				AND A.AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		<if test="searchCondition == 2">
+ 			<![CDATA[
+				AND B.AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		<if test="searchCondition == 3">
+ 			<![CDATA[
+				AND A.ROLE_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		<if test="searchCondition == 4">
+ 			<![CDATA[
+				AND C.ROLE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+			]]>
+		</if>
+		</if>
+	</select>
+	
+	<!-- <select id="selectAuthorRoleListTotCnt" parameterType="or.sabang.mng.sec.ram.service.AuthorRoleManageVO" resultType="int">
+
+			SELECT COUNT(*) totcnt
+              FROM TN_FEIS_ROLEINFO A 
+                   LEFT OUTER JOIN (SELECT AUTHOR_CODE , ROLE_CODE, CREAT_DT FROM TN_FEIS_AUTHORROLERELATE WHERE AUTHOR_CODE = #{searchKeyword}) B
+                ON A.ROLE_CODE = B.ROLE_CODE
+	</select> -->
+
+    <insert id="insertAuthorRole" parameterType="or.sabang.mng.sec.rpm.service.AuthorRoleManage">
+        
+            INSERT INTO TN_FEIS_AUTHORROLERELATE 
+                  ( AUTHOR_CODE
+                  , ROLE_CODE
+                  , CREAT_DT)
+           VALUES ( #{authorCode}
+                  , #{roleCode}
+                  , NOW())
+        
+    </insert>
+
+    <delete id="deleteAuthorRole">
+        
+            DELETE FROM TN_FEIS_AUTHORROLERELATE 
+             WHERE AUTHOR_CODE=#{authorCode}
+               AND ROLE_CODE=#{roleCode}
+        
+    </delete>
+    
+</mapper>

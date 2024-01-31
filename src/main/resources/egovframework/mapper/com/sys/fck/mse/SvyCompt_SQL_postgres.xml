@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fckMseComptDAO">
+	
+	<resultMap id="fckMseComptListVO" type="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		<result property="gid" column="GID" /><!-- 고유아이디 -->	
+		<result property="mstId" column="MST_ID" /><!-- 공유방아이디 -->
+		<result property="svyId" column="SVY_ID" /><!-- 조사ID -->
+		<result property="sldid" column="SLDID" /><!-- 계측기ID -->
+		<result property="svystep" column="SVYSTEP" /><!-- 조사단계 -->
+		<result property="svyUser" column="SVY_USER" /><!-- 점검자 -->
+		<result property="svyType" column="SVY_TYPE" /><!-- 점검유형 -->
+		<result property="photoLen" column="PHOTO_LEN" /><!-- 현장사진 수 -->
+		<result property="creatDt" column="CREAT_DT" /><!-- 등록일자 -->
+		<result property="lastUpdtPnttm" column="LAST_UPDT_PNTTM" /><!-- 수정일자 -->
+	</resultMap>
+	
+	<resultMap id="fckMseComptDetailVO" type="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		<result property="gid" column="GID" /><!-- 고유아이디 -->
+		<result property="mstId" column="MSTID" /><!-- 공유방아이디 -->
+		<result property="svyId" column="SVYID" /><!-- 조사ID -->
+		<result property="sldid" column="SLDID" /><!-- 계측기ID -->
+		<result property="svyUser" column="SVYUSER" /><!-- 점검자 -->
+		<result property="loginId" column="LOGIN_ID" /><!-- 작성자ID -->
+		<result property="chkUser" column="CHK_USER" /><!-- 점검자 -->
+		<result property="svyType" column="SVY_TYPE" /><!-- 점검유형 -->
+		<result property="svystep" column="SVYSTEP" /><!-- 조사단계-->
+		<result property="eqpmntype" column="EQPMNTYPE" /><!-- 장비유형 -->
+		<result property="creatDt" column="CREAT_DT" /><!-- 등록일자 -->
+		<result property="svyLatLon" column="SVY_LATLON" /><!-- 위경도 -->
+		<result property="lon" column="LON" /><!-- 경도 -->
+		<result property="lat" column="LAT" /><!-- 위도 -->
+		<result property="px" column="PX" /><!-- 위치정보 X -->
+		<result property="py" column="PY" /><!-- 위치정보 Y -->
+		<result property="svySd" column="SD" /><!-- 시도 -->
+		<result property="svySgg" column="SGG" /><!-- 시군구 -->
+		<result property="svyEmd" column="EMD" /><!-- 읍면동 -->
+		<result property="svyRi" column="RI" /><!-- 리 -->
+		<result property="svyJibun" column="JIBUN" /><!-- 지번 -->
+		<result property="commonly" column="COMMONLY" /><!-- 속칭 -->
+		<result property="svyDt" column="SVY_DT" /><!-- 조사일 -->
+		
+		<result property="wireextchl" column="WIREEXTCHL" /><!-- 와이어신축계 채널명 -->
+		<result property="wireext" column="WIREEXT" /><!-- 와이어신축계 외관점검 -->
+		<result property="wireextper" column="WIREEXTPER" /><!-- 와이어신축계 성능점검 -->
+		<result property="licmeterchl" column="LICMETERCHL" /><!-- 지중경사계 채널명 -->
+		<result property="licmeter" column="LICMETER" /><!-- 지중경사계 외관점검 -->
+		<result property="licmeterper" column="LICMETERPER" /><!-- 지중경사계 성능점검 -->
+		<result property="gwgaugechl" column="GWGAUGECHL" /><!-- 지하수위계 채널명 -->
+		<result property="gwgauge" column="GWGAUGE" /><!-- 지하수위계 외관점검 -->
+		<result property="gwgaugeper" column="GWGAUGEPER" /><!-- 지하수위계 성능점검 -->
+		<result property="raingaugechl" column="RAINGAUGECHL" /><!-- 강우계 채널명 -->
+		<result property="raingauge" column="RAINGAUGE" /><!-- 강우계 외관점검 -->
+		<result property="raingaugeper" column="RAINGAUGEPER" /><!-- 강우계 성능점검 -->
+		<result property="strcdpmchl" column="STRCDPMCHL" /><!-- 구조물변위계 채널명 -->
+		<result property="strcdpm" column="STRCDPM" /><!-- 구조물변위계 외관점검 -->
+		<result property="strcdpmper" column="STRCDPMPER" /><!-- 구조물변위계 성능점검 -->
+		<result property="surdpmchl" column="SURDPMCHL" /><!-- 지표변위계 채널명 -->
+		<result property="surdpm" column="SURDPM" /><!-- 지표변위계 외관점검 -->
+		<result property="surdpmper" column="SURDPMPER" /><!-- 지표변위계 성능점검 -->
+		<result property="gpsgaugechl" column="GPSGAUGECHL" /><!-- GPS변위계 채널명 -->
+		<result property="gpsgauge" column="GPSGAUGE" /><!-- GPS변위계 외관점검 -->
+		<result property="gpsgaugeper" column="GPSGAUGEPER" /><!-- GPS변위계 성능점검 -->
+		<result property="gatewaychl" column="GATEWAYCHL" /><!-- 게이트웨이 채널명 -->
+		<result property="gateway" column="GATEWAY" /><!-- 게이트웨이 외관점검 -->
+		<result property="gatewayper" column="GATEWAYPER" /><!-- 게이트웨이 성능점검 -->
+		<result property="nodechl" column="NODECHL" /><!-- 노드 채널명 -->
+		<result property="node" column="NODE" /><!-- 노드 외관점검 -->
+		<result property="nodeper" column="NODEPER" /><!-- 노드 성능점검 -->
+		<result property="opinion1" column="OPINION1" /><!-- 종합의견1 -->
+		<result property="opinion2" column="OPINION2" /><!-- 종합의견2 -->
+		<result property="opinion3" column="OPINION3" /><!-- 종합의견3 -->
+		<result property="opinion4" column="OPINION4" /><!-- 종합의견4 -->
+		<result property="opinion5" column="OPINION5" /><!-- 종합의견5 -->
+		
+		<result property="owner" column="OWNER" /><!-- 소유구분 -->
+		<result property="lgllimit" column="LGLLIMIT" /><!-- 법적제한사항 -->
+		<result property="commmodemnum" column="COMMMODEMNUM" /><!-- 통신모뎀번호 -->
+		<result property="cellnum" column="CELLNUM" /><!-- 이동전화번호 -->
+		
+		<result property="photo" column="PHOTO" /><!-- 사진-->
+		<result property="photoTag" column="PHOTOTAG" /><!-- 사진태그 -->
+		<result property="lcmap" column="LCMAP" /><!-- 대상지 위치도 -->
+	</resultMap>
+	
+	<select id="selectFckMseComptList" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO" resultMap="fckMseComptListVO">
+		<![CDATA[
+			 SELECT D.*
+			 FROM(
+				 SELECT
+					DISTINCT ON (B.SLDID,B.SVYSTEP) B.SLDID AS SLDID,
+					A.GID AS GID, 
+					A.MST_ID AS MST_ID,
+				 	B.SVYID AS SVY_ID,
+				 	B.SVYSTEP AS SVYSTEP,
+					B.SVYUSER AS SVY_USER, 
+					B.SVYTYPE AS SVY_TYPE,
+				 	TO_CHAR(A.CREAT_DT,'YYYY-MM-DD') AS CREAT_DT,
+					TO_CHAR(A.LAST_UPDT_PNTTM,'YYYY-MM-DD HH24:MI:SS') AS LAST_UPDT_PNTTM
+				FROM TN_FEIS_mse_SVYCOMPT A, TN_FEIS_mse_SVYMEMO B, TN_FEIS_mse_CNRSSPCE C
+				WHERE A.GID = B.GID
+				AND A.MST_ID = C.ID
+		]]>	 
+			<if test="svystep != null and svystep != ''">	<![CDATA[ AND
+				B.SVYSTEP = #{svystep} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			) AS D
+		ORDER BY D.LAST_UPDT_PNTTM DESC 
+		LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectFckMseComptListTotCnt" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO" resultType="int">
+		<![CDATA[
+			SELECT  COUNT(DISTINCT (B.SLDID,B.SVYSTEP)) as totcnt
+			  FROM TN_FEIS_MSE_SVYCOMPT A, TN_FEIS_MSE_SVYMEMO B, TN_FEIS_MSE_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>	 
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+	
+	<select id="selectFckMseComptDetail" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO" resultMap="fckMseComptDetailVO">
+		<![CDATA[
+		SELECT B.GID
+			, B.MSTID  
+			, B.SLDID
+			, B.SVYID 
+			, B.SLDID
+			, B.EQPMNTYPE
+			, B.SVYTYPE
+			, B.SVYSTEP
+			, B.SVYUSER
+			, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(B.LON,B.LAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS LAT
+		    , SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(B.LON,B.LAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS LON
+		    , SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(B.PX,B.PY),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS PX
+		    , SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(B.PX,B.PY),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS PY
+			, B.SD
+			, B.SGG
+			, B.EMD
+			, B.RI
+			, B.JIBUN
+			, B.COMMONLY
+			, REPLACE(B.SVYDT,'-','. ') AS SVY_DT
+			, B.SVYUSER
+			, REGEXP_REPLACE(B.PHOTO::TEXT, '(gimg://|\[|]|")', '', 'g') AS PHOTO
+			, REPLACE(B.PHOTOTAG::TEXT,'gimg://','') AS PHOTOTAG
+			, B.WIREEXT::JSON->>'채널명'::TEXT AS WIREEXTCHL
+			, B.WIREEXT::JSON->>'외관점검'::TEXT AS WIREEXT
+			, B.WIREEXT::JSON->>'성능점검'::TEXT AS WIREEXTPER
+			, B.LICMETER::JSON->>'채널명'::TEXT AS LICMETERCHL
+			, B.LICMETER::JSON->>'외관점검'::TEXT AS LICMETER
+			, B.LICMETER::JSON->>'성능점검'::TEXT AS LICMETERPER
+			, B.GWGAUGE::JSON->>'채널명'::TEXT AS GWGAUGECHL
+			, B.GWGAUGE::JSON->>'외관점검'::TEXT AS GWGAUGE
+			, B.GWGAUGE::JSON->>'성능점검'::TEXT AS GWGAUGEPER
+			, B.RAINGAUGE::JSON->>'채널명'::TEXT AS RAINGAUGECHL
+			, B.RAINGAUGE::JSON->>'외관점검'::TEXT AS RAINGAUGE
+			, B.RAINGAUGE::JSON->>'성능점검'::TEXT AS RAINGAUGEPER
+			, B.STRCDPM::JSON->>'채널명'::TEXT AS STRCDPMCHL
+			, B.STRCDPM::JSON->>'외관점검'::TEXT AS STRCDPM
+			, B.STRCDPM::JSON->>'성능점검'::TEXT AS STRCDPMPER
+			, B.SURDPM::JSON->>'채널명'::TEXT AS SURDPMCHL
+			, B.SURDPM::JSON->>'외관점검'::TEXT AS SURDPM
+			, B.SURDPM::JSON->>'성능점검'::TEXT AS SURDPMPER
+			, B.GPSGAUGE::JSON->>'채널명'::TEXT AS GPSGAUGECHL
+			, B.GPSGAUGE::JSON->>'외관점검'::TEXT AS GPSGAUGE
+			, B.GPSGAUGE::JSON->>'성능점검'::TEXT AS GPSGAUGEPER
+			, B.GATEWAY::JSON->>'연번'::TEXT AS GATEWAYCHL
+			, B.GATEWAY::JSON->>'외관점검'::TEXT AS GATEWAY
+			, B.GATEWAY::JSON->>'성능점검'::TEXT AS GATEWAYPER
+			, B.NODE::JSON->>'연번'::TEXT AS NODECHL
+			, B.NODE::JSON->>'외관점검'::TEXT AS NODE
+			, B.NODE::JSON->>'성능점검'::TEXT AS NODEPER
+			, B.OPINION1
+			, B.OPINION2
+			, B.OPINION3
+			, B.OPINION4
+			, B.OPINION5
+			, B.OWNER
+			, B.LGLLIMIT
+			, B.COMMMODEMNUM
+			, B.CELLNUM
+	 	FROM TN_FEIS_MSE_SVYCOMPT A, TN_FEIS_MSE_SVYMEMO B, TN_FEIS_MSE_CNRSSPCE C
+		WHERE A.GID = B.GID
+			AND A.MST_ID = C.ID
+			AND B.SLDID = #{sldid}
+			AND B.SVYSTEP = #{svystep}
+			AND B.SVYTYPE = #{svyType}
+		]]>
+	</select>
+	
+	<update id="updateFckMseCompt" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		<foreach collection="list" item="item" separator=";">
+		UPDATE  TN_FEIS_MSE_SVYCOMPT
+			SET LAST_UPDT_PNTTM = NOW()
+			, SVY_MEMO = (COALESCE(NULLIF(REPLACE(SVY_MEMO,'\\','\'),''),'{}'))::JSONB || CONCAT('{'
+			<if test="item.wireext != null and item.wireext != ''">
+				,CONCAT('"와이어신축계" : ',#{item.wireext},',')
+			</if>
+			<if test="item.licmeter != null and item.licmeter != ''">
+				,CONCAT('"지중경사계" : ',#{item.licmeter},',')
+			</if>
+			<if test="item.gwgauge != null and item.gwgauge != ''">
+				,CONCAT('"지하수위계" : ',#{item.gwgauge},',')
+			</if>
+			<if test="item.raingauge != null and item.raingauge != ''">
+				,CONCAT('"강우계" : ',#{item.raingauge},',')
+			</if>
+			<if test="item.strcdpm != null and item.strcdpm != ''">
+				,CONCAT('"구조물변위계" : ',#{item.strcdpm},',')
+			</if>
+			<if test="item.surdpm != null and item.surdpm != ''">
+				,CONCAT('"지표변위계" : ',#{item.surdpm},',')
+			</if>
+			<if test="item.gpsgauge != null and item.gpsgauge != ''">
+				,CONCAT('"GPS변위계" : ',#{item.gpsgauge},',')
+			</if>
+			<if test="item.gateway != null and item.gateway != ''">
+				,CONCAT('"게이트웨이" : ',#{item.gateway},',')
+			</if>
+			<if test="item.node != null and item.node != ''">
+				,CONCAT('"노드" : ',#{item.node},',')
+			</if>
+			<if test="item.photoTagList != null and item.photoTagList != ''">
+   				,CONCAT('"사진태그" : ',#{item.photoTagList},',')
+        	</if>
+			<if test="item.svyId != null and item.svyId != ''">
+				,CONCAT('"조사ID" : "',#{item.svyId},'"')
+			</if>
+			,'}')::JSONB
+		WHERE SVY_LABEL = #{item.svyId}
+			AND MST_ID = CAST(#{item.mstId} AS INTEGER)
+		</foreach>
+	</update>
+	
+	<update id="updateFckMseComptPhotoTag" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		<![CDATA[
+		UPDATE  TN_FEIS_MSE_SVYCOMPT
+			SET LAST_UPDT_PNTTM = NOW()
+			, SVY_MEMO = (COALESCE(NULLIF(REPLACE(SVY_MEMO,'\\','\'),''),'{}'))::JSONB || CONCAT('{'
+		]]>
+			<if test="photoTagList != null and photoTagList != ''">
+   				<![CDATA[,CONCAT('"사진태그" : ',#{photoTagList},',')]]>
+        	</if>
+			<if test="opinion1 != null and opinion1 != ''">
+				<![CDATA[,CONCAT('"종합의견01" : "',#{opinion1},'",')]]>
+			</if>
+			<if test="sldid != null and sldid != ''">
+				<![CDATA[,CONCAT('"조사ID" : "',#{sldid},'"')]]>
+			</if>
+			<![CDATA[
+			,'}')::JSONB
+		WHERE SVY_LABEL = #{sldid}
+			AND MST_ID = CAST(#{mstId} AS INTEGER)
+			]]>
+	</update>
+	
+	<delete id="deleteMseCompt">
+		<![CDATA[
+			DELETE FROM TN_FEIS_MSE_SVYCOMPT 
+             WHERE SVY_LABEL LIKE CONCAT(#{sldid}, '%')
+				AND SVY_MEMO::JSON->>'조사단계' = #{svystep}
+		]]>	 
+	</delete>
+	
+	<select id ="selectFckMseComptMaxYear" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') AS YEAR FROM TN_FEIS_MSE_SVYCOMPT a, TN_FEIS_MSE_CNRSSPCE b
+		where a.MST_ID = b.ID
+	</select>
+	
+	<select id ="selectFckMseComptMaxMonth" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'MM') FROM TN_FEIS_MSE_SVYCOMPT a, TN_FEIS_MSE_CNRSSPCE b
+		where a.MST_ID = b.ID
+	</select>
+	
+	<select id ="selectFckMseComptYear" resultType="egovMap">
+		SELECT DISTINCT TO_CHAR(CREAT_DT,'YYYY') AS svyYear FROM TN_FEIS_MSE_SVYCOMPT a, TN_FEIS_MSE_CNRSSPCE b
+		where a.MST_ID = b.ID
+		ORDER BY svyYear DESC
+	</select>
+	
+	<select id ="selectFckMseProjDMS" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon1}::FLOAT, #{lat1}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS LAT1,
+			SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon1}::FLOAT, #{lat1}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS LON1
+			<if test="lat2 != null and lat2 != '' and lon2 != null and lon2 != ''">
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon2}::FLOAT, #{lat2}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS LAT2
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon2}::FLOAT, #{lat2}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS LON2
+			</if>
+	</select>
+	
+	<select id ="selectFckMseProjBessel" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+				ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),4326),5186)) AS BPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),4326),5186)) AS BPY
+			</if>
+			<if test="epx != null and epx != '' and epy != null and epy != ''">
+				<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+					,
+				</if>
+				ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),4326),5186)) AS EPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),4326),5186)) AS EPY
+			</if>
+	</select>
+	
+	<select id="selectFieldBookNm" resultType="egovMap">
+		SELECT 
+		 	B.MST_CORPNAME || '-' ||B.MST_PARTNAME AS FIELDBOOKNM, 
+		 	A.SVYID AS SVYID
+		 FROM TN_FEIS_FCK_APRMEMO A, TN_FEIS_APR_CNRSSPCE B
+		 WHERE A.MSTID = B.ID
+		 AND A.GID = CAST(#{gid} AS INTEGER)
+	</select>
+	
+	<select id="selectFckMseComptListSvyId" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO" resultMap="fckMseComptListVO">
+		<![CDATA[
+			 SELECT
+			 	COALESCE(B.SVYID,'') AS SVY_ID,
+				C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			 FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>	 
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+	
+	<!-- 조사완료 목록 엑셀 저장 -->
+	<select id="selectMseSvyComptListExcel" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO" resultType="egovMap">
+		<![CDATA[
+			SELECT B.GID
+				, B.MSTID
+				, COALESCE(B.SLDID,'') AS SLDID
+				, COALESCE(B.SVYID ,'') AS SVYID
+				, COALESCE(B.EQPMNTYPE,'') AS EQPMNTYPE
+				, COALESCE(B.SVYTYPE,'') AS SVYTYPE
+				, COALESCE(B.SVYSTEP,'') AS SVYSTEP
+				, COALESCE(B.SVYUSER,'') AS SVYUSER
+				, COALESCE(B.SD,'') AS SD
+				, COALESCE(B.SGG,'') AS SGG
+				, COALESCE(B.EMD,'') AS EMD
+				, COALESCE(B.RI,'') AS RI
+				, COALESCE(B.JIBUN,'') AS JIBUN
+				, COALESCE(B.COMMONLY,'') AS COMMONLY
+				, COALESCE(REPLACE(B.SVYDT,'-','. '),'') AS SVY_DT
+				, COALESCE(B.SVYUSER,'') AS SVYUSER
+				, COALESCE(B.WIREEXT::JSON->>'채널명'::TEXT,'') AS WIREEXTCHL
+				, COALESCE(B.WIREEXT::JSON->>'외관점검'::TEXT,'') AS WIREEXT
+				, COALESCE(B.WIREEXT::JSON->'외관점검'->>'센서부','') AS TW_SENSOR
+				, COALESCE(B.WIREEXT::JSON->'외관점검'->>'와이어','') AS TW_WIRE
+				, COALESCE(B.WIREEXT::JSON->'외관점검'->>'케이블','') AS TW_CABLE
+				, COALESCE(B.WIREEXT::JSON->'외관점검'->>'보호함체','') AS TW_PRTCBOX
+				, COALESCE(B.WIREEXT::JSON->'외관점검'->>'전원','') AS TW_POWER
+				, COALESCE(B.WIREEXT::JSON->>'성능점검'::TEXT,'') AS WIREEXTPER
+				, COALESCE(B.WIREEXT::JSON->'성능점검'->>'점검결과','') AS TWPER_CHKRESULT
+				, COALESCE(B.WIREEXT::JSON->'성능점검'->>'불량상태','') AS TWPER_BADSTTUS
+				, COALESCE(B.WIREEXT::JSON->'성능점검'->>'현장센서값','') AS TWPER_SPTSENSOR
+				, COALESCE(B.WIREEXT::JSON->'성능점검'->>'시스템센서값','') AS TWPER_SYSSENSOR
+				, COALESCE(B.LICMETER::JSON->>'채널명'::TEXT,'') AS LICMETERCHL
+				, COALESCE(B.LICMETER::JSON->>'외관점검'::TEXT,'') AS LICMETER
+				, COALESCE(B.LICMETER::JSON->'외관점검'->>'센서부','') AS INC_SENSOR
+				, COALESCE(B.LICMETER::JSON->'외관점검'->>'케이블','') AS INC_CABLE
+				, COALESCE(B.LICMETER::JSON->'외관점검'->>'보호함체','') AS INC_PRTCBOX
+				, COALESCE(B.LICMETER::JSON->'외관점검'->>'전원','') AS INC_POWER
+				, COALESCE(B.LICMETER::JSON->'외관점검'->>'자물쇠','') AS INC_LOCK
+				, COALESCE(B.LICMETER::JSON->>'성능점검'::TEXT,'') AS LICMETERPER
+				, JSON_ARRAY_LENGTH(B.LICMETER::JSON->'성능점검') AS LICMETERPER_CNT
+				, COALESCE(B.GWGAUGE::JSON->>'채널명'::TEXT,'') AS GWGAUGECHL
+				, COALESCE(B.GWGAUGE::JSON->>'외관점검'::TEXT,'') AS GWGAUGE
+				, COALESCE(B.GWGAUGE::JSON->'외관점검'->>'센서부','') AS WL_SENSOR
+				, COALESCE(B.GWGAUGE::JSON->'외관점검'->>'케이블','') AS WL_CABLE
+				, COALESCE(B.GWGAUGE::JSON->'외관점검'->>'보호함체','') AS WL_PRTCBOX
+				, COALESCE(B.GWGAUGE::JSON->'외관점검'->>'전원','') AS WL_POWER
+				, COALESCE(B.GWGAUGE::JSON->'외관점검'->>'자물쇠','') AS WL_LOCK
+				, COALESCE(B.GWGAUGE::JSON->>'성능점검'::TEXT,'') AS GWGAUGEPER
+				, COALESCE(B.GWGAUGE::JSON->'성능점검'->>'점검결과','') AS WLPER_CHKRESULT
+				, COALESCE(B.GWGAUGE::JSON->'성능점검'->>'불량상태','') AS WLPER_BADSTTUS
+				, COALESCE(B.GWGAUGE::JSON->'성능점검'->>'현장수위값_노드','') AS WLPER_SPTWALNODE
+				, COALESCE(B.GWGAUGE::JSON->'성능점검'->>'현장수위값_수동','') AS WLPER_SPTWALPASS
+				, COALESCE(B.GWGAUGE::JSON->'성능점검'->>'시스템센서값_RAW','') AS WLPER_SYSSNSRAW
+				, COALESCE(B.GWGAUGE::JSON->'성능점검'->>'시스템센서값_수위','') AS WLPER_SYSSNSWAL
+				, COALESCE(B.RAINGAUGE::JSON->>'채널명'::TEXT,'') AS RAINGAUGECHL
+				, COALESCE(B.RAINGAUGE::JSON->>'외관점검'::TEXT,'') AS RAINGAUGE
+				, COALESCE(B.RAINGAUGE::JSON->'외관점검'->>'센서부','') AS RG_SENSOR
+				, COALESCE(B.RAINGAUGE::JSON->'외관점검'->>'케이블','') AS RG_CABLE
+				, COALESCE(B.RAINGAUGE::JSON->'외관점검'->>'전원','') AS RG_POWER
+				, COALESCE(B.RAINGAUGE::JSON->>'성능점검'::TEXT,'') AS RAINGAUGEPER
+				, COALESCE(B.RAINGAUGE::JSON->'성능점검'->>'점검결과','') AS RGPER_CHKRESULT
+				, COALESCE(B.RAINGAUGE::JSON->'성능점검'->>'불량상태','') AS RGPER_BACSTTUS
+				, COALESCE(B.STRCDPM::JSON->>'채널명'::TEXT,'') AS STRCDPMCHL
+				, COALESCE(B.STRCDPM::JSON->>'외관점검'::TEXT,'') AS STRCDPM
+				, COALESCE(B.STRCDPM::JSON->'외관점검'->>'센서부','') AS TM_SENSOR
+				, COALESCE(B.STRCDPM::JSON->'외관점검'->>'케이블','') AS TM_CABLE
+				, COALESCE(B.STRCDPM::JSON->'외관점검'->>'보호함체','') AS TM_PRTCBOX
+				, COALESCE(B.STRCDPM::JSON->'외관점검'->>'전원','') AS TM_POWER
+				, COALESCE(B.STRCDPM::JSON->'외관점검'->>'자물쇠','') AS TM_LOCK
+				, COALESCE(B.STRCDPM::JSON->>'성능점검'::TEXT,'') AS STRCDPMPER
+				, COALESCE(B.STRCDPM::JSON->'성능점검'->>'점검결과','') AS TMPER_CHKRESULT
+				, COALESCE(B.STRCDPM::JSON->'성능점검'->>'불량상태','') AS TMPER_BADSTTUS
+				, COALESCE(B.STRCDPM::JSON->'성능점검'->>'현장 센서값','') AS TMPER_SPTSENSOR
+				, COALESCE(B.STRCDPM::JSON->'성능점검'->>'시스템 센서값','') AS TMPER_SYSSENSOR
+				, COALESCE(B.SURDPM::JSON->>'채널명'::TEXT,'') AS SURDPMCHL
+				, COALESCE(B.SURDPM::JSON->>'외관점검'::TEXT,'') AS SURDPM
+				, COALESCE(B.SURDPM::JSON->'외관점검'->>'센서부','') AS SD_SENSOR
+				, COALESCE(B.SURDPM::JSON->'외관점검'->>'케이블','') AS SD_CABLE
+				, COALESCE(B.SURDPM::JSON->'외관점검'->>'전원','') AS SD_POWER
+				, COALESCE(B.SURDPM::JSON->>'성능점검'::TEXT,'') AS SURDPMPER
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'점검결과','') AS SDPER_CHKRESULT
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'불량상태','') AS SDPER_BADSTTUS
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'현장센서값_X','') AS SDPER_SPTSENSOR_X
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'현장센서값_Y','') AS SDPER_SPTSENSOR_Y
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'현장센서값_가속도','') AS SDPER_SPTSENSOR_AC
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'시스템센서값_X','') AS SDPER_SYSSENSOR_X
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'시스템센서값_Y','') AS SDPER_SYSSENSOR_Y
+				, COALESCE(B.SURDPM::JSON->'성능점검'->>'시스템센서값_가속도','') AS SDPER_SYSSENSOR_AC
+				, COALESCE(B.GPSGAUGE::JSON->>'채널명'::TEXT,'') AS GPSGAUGECHL
+				, COALESCE(B.GPSGAUGE::JSON->>'외관점검'::TEXT,'') AS GPSGAUGE
+				, COALESCE(B.GPSGAUGE::JSON->'외관점검'->>'센서부','') AS GPS_SENSOR
+				, COALESCE(B.GPSGAUGE::JSON->'외관점검'->>'케이블','') AS GPS_CABLE
+				, COALESCE(B.GPSGAUGE::JSON->'외관점검'->>'전원','') AS GPS_POWER
+				, COALESCE(B.GPSGAUGE::JSON->>'성능점검'::TEXT,'') AS GPSGAUGEPER
+				, COALESCE(B.GPSGAUGE::JSON->'성능점검'->>'점검결과','') AS GPSPER_CHKRESULT
+				, COALESCE(B.GPSGAUGE::JSON->'성능점검'->>'불량상태','') AS GPSPER_BADSTTUS
+				, COALESCE(B.GATEWAY::JSON->>'연번'::TEXT,'') AS GATEWAYCHL
+				, COALESCE(B.GATEWAY::JSON->>'외관점검'::TEXT,'') AS GATEWAY
+				, COALESCE(B.GATEWAY::JSON->'외관점검'->>'태양광','') AS GATEWAY_SOLAR
+				, COALESCE(B.GATEWAY::JSON->'외관점검'->>'함체','') AS GATEWAY_BOX
+				, COALESCE(B.GATEWAY::JSON->'외관점검'->>'보호휀스','') AS GATEWAY_PRTCFENCE
+				, COALESCE(B.GATEWAY::JSON->'외관점검'->>'지선','') AS GATEWAY_BRNCHLN
+				, COALESCE(B.GATEWAY::JSON->'외관점검'->>'안내판','') AS GATEWAY_BOARD
+				, COALESCE(B.GATEWAY::JSON->'외관점검'->>'자물쇠','') AS GATEWAY_LOCK
+				, COALESCE(B.GATEWAY::JSON->>'성능점검'::TEXT,'') AS GATEWAYPER
+				, COALESCE(B.GATEWAY::JSON->'성능점검'->>'측정전압','') AS GATEWAY_MSVOLT
+				, COALESCE(B.GATEWAY::JSON->'성능점검'->>'불량상태','') AS GATEWAY_BADSTTUS
+				, COALESCE(B.NODE::JSON->>'연번'::TEXT,'') AS NODECHL
+				, COALESCE(B.NODE::JSON->>'외관점검'::TEXT,'') AS NODE
+				, COALESCE(B.NODE::JSON->'외관점검'->>'태양광','') AS NODE_SOLAR
+				, COALESCE(B.NODE::JSON->'외관점검'->>'함체','') AS NODE_BOX
+				, COALESCE(B.NODE::JSON->'외관점검'->>'보호휀스','') AS NODE_PRTCFENCE
+				, COALESCE(B.NODE::JSON->'외관점검'->>'지선','') AS NODE_BRNCHLN
+				, COALESCE(B.NODE::JSON->'외관점검'->>'안내판','') AS NODE_BOARD
+				, COALESCE(B.NODE::JSON->'외관점검'->>'자물쇠','') AS NODE_LOCK
+				, COALESCE(B.NODE::JSON->>'성능점검'::TEXT,'') AS NODEPER
+				, COALESCE(B.NODE::JSON->'성능점검'->>'측정','') AS NODE_MS
+				, COALESCE(B.NODE::JSON->'성능점검'->>'불량상태','') AS NODE_BADSTTUS
+				, COALESCE(B.OPINION1,'') AS OPINION1
+				, COALESCE(B.OPINION2,'') AS OPINION2
+				, COALESCE(B.OPINION3,'') AS OPINION3
+				, COALESCE(B.OPINION4,'') AS OPINION4
+				, COALESCE(B.OPINION5,'') AS OPINION5
+				, COALESCE(B.OWNER,'') AS OWNER
+				, COALESCE(B.LGLLIMIT,'') AS LGLLIMIT
+				, COALESCE(B.COMMMODEMNUM,'') AS COMMMODEMNUM
+				, COALESCE(B.CELLNUM,'') AS CELLNUM
+		 	FROM TN_FEIS_MSE_SVYCOMPT A, TN_FEIS_MSE_SVYMEMO B, TN_FEIS_MSE_CNRSSPCE C
+			WHERE A.GID = B.GID
+				AND A.MST_ID = C.ID
+				AND B.SLDID = #{sldid}
+				AND B.SVYSTEP = #{svystep}
+		]]>
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]> 
+			</if>
+			<if test="eqpmntype != null and eqpmntype != ''">	<![CDATA[ AND
+				B.EQPMNTYPE = #{eqpmntype} ]]> 
+			</if>
+			<![CDATA[ORDER BY SPLIT_PART(B.SVYID,'_',3) ASC]]>
+<!-- 			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND -->
+<!-- 				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND -->
+<!-- 				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="svySd != null and svySd != ''">	<![CDATA[ AND -->
+<!-- 				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND -->
+<!-- 				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND -->
+<!-- 				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND -->
+<!-- 				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="svyId != null and svyId != ''">	<![CDATA[ AND -->
+<!-- 				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND -->
+<!-- 				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND -->
+<!-- 				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]> -->
+<!-- 			</if> -->
+	</select>
+	
+	<select id="selectPhotoTagList" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO" resultType="egovMap">
+		<![CDATA[
+			SELECT JSON_ARRAY_ELEMENTS(PHOTOTAG)->>'TAG' AS TAG
+				, JSON_ARRAY_ELEMENTS(PHOTOTAG)->>'FILENAME' AS IMG
+			FROM TN_FEIS_MSE_SVYCOMPT A, TN_FEIS_MSE_SVYMEMO B, TN_FEIS_MSE_CNRSSPCE C
+			WHERE A.GID = B.GID
+				AND A.MST_ID = C.ID
+				AND B.SVYID = #{sldid}
+				AND B.SVYSTEP = #{svystep}
+		]]>
+		<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+			B.SVYTYPE = #{svyType} ]]> 
+		</if>
+	</select>
+	
+	<!-- 조사완료지 현장사진정보 불러오기-->
+	<select id="selectFckMseComptPhotoInfo" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO" resultType="egovMap">
+		<![CDATA[
+			SELECT 
+				 REPLACE(B.PHOTO::TEXT,'gimg:///','') AS PHOTO
+				 , REPLACE(B.PHOTOTAG::TEXT,'gimg:///','') AS PHOTOTAG
+			FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C 
+			WHERE A.GID = B.GID
+				AND A.MST_ID = C.ID 
+				AND B.SVYID = #{id}
+				AND C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')
+		]]>
+		<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+			B.SVYTYPE = #{svyType} ]]> 
+		</if>
+	</select>
+	
+	<!-- 기간 별 조사완료지 최소날짜,최대날짜,총건수 -->
+	<select id="selectLastUpdateMinMaxDate" parameterType="or.sabang.sys.service.LocReCreateVO" resultType="egovMap">
+		<![CDATA[
+		SELECT 
+			 TO_CHAR(MIN(A.CREAT_DT),'YYYY-MM-DD') AS MINDT
+			,TO_CHAR(MAX(A.CREAT_DT),'YYYY-MM-DD') AS MAXDT
+			,COUNT(*) AS ALLCNT
+		FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C 
+		WHERE A.GID = B.GID
+		AND A.MST_ID = C.ID
+		]]>
+		<if test="startDate != null and startDate != ''">	<![CDATA[ AND
+			A.CREAT_DT >= TO_TIMESTAMP(#{startDate}||' 00:00:00','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		<if test="endDate != null and endDate != ''">	<![CDATA[ AND
+			A.CREAT_DT < TO_TIMESTAMP(#{endDate}||' 23:59:59','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+	</select>
+	
+	<!-- 기간 별 위치도 파라메터 전송값 조회 -->
+	<select id="updateLocReCreate" parameterType="or.sabang.sys.service.LocReCreateVO" resultType="egovMap">
+		SELECT 
+			B.GID AS GID,
+			B.SVYTYPE AS svyType,
+			C.MST_CORPNAME ||'-'||C.MST_PARTNAME AS mstPath,
+			A.SVY_LABEL AS svyLabel,
+			'APR' AS svySe,
+			COALESCE((SELECT MAPTYPE FROM TN_FEIS_LOCIMG_INFO D WHERE A.GID = D.GID LIMIT 1),'SATELLITE') AS MAPTYPE
+		FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+		WHERE A.GID = B.GID
+		AND A.MST_ID = C.ID
+		<if test="startDate != null and startDate != ''">	<![CDATA[ AND
+			A.CREAT_DT >= TO_TIMESTAMP(#{startDate}||' 00:00:00','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		<if test="endDate != null and endDate != ''">	<![CDATA[ AND
+			A.CREAT_DT < TO_TIMESTAMP(#{endDate}||' 23:59:59','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		ORDER BY A.CREAT_DT ASC
+	</select>
+	
+	<insert id="updateFckMseComptExcel" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		INSERT INTO TN_FEIS_FCK_APRCOMPT
+		(
+			GID
+			, MST_ID
+			, LOGIN_ID
+			, SVY_FID
+			, 
+		)
+	</insert>
+	
+	<!-- 공유방 권한 확인 -->
+	<select id="selectAuthorCheck" resultType="String">
+		SELECT USER_GRADE FROM TN_FEIS_CNRSSPCE_AUTHORMGT
+		WHERE MST_ID = #{id}
+			AND ESNTL_ID = #{esntlId}
+	</select>
+	
+	<!-- 권한 코드 확인 -->
+	<select id="selectAuthorCode" resultType="String">
+		SELECT AUTHOR_CODE FROM TN_FEIS_EMPLYRSCRTYESTBS 
+		WHERE SCRTY_DTRMN_TRGET_ID = #{esntlId}
+	</select>
+</mapper>

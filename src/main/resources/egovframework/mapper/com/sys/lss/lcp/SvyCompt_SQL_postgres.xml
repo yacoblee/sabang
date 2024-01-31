@@ -1,0 +1,1451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LssLcpSvyCompt">
+	
+	<resultMap id="svyComptListVO" type="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		<result property="gid" column="GID" /><!-- 고유아이디 -->
+		<result property="mstId" column="MST_ID" /><!-- 공유방아이디 -->
+		<result property="svyId" column="SVY_ID" /><!-- 조사아이디 -->
+		<result property="svyUser" column="SVY_USER" /><!-- 조사자 -->
+		<result property="svyType" column="SVY_TYPE" /><!-- 조사유형 -->
+		<result property="lastgrd" column="LASTGRD" /><!-- 조사등급 -->
+		<result property="svyAddr" column="SVY_ADDR" /><!-- 조사장소 -->
+		<result property="creatDt" column="CREAT_DT" /><!-- 등록일자 -->
+		<result property="lastUpdtPnttm" column="LAST_UPDT_PNTTM" /><!-- 수정일자 -->
+	</resultMap>
+	
+	<resultMap id="svyComptDetailVO" type="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		<result property="gid" column="GID" /><!-- 고유아이디 -->
+		<result property="mstId" column="MST_ID" /><!-- 공유방아이디 -->
+		<result property="svyId" column="SVY_ID" /><!-- 조사ID -->
+		<result property="sn" column="SN" /><!-- 일련번호 -->
+		<result property="svyType" column="SVY_TYPE" /><!-- 조사유형 -->
+		<result property="geologygrd" column="GEOLOGYGRD" /><!-- 판정등급 --> <!-- 산사태 발생 우려지역 등급 추후 등록 -->
+		<result property="svyDt" column="SVY_DT" /><!-- 조사일 -->
+		<result property="svyUser" column="SVY_USER" /><!-- 점검자 -->		
+		<result property="svySd" column="SD" /><!-- 시도 -->
+		<result property="svySgg" column="SGG" /><!-- 시군구 -->
+		<result property="svyEmd" column="EMD" /><!-- 읍면동 -->
+		<result property="svyRi" column="RI" /><!-- 리 -->
+		<result property="svyJibun" column="JIBUN" /><!-- 지번 -->
+		<result property="svyAddr" column="SVY_ADDR" /><!-- 조사장소 -->
+		<result property="px" column="PX" /><!-- 경도 -->
+		<result property="py" column="PY" /><!-- 위도 -->
+		<result property="svyLatLon" column="SVY_LATLON" /><!-- 위경도 -->
+		<result property="pz" column="PZ" /><!-- 고도 -->
+		<result property="cmprokval" column="CMPROKVAL" /><!-- 주 구성암석 측정값 -->
+		<result property="cmprokscore" column="CMPROKSCORE" /><!-- 주 구성암석 점수 -->
+		<result property="cmprokval" column="CMPROKVAL" /><!-- 주 구성암석 측정값 -->
+		<result property="instrokat" column="INSTROKAT" /><!-- 타 지층관입암 측정값 -->
+		<result property="prntrckval" column="PRNTRCKVAL" /><!-- 모암 측정값 -->
+		<result property="prntrckscore" column="PRNTRCKSCORE" /><!-- 모암 점수 -->
+		<result property="rokwthrval" column="ROKWTHRVAL" /><!-- 암석풍화 측정값 -->
+		<result property="rokwthrscore" column="ROKWTHRSCORE" /><!-- 암석풍화 점수 -->
+		<result property="geologyflt" column="GEOLOGYFLT" /><!-- 지질구조_단층 -->
+		<result property="geologyfld" column="GEOLOGYFLD" /><!-- 지질구조_습곡 -->
+		<result property="disctnupln1" column="DISCTNUPLN1" /><!-- 불연속면_조사1_종류 -->
+		<result property="disctnupln1_strk" column="DISCTNUPLN1_STRK" /><!-- 불연속면_조사1_주향 -->
+		<result property="disctnupln1_dip" column="DISCTNUPLN1_DIP" /><!-- 불연속면_조사1_경사 -->
+		<result property="disctnupln2" column="DISCTNUPLN2" /><!-- 불연속면_조사2_종류 -->
+		<result property="disctnupln2_strk" column="DISCTNUPLN2_STRK" /><!-- 불연속면_조사2_주향 -->
+		<result property="disctnupln2_dip" column="DISCTNUPLN2_DIP" /><!-- 불연속면_조사2_경사 -->
+		<result property="disctnupln3" column="DISCTNUPLN3" /><!-- 불연속면_조사3_종류 -->
+		<result property="disctnupln3_strk" column="DISCTNUPLN3_STRK" /><!-- 불연속면_조사3_주향 -->
+		<result property="disctnupln3_dip" column="DISCTNUPLN3_DIP" /><!-- 불연속면_조사3_경사 -->
+		<result property="disctnupln4" column="DISCTNUPLN4" /><!-- 불연속면_조사4_종류 -->
+		<result property="disctnupln4_strk" column="DISCTNUPLN4_STRK" /><!-- 불연속면_조사4_주향 -->
+		<result property="disctnupln4_dip" column="DISCTNUPLN4_DIP" /><!-- 불연속면_조사4_경사 -->
+		<result property="disctnupln5" column="DISCTNUPLN5" /><!-- 불연속면_조사5_종류 -->
+		<result property="disctnupln5_strk" column="DISCTNUPLN5_STRK" /><!-- 불연속면_조사5_주향 -->
+		<result property="disctnupln5_dip" column="DISCTNUPLN5_DIP" /><!-- 불연속면_조사5_경사 -->
+		<result property="disctnuplndrcno" column="DISCTNUPLNDRCNO" /><!-- 불연속면방향수 -->
+		<result property="disctnuplnslpval" column="DISCTNUPLNSLPVAL" /><!-- 불연속면방향성 -->
+		<result property="disctnuplnslpscore" column="DISCTNUPLNSLPSCORE" /><!-- 불연속면방향성 점수-->
+		<result property="disctnuplnintvlval" column="DISCTNUPLNINTVLVAL" /><!-- 블연속면간격 -->
+		<result property="disctnuplnintvlscore" column="DISCTNUPLNINTVLSCORE" /><!-- 블연속면간격 점수-->
+		<result property="soilty" column="SOILTY" /><!-- 토양형 -->
+		<result property="soildeptbval" column="SOILDEPTBVAL" /><!-- 토심 -->
+		<result property="soildeptbscore" column="SOILDEPTBSCORE" /><!-- 토심 판정값 -->
+		<result property="soilclassbval" column="SOILCLASSBVAL" /><!-- 토성 -->
+		<result property="soilclassbscore" column="SOILCLASSBSCORE" /><!-- 토성 점수 -->
+		<result property="soilwtrval" column="SOILWTRVAL" /><!-- 토양수분상태 -->
+		<result property="soilwtscore" column="SOILWTSCORE" /><!-- 토양수분상태 점수 -->
+		<result property="soilstrct" column="SOILSTRCT" /><!-- 토양구조 -->
+		<result property="rokexpsr" column="ROKEXPSR" /><!-- 암석노출도 -->
+		<result property="talusat" column="TALUSAT" /><!-- 너덜유무 -->
+		<result property="talusatscore" column="TALUSATSCORE" /><!-- 너덜유무 -->
+		<result property="mxhg" column="MXHG" /><!-- 최대높이 -->
+		<result property="slngval" column="SLNGVAL" /><!-- 사면길이 -->
+		<result property="slngscore" column="SLNGSCORE" /><!-- 사면길이 점수 -->
+		<result property="tpgrphval" column="TPGRPHVAL" /><!-- 지형구분 -->
+		<result property="tpgrphscore" column="TPGRPHSCORE" /><!-- 지형구분 점수 -->
+		<result property="arealcval" column="AREALCVAL" /><!-- 조사지역위치 -->
+		<result property="arealcridge" column="AREALCRIDGE" /><!-- 능선 -->
+		<result property="plnformval" column="PLNFORMVAL" /><!-- 평면형 -->
+		<result property="plnformscore" column="PLNFORMSCORE" /><!-- 평면형 점수 -->
+		<result property="lngformval" column="LNGFORMVAL" /><!-- 종단형 -->
+		<result property="lngformscore" column="LNGFORMSCORE" /><!-- 종단형 점수 -->
+		<result property="slprngval" column="SLPRNGVAL" /><!-- 경사도 -->
+		<result property="slprngscore" column="SLPRNGSCORE" /><!-- 경사도 점수 -->
+		<result property="slprngavrg" column="SLPRNGAVRG" /><!-- 경사 -->
+		<result property="slprngmaxval" column="SLPRNGAVRG" /><!-- 경사도 최대 -->
+		<result property="slprngminval" column="SLPRNGAVRG" /><!-- 경사도 최소 -->
+		<result property="slprngavgval" column="SLPRNGAVGVAL" /><!-- 경사도 평균 -->
+		<result property="ugrwtr_posblty" column="UGRWTR_POSBLTY" /><!-- 상부지하수유입 -->
+		<result property="dwstrm_at" column="DWSTRM_AT" /><!-- 하부계류 -->
+		<result property="sprg_at" column="SPRG_AT" /><!-- 샘, 소, 저수지 유무 -->
+		<result property="frstfrval" column="FRSTFRVAL" /><!-- 임상 -->
+		<result property="maintreeknd" column="MAINTREEKND" /><!-- 주요수종 -->
+		<result property="frlndsttus" column="FRLNDSTTUS" /><!-- 임지이용상태 -->
+		<result property="lwbndlwfrlndsttus" column="LWBNDLWFRLNDSTTUS" /><!-- 하부이용상태 -->
+		<result property="symptmoccur" column="SYMPTMOCCUR" /><!-- 징후발생여부 -->
+		<result property="dirsymptmval" column="DIRSYMPTMVAL" /><!-- 직접징후 -->
+		<result property="dirsymptmscore" column="DIRSYMPTMSCORE" /><!-- 직접징후 점수 -->
+		<result property="indirsymptmval" column="INDIRSYMPTMVAL" /><!-- 간접징후 -->
+		<result property="indirsymptmscore" column="INDIRSYMPTMSCORE" /><!-- 간접징후 점수 -->
+		<result property="lcpsttus" column="LCPSTTUS" /><!-- 땅밀림현황 -->
+		<result property="lcpsttus_crk" column="LCPSTTUS_CRK" /><!-- 땅밀림현황 균열 -->
+		<result property="lcpsttus_stp" column="LCPSTTUS_STP" /><!-- 땅밀림현황  단차-->
+		<result property="lcpsttus_strct" column="LCPSTTUS_STRCT" /><!-- 땅밀림현황  구조물이상-->
+		<result property="lcpsttus_wdpt" column="LCPSTTUS_WDPT" /><!-- 땅밀림현황 수목이상생장-->
+		<result property="lcpsttus_ugrwtr" column="LCPSTTUS_UGRWTR" /><!-- 땅밀림현황 지하수용출-->
+		<result property="judgScore_geo" column="JUDGSCORE_GEO" /><!-- 판정점수 지질특성 -->
+		<result property="judgScore_topo" column="JUDGSCORE_TOPO" /><!-- 판정점수 지형특성 -->
+		<result property="judgScore_soil" column="JUDGSCORE_SOIL" /><!-- 판정점수 토양특성 -->
+		<result property="judgScore_strct" column="JUDGSCORE_STRCT" /><!-- 판정점수 구조물이상 -->
+		<result property="judgScore_ugwtr" column="JUDGSCORE_UGWTR" /><!-- 판정점수 지하수용출 -->
+		<result property="judgScore_wdpt" column="JUDGSCORE_WDPT" /><!-- 판정점수수목이상생장 -->
+		<result property="judgScore_crk" column="JUDGSCORE_CRK" /><!-- 판정점수 균열 -->
+		<result property="judgScore_stp" column="JUDGSCORE_STP" /><!-- 판정점수 단차 -->
+		<result property="passresn" column="PASSRESN" /><!-- 땅밀림 패스사유 -->
+		<result property="passat" column="PASSAT" /><!-- 땅밀림 유무 -->
+		<result property="priHouse" column="PRIHOUSE" /><!-- 기타특성 민가 -->
+		<result property="lcpcomplet" column="LCPCOMPLET" /><!-- 완료 -->
+		<result property="faciltyYear" column="FACILTYYEAR" /><!-- 시설년도 -->
+		<result property="sttusprnt" column="STTUSPRNT" /><!-- 현황도 -->
+		<result property="opinion1" column="OPINION1" /><!-- 종합의견1 -->
+		<result property="opinion2" column="OPINION2" /><!-- 종합의견2 -->
+		<result property="opinion3" column="OPINION3" /><!-- 종합의견3 -->
+		<result property="opinion4" column="OPINION4" /><!-- 종합의견4 -->
+		<result property="opinion5" column="OPINION5" /><!-- 종합의견5 -->
+		<result property="fckRslt" column="FCKRSLT" /><!-- 최종점검결과 -->
+		<result property="mngmtr" column="MNGMTR" /><!-- 조치사항 -->
+		<result property="appnRelis" column="APPNRELIS" /><!-- 지정해제 -->
+		<result property="lcmap" column="LCMAP" /><!-- 위치도 -->
+		<result property="photoTag" column="PHOTOTAG" /><!-- 사진태그 -->
+		<result property="photo" column="PHOTO" /><!-- 사진 -->
+		<result property="lssfrsm" column="LSSFRSM" /><!-- 판정점수합계 -->
+		<result property="lssfrgrd" column="LSSFRGRD" /><!-- 판정표등급 -->
+		<result property="cnsutgrd" column="CNSUTGRD" /><!-- 자문판정등급 -->
+		<result property="lastgrd" column="LASTGRD" /><!-- 최종판정등급 -->
+		<result property="cnsutresn" column="CNSUTRESN" /><!-- 자문사유 -->
+	</resultMap>
+	
+	<select id="selectLcpSvyComptList" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultMap="svyComptListVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID, 
+				A.MST_ID AS MST_ID,
+			 	B.SVYID AS  SVY_ID,
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = B.SVYUSER),COALESCE(NULLIF(TRIM(B.SVYUSER),''),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID)),A.LOGIN_ID)) AS SVY_USER,
+				B.SVYTYPE AS SVY_TYPE,
+				B.LASTGRD,
+				CONCAT(B.SD,' ',B.SGG,' ',B.EMD,' ',B.RI,' ',B.JIBUN) AS SVY_ADDR,
+			 	TO_CHAR(A.CREAT_DT,'YYYY-MM-DD') AS CREAT_DT,
+			 	TO_CHAR(A.LAST_UPDT_PNTTM,'YYYY-MM-DD HH24:MI:SS') AS LAST_UPDT_PNTTM
+			 FROM TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="lastgrd != null and lastgrd != ''">	<![CDATA[ AND
+				B.LASTGRD = #{lastgrd} ]]>
+			</if>
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyYear == null">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_SVYMEMO) ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = B.SVYUSER),COALESCE(NULLIF(TRIM(B.SVYUSER),''),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID)),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			 ORDER BY A.LAST_UPDT_PNTTM DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+			 
+	</select>
+
+	<select id="selectLcpSvyComptListTotCnt" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultType="int">
+		<![CDATA[
+			 SELECT  COUNT(*) totcnt
+			 FROM TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>	
+			<if test="lastgrd != null and lastgrd != ''">	<![CDATA[ AND
+				B.LASTGRD = #{lastgrd} ]]>
+			</if>
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyYear == null">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_SVYMEMO) ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = B.SVYUSER),COALESCE(NULLIF(TRIM(B.SVYUSER),''),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID)),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+	
+	<select id="selectLcpSvyComptDetail" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultMap="svyComptDetailVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID
+				, A.MSTID AS MST_ID
+				, A.SVYID AS SVY_ID
+				, A.SN AS SN
+				, TO_CHAR(A.CREAT_DT,'YYYY-MM-DD') AS SVY_DT
+				, COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.SVYUSER),COALESCE(NULLIF(TRIM(A.SVYUSER),''),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = B.LOGIN_ID)),B.LOGIN_ID)) AS SVY_USER
+				, A.SD AS SD
+			    , A.SGG AS SGG
+			    , A.EMD AS EMD
+			    , A.RI AS RI
+			    , A.JIBUN AS JIBUN
+			    , CONCAT(A.SD,' ',A.SGG,' ',A.EMD,' ',A.RI,' ',A.JIBUN) AS SVY_ADDR
+			    , SPLIT_PART(COALESCE(ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.PX::FLOAT,NULL),A.LON::FLOAT),COALESCE(NULLIF(A.PY::FLOAT,NULL),A.LAT::FLOAT)),5186),4326)), 'D°M''SS.SS"C'),ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(A.PX::FLOAT,A.PY::FLOAT),5186),4326)), 'D°M''SS.SS"C')),' ',1) AS SVY_LAT
+		  		, SPLIT_PART(COALESCE(ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.PX::FLOAT,NULL),A.LON::FLOAT),COALESCE(NULLIF(A.PY::FLOAT,NULL),A.LAT::FLOAT)),5186),4326)), 'D°M''SS.SS"C'),ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(A.PX::FLOAT,A.PY::FLOAT),5186),4326)), 'D°M''SS.SS"C')),' ',2) AS SVY_LON
+			    , COALESCE(ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(A.PX::FLOAT,A.PY::FLOAT),5186),4326)), 'D°M''SS.SS"C'),ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(A.PX::FLOAT,A.PY::FLOAT),5186),4326)), 'D°M''SS.SS"C')) AS SVY_LATLON
+			    , A.PZ AS PZ
+			    , A.CMPROKVAL AS CMPROKVAL
+			    , A.CMPROKSCORE AS CMPROKSCORE
+			    , A.INSTROKAT AS INSTROKAT
+			    , A.PRNTRCKVAL AS PRNTRCKVAL
+			    , A.PRNTRCKSCORE AS PRNTRCKSCORE
+			    , A.ROKWTHRVAL AS ROKWTHRVAL
+			    , A.ROKWTHRSCORE AS ROKWTHRSCORE
+			    , A.GEOLOGYFLT AS GEOLOGYFLT
+			    , A.GEOLOGYFLD AS GEOLOGYFLD
+			    , A.DISCTNUPLN1 AS DISCTNUPLN1
+			    , A.DISCTNUPLN1_STRK AS DISCTNUPLN1_STRK
+			    , A.DISCTNUPLN1_DIP AS DISCTNUPLN1_DIP
+			    , A.DISCTNUPLN2 AS DISCTNUPLN2
+			    , A.DISCTNUPLN2_STRK AS DISCTNUPLN2_STRK
+			    , A.DISCTNUPLN2_DIP AS DISCTNUPLN2_DIP
+			    , A.DISCTNUPLN3 AS DISCTNUPLN3
+			    , A.DISCTNUPLN3_STRK AS DISCTNUPLN3_STRK
+			    , A.DISCTNUPLN3_DIP AS DISCTNUPLN3_DIP
+			    , A.DISCTNUPLN4 AS DISCTNUPLN4
+			    , A.DISCTNUPLN4_STRK AS DISCTNUPLN4_STRK
+			    , A.DISCTNUPLN4_DIP AS DISCTNUPLN4_DIP
+			    , A.DISCTNUPLN5 AS DISCTNUPLN5
+			    , A.DISCTNUPLN5_STRK AS DISCTNUPLN5_STRK
+			    , A.DISCTNUPLN5_DIP AS DISCTNUPLN5_DIP
+			    , A.DISCTNUPLNDRCNO AS DISCTNUPLNDRCNO
+			    , A.DISCTNUPLNSLPVAL AS DISCTNUPLNSLPVAL
+			    , A.DISCTNUPLNSLPSCORE AS DISCTNUPLNSLPSCORE
+			    , A.DISCTNUPLNINTVLVAL AS DISCTNUPLNINTVLVAL
+			    , A.DISCTNUPLNINTVLSCORE AS DISCTNUPLNINTVLSCORE
+			    , A.SOILTY AS SOILTY
+			    , A.SOILDEPTBVAL AS SOILDEPTBVAL
+			    , A.SOILDEPTBSCORE AS SOILDEPTBSCORE
+			    , A.SOILCLASSBVAL AS SOILCLASSBVAL
+			    , A.SOILCLASSBSCORE AS SOILCLASSBSCORE
+			    , A.SOILCLASSBSCORE AS SOILDEPTBSCORE
+			    , A.SOILWTRVAL AS SOILWTRVAL
+			    , A.SOILWTSCORE AS SOILWTSCORE
+			    , A.SOILSTRCT AS SOILSTRCT
+			    , A.ROKEXPSR AS ROKEXPSR
+			    , A.TALUSAT AS TALUSAT
+			    , A.TALUSATSCORE AS TALUSATSCORE
+			    , A.MXHG AS MXHG
+			    , A.SLNGVAL AS SLNGVAL
+			    , A.SLNGSCORE AS SLNGSCORE
+			    , A.TPGRPHVAL AS TPGRPHVAL
+			    , A.TPGRPHSCORE AS TPGRPHSCORE
+			    , A.AREALCVAL AS AREALCVAL
+			    , A.AREALCRIDGE AS AREALCRIDGE
+			    , A.PLNFORMVAL AS PLNFORMVAL
+			    , A.PLNFORMSCORE AS PLNFORMSCORE
+			    , A.LNGFORMVAL AS LNGFORMVAL
+			    , A.LNGFORMSCORE AS LNGFORMSCORE
+			    , A.SLPRNGVAL AS SLPRNGVAL
+			    , A.SLPRNGSCORE AS SLPRNGSCORE
+			    , A.SLPRNGAVRG AS SLPRNGAVRG
+			    , A.SLPRNGMINVAL AS SLPRNGMINVAL
+			    , A.SLPRNGMAXVAL AS SLPRNGMAXVAL
+			    , A.SLPRNGAVGVAL AS SLPRNGAVGVAL
+			    , A.UGRWTR_POSBLTY AS UGRWTR_POSBLTY
+			    , A.DWSTRM_AT AS DWSTRM_AT
+			    , A.SPRG_AT AS SPRG_AT
+			    , A.FRSTFRVAL AS FRSTFRVAL
+			    , A.MAINTREEKND AS MAINTREEKND
+			    , A.FRLNDSTTUS AS FRLNDSTTUS
+			    , A.LWBNDLWFRLNDSTTUS AS LWBNDLWFRLNDSTTUS
+			    , A.SYMPTMOCCUR AS SYMPTMOCCUR
+			    , A.DIRSYMPTMVAL AS DIRSYMPTMVAL
+			    , A.DIRSYMPTMSCORE AS DIRSYMPTMSCORE
+			    , A.INDIRSYMPTMVAL AS INDIRSYMPTMVAL
+			    , A.INDIRSYMPTMSCORE AS INDIRSYMPTMSCORE
+			    , A.LCPSTTUS AS LCPSTTUS
+			    , A.LCPSTTUS_CRK AS LCPSTTUS_CRK
+			    , A.LCPSTTUS_STP AS LCPSTTUS_STP
+			    , A.LCPSTTUS_STRCT AS LCPSTTUS_STRCK
+			    , A.LCPSTTUS_WDPT AS LCPSTTUS_WDPT
+			    , A.LCPSTTUS_UGRWTR AS LCPSTTUS_UGRWTR
+			    , A.JUDGSCORE_GEO AS JUDGSCORE_GEO
+			    , A.JUDGSCORE_TOPO AS JUDGSCORE_TOPO
+			    , A.JUDGSCORE_SOIL AS JUDGSCORE_SOIL
+			    , A.JUDGSCORE_STRCT AS JUDGSCORE_STRCT
+			    , A.JUDGSCORE_UGWTR AS JUDGSCORE_UGWTR
+			    , A.JUDGSCORE_WDPT AS JUDGSCORE_WDPT
+			    , A.JUDGSCORE_CRK AS JUDGSCORE_CRK
+			    , A.JUDGSCORE_STP AS JUDGSCORE_STP
+			    , A.PASSAT AS PASSAT 
+			    , A.PASSRESN AS PASSRESN 
+			    , A.PRIHOUSE AS PRIHOUSE
+			    , A.LCPCOMPLET AS LCPCOMPLET
+			    , A.FACILTYYEAR AS FACILTYYEAR
+			    , COALESCE(((NULLIF(REGEXP_REPLACE(A.STTUSPRNT,'gimg://','','g'),'')::JSON->'사진'))::JSON->0,'{}') AS STTUSPRNT
+			    , A.OPINION1 AS OPINION1
+			    , A.OPINION2 AS OPINION2
+			    , A.OPINION3 AS OPINION3
+			    , A.OPINION4 AS OPINION4
+			    , A.OPINION5 AS OPINION5
+			    , A.FCKRSLT AS FCKRSLT
+			    , A.MNGMTR AS MNGMTR
+			    , A.APPNRELIS AS APPNRELIS
+			    , COALESCE(A.LCMAP,'[]') AS LCMAP
+			    , REPLACE(A.PHOTO::TEXT,'gimg://','') AS PHOTO
+				, REPLACE(A.PHOTOTAG::TEXT,'gimg://','') AS PHOTOTAG
+				, A.LSSFRSM
+				, A.LSSFRGRD
+				, A.CNSUTGRD
+				, A.LASTGRD
+				, A.CNSUTRESN
+			 FROM TN_FEIS_LCP_SVYMEMO A, TN_FEIS_LCP_SVYCOMPT B
+			 WHERE A.GID = B.GID
+			 AND A.GID = CAST(#{gid} AS INTEGER)
+		]]>	 
+	</select>
+
+	<update id="updateLcpSvyCompt">
+		<![CDATA[
+            UPDATE TN_FEIS_LCP_SVYCOMPT  
+            	SET LAST_UPDT_PNTTM = NOW()  
+               		, SVY_MEMO = (COALESCE(NULLIF(REPLACE(SVY_MEMO,'\\','\'),''),'{}'))::JSONB || CONCAT('{',
+          ]]>
+        <if test="cmprokval != null">
+		<![CDATA[ CONCAT('"지질특성.주구성암석" : "',#{cmprokval},'",'),]]>
+        </if>
+        <if test="cmprokscore != null">
+		<![CDATA[ CONCAT('"지질특성.주구성암석.측정값" : "',#{cmprokscore},'",'),]]>
+        </if>
+        <if test="instrokat != null">
+		<![CDATA[ CONCAT('"지질특성.타지층관입암" : "',#{instrokat},'",'),]]>
+        </if>
+        <if test="prntrckval != null">
+		<![CDATA[ CONCAT('"지질특성.모암" : "',#{prntrckval},'",'),]]>
+        </if>
+        <if test="prntrckscore != null">
+		<![CDATA[ CONCAT('"지질특성.모암.점수" : "',#{prntrckscore},'",'),]]>
+        </if>
+        <if test="rokwthrval != null">
+		<![CDATA[ CONCAT('"지질특성.암석풍화" : "',#{rokwthrval},'",'),]]>
+        </if>
+        <if test="rokwthrscore != null">
+		<![CDATA[ CONCAT('"지질특성.암석풍화.점수" : "',#{rokwthrscore},'",'),]]>
+        </if>
+        <if test="geologyflt != null">
+		<![CDATA[ CONCAT('"지질특성.지질구조_단층" : "',#{geologyflt},'",'),]]>
+        </if>
+        <if test="geologyfld != null">
+		<![CDATA[ CONCAT('"지질특성.지질구조_습곡" : "',#{geologyfld},'",'),]]>
+        </if>
+        <if test="disctnupln1 != null">
+		<![CDATA[ CONCAT('"땅밀림.지질특성.조사1.종류" : "',#{disctnupln1},'",'),]]>
+        </if>
+        <if test="disctnupln1_strk != null">
+		<![CDATA[ CONCAT('"지질특성.조사1.주향" : "',#{disctnupln1_strk},'",'),]]>
+        </if>
+        <if test="disctnupln1_dip != null">
+		<![CDATA[ CONCAT('"지질특성.조사1.경사" : "',#{disctnupln1_dip},'",'),]]>
+        </if>
+        <if test="disctnupln2 != null">
+		<![CDATA[ CONCAT('"땅밀림.지질특성.조사2.종류" : "',#{disctnupln2},'",'),]]>
+        </if>
+        <if test="disctnupln2_strk != null">
+		<![CDATA[ CONCAT('"지질특성.조사2.주향" : "',#{disctnupln2_strk},'",'),]]>
+        </if>
+        <if test="disctnupln2_dip != null">
+		<![CDATA[ CONCAT('"지질특성.조사2.경사" : "',#{disctnupln2_dip},'",'),]]>
+        </if>
+        <if test="disctnupln3 != null">
+		<![CDATA[ CONCAT('"땅밀림.지질특성.조사3.종류" : "',#{disctnupln3},'",'),]]>
+        </if>
+        <if test="disctnupln3_strk != null">
+		<![CDATA[ CONCAT('"지질특성.조사3.주향" : "',#{disctnupln3_strk},'",'),]]>
+        </if>
+        <if test="disctnupln3_dip != null">
+		<![CDATA[ CONCAT('"지질특성.조사3.경사" : "',#{disctnupln3_dip},'",'),]]>
+        </if>
+        <if test="disctnupln4 != null">
+		<![CDATA[ CONCAT('"땅밀림.지질특성.조사4.종류" : "',#{disctnupln4},'",'),]]>
+        </if>
+        <if test="disctnupln4_strk != null">
+		<![CDATA[ CONCAT('"지질특성.조사4.주향" : "',#{disctnupln4_strk},'",'),]]>
+        </if>        
+        <if test="disctnupln4_dip != null">
+		<![CDATA[ CONCAT('"지질특성.조사4.경사" : "',#{disctnupln4_dip},'",'),]]>
+        </if>
+        <if test="disctnupln5 != null">
+		<![CDATA[ CONCAT('"땅밀림.지질특성.조사5.종류" : "',#{disctnupln5},'",'),]]>
+        </if>
+        <if test="disctnupln5_strk != null">
+		<![CDATA[ CONCAT('"지질특성.조사5.주향" : "',#{disctnupln5_strk},'",'),]]>
+        </if>
+        <if test="disctnupln5_dip != null">
+		<![CDATA[ CONCAT('"지질특성.조사5.경사" : "',#{disctnupln5_dip},'",'),]]>
+        </if>
+        <if test="disctnuplndrcno != null">
+		<![CDATA[ CONCAT('"지질특성.불연속면방향수" : "',#{disctnuplndrcno},'",'),]]>
+        </if>
+        <if test="disctnuplnslpval != null">
+		<![CDATA[ CONCAT('"지질특성.불연속면방향성" : "',#{disctnuplnslpval},'",'),]]>
+        </if>
+        <if test="disctnuplnslpscore != null">
+		<![CDATA[ CONCAT('"지질특성.불연속면방향성.점수" : "',#{disctnuplnslpscore},'",'),]]>
+        </if>
+        <if test="disctnuplnintvlval != null">
+		<![CDATA[ CONCAT('"지질특성.불연속면간격" : "',#{disctnuplnintvlval},'",'),]]>
+        </if>
+        <if test="disctnuplnintvlscore != null">
+		<![CDATA[ CONCAT('"지질특성.불연속면간격.점수" : "',#{disctnuplnintvlscore},'",'),]]>
+        </if>
+        <if test="soilty != null">
+		<![CDATA[ CONCAT('"토양특성.토양형" : "',#{soilty},'",'),]]>
+        </if>
+        <if test="soildeptbval != null">
+		<![CDATA[ CONCAT('"토양특성.토심" : "',#{soildeptbval},'",'),]]>
+        </if>
+        <if test="soildeptbscore != null">
+		<![CDATA[ CONCAT('"토양특성.토심판정값" : "',#{soildeptbscore},'",'),]]>
+        </if>
+        <if test="soilclassbval != null">
+		<![CDATA[ CONCAT('"토양특성.토성" : "',#{soilclassbval},'",'),]]> 
+        </if>
+        <if test="soilclassbscore != null">
+		<![CDATA[ CONCAT('"토양특성.토성.점수" : "',#{soilclassbscore},'",'),]]>
+        </if>
+        <if test="soilwtrval != null">
+		<![CDATA[ CONCAT('"토양특성.토양수분" : "',#{soilwtrval},'",'),]]>
+        </if>
+        <if test="soilwtscore != null">
+		<![CDATA[ CONCAT('"토양특성.토양수분.점수" : "',#{soilwtscore},'",'),]]>
+        </if>
+        <if test="soilstrct != null">
+		<![CDATA[ CONCAT('"토양특성.토양구조" : "',#{soilstrct},'",'),]]>
+        </if>
+        <if test="rokexpsr != null">
+		<![CDATA[ CONCAT('"토양특성.암석노출도" : "',#{rokexpsr},'",'),]]>
+        </if>
+        <if test="talusat != null">
+		<![CDATA[ CONCAT('"토양특성.너덜유무" : "',#{talusat},'",'),]]>
+        </if>
+        <if test="mxhg != null">
+		<![CDATA[ CONCAT('"지형특성.최대높이" : "',#{mxhg},'",'),]]>
+        </if>
+        <if test="slngval != null">
+		<![CDATA[ CONCAT('"지형특성.사면길이" : "',#{slngval},'",'),]]>
+        </if>
+        <if test="slngscore != null">
+		<![CDATA[ CONCAT('"지형특성.사면길이.점수" : "',#{slngscore},'",'),]]>
+        </if>
+        <if test="tpgrphval != null">
+		<![CDATA[ CONCAT('"지형특성.지형구분" : "',#{tpgrphval},'",'),]]>
+        </if>
+        <if test="tpgrphscore != null">
+		<![CDATA[ CONCAT('"지형특성.지형구분.점수" : "',#{tpgrphscore},'",'),]]>
+        </if>
+        <if test="arealcval != null">
+		<![CDATA[ CONCAT('"조사지역위치" : "',#{arealcval},'",'),]]>
+        </if>
+        <if test="arealcridge != null">
+		<![CDATA[ CONCAT('"지형특성.능선" : "',#{arealcridge},'",'),]]>
+        </if>
+        <if test="plnformval != null">
+		<![CDATA[ CONCAT('"지형특성.평면형" : "',#{plnformval},'",'),]]>
+        </if>
+        <if test="plnformscore != null">
+		<![CDATA[ CONCAT('"지형특성.평면형.점수" : "',#{plnformscore},'",'),]]>
+        </if>
+        <if test="lngformval != null">
+		<![CDATA[ CONCAT('"지형특성.종단면형" : "',#{lngformval},'",'),]]>
+        </if>
+        <if test="lngformscore != null">
+		<![CDATA[ CONCAT('"지형특성.종단형.점수" : "',#{lngformscore},'",'),]]>
+        </if>
+        <if test="slprngval != null">
+		<![CDATA[ CONCAT('"지형특성.경사도" : "',#{slprngval},'",'),]]>
+        </if>
+        <if test="slprngminval != null">
+		<![CDATA[ CONCAT('"지형특성.경사_최소" : "',#{slprngminval},'",'),]]>
+        </if>
+        <if test="slprngmaxval != null">
+		<![CDATA[ CONCAT('"지형특성.경사_최대" : "',#{slprngmaxval},'",'),]]>
+        </if>
+        <if test="slprngavgval != null">
+		<![CDATA[ CONCAT('"지형특성.경사_평균" : "',#{slprngavgval},'",'),]]>
+        </if>
+        <if test="slprngscore != null">
+		<![CDATA[ CONCAT('"지형특성.경사도.점수" : "',#{slprngscore},'",'),]]>
+        </if>
+        <if test="slprngavrg != null">
+		<![CDATA[ CONCAT('"지형특성.경사" : "',#{slprngavrg},'",'),]]>
+        </if>
+        <if test="ugrwtr_posblty != null">
+		<![CDATA[ CONCAT('"수리특성.상부지하수유입" : "',#{ugrwtr_posblty},'",'),]]>
+        </if>
+        <if test="dwstrm_at != null">
+		<![CDATA[ CONCAT('"수리특성.하부계류" : "',#{dwstrm_at},'",'),]]>
+        </if>
+        <if test="sprg_at != null">
+		<![CDATA[ CONCAT('"수리특성.저수지" : "',#{sprg_at},'",'),]]> 
+        </if>
+        <if test="frstfrval != null">
+		<![CDATA[ CONCAT('"산림특성.임상" : "',#{frstfrval},'",'),]]> 
+        </if>
+        <if test="maintreeknd != null">
+		<![CDATA[ CONCAT('"산림특성.주요수종" : "',#{maintreeknd},'",'),]]>
+        </if>
+        <if test="frlndsttus != null">
+		<![CDATA[ CONCAT('"기타특성.임지이용상태" : "',#{frlndsttus},'",'),]]>
+        </if>
+        <if test="lwbndlwfrlndsttus != null">
+		<![CDATA[ CONCAT('"기타특성.하부이용상태" : "',#{lwbndlwfrlndsttus},'",'),]]>
+        </if>
+        <if test="symptmoccur != null">
+		<![CDATA[ CONCAT('"땅밀림현황.징후발생여부" : "',#{symptmoccur},'",'),]]>
+        </if>
+        <if test="dirsymptmval != null">
+		<![CDATA[ CONCAT('"직접징후" : "',#{dirsymptmval},'",'),]]>
+        </if>
+        <if test="dirsymptmscore != null">
+		<![CDATA[ CONCAT('"직접징후_점수" : "',#{dirsymptmscore},'",'),]]>
+        </if>
+        <if test="indirsymptmval != null">
+		<![CDATA[ CONCAT('"간접징후" : "',#{indirsymptmval},'",'),]]>
+        </if>
+        <if test="indirsymptmscore != null">
+		<![CDATA[ CONCAT('"간접징후_점수" : "',#{indirsymptmscore},'",'),]]>
+        </if>
+        <if test="lcpsttus != null">
+		<![CDATA[ CONCAT('"땅밀림현황" : "',#{lcpsttus},'",'),]]>
+        </if>
+        <if test="lcpsttus_crk != null">
+		<![CDATA[ CONCAT('"땅밀림현황.균열" : ',#{lcpsttus_crk},','),]]>
+        </if>
+        <if test="lcpsttus_stp != null">
+		<![CDATA[ CONCAT('"땅밀림현황.단차" : ',#{lcpsttus_stp},','),]]>
+        </if>
+        <if test="lcpsttus_strct != null">
+		<![CDATA[ CONCAT('"땅밀림현황.구조물이상" : ',#{lcpsttus_strct},','),]]>
+        </if>
+        <if test="lcpsttus_wdpt != null">
+		<![CDATA[ CONCAT('"땅밀림현황.수목이상생장" : ',#{lcpsttus_wdpt},','),]]>
+        </if>
+        <if test="lcpsttus_ugrwtr != null">
+		<![CDATA[ CONCAT('"땅밀림현황.지하수용출" : ', #{lcpsttus_ugrwtr},','),]]>
+        </if>
+        <if test="judgScore_geo != null">
+		<![CDATA[ CONCAT('"판정점수_지질특성" : "',#{judgScore_geo},'",'),]]>
+        </if>
+        <if test="judgScore_topo != null">
+		<![CDATA[ CONCAT('"판정점수_지형특성" : "',#{judgScore_topo},'",'),]]>
+        </if>
+        <if test="judgScore_soil != null">
+		<![CDATA[ CONCAT('"판정점수_토양특성" : "',#{judgScore_soil},'",'),]]>
+        </if>
+        <if test="judgScore_strct != null">
+		<![CDATA[ CONCAT('"판정점수_구조물이상" : "',#{judgScore_strct},'",'),]]>
+        </if>
+        <if test="judgScore_ugwtr != null">
+		<![CDATA[ CONCAT('"판정점수_지하수용출" : "',#{judgScore_ugwtr},'",'),]]>
+        </if>
+        <if test="judgScore_wdpt != null">
+		<![CDATA[ CONCAT('"판정점수_수목생장이상" : "',#{judgScore_wdpt},'",'),]]>
+        </if>
+        <if test="judgScore_crk != null">
+		<![CDATA[ CONCAT('"판정점수_균열" : "',#{judgScore_crk},'",'),]]>
+        </if>
+        <if test="judgScore_stp != null">
+		<![CDATA[ CONCAT('"판정점수_단차" : "',#{judgScore_stp},'",'),]]>
+        </if>
+        <if test="passresn != null">
+		<![CDATA[ CONCAT('"땅밀림.패스사유" : "',#{passresn},'",'),]]>
+        </if>
+        <if test="passat != null">
+		<![CDATA[ CONCAT('"땅밀림.패스유무" : "',#{passat},'",'),]]>
+        </if>
+        <if test="priHouse != null">
+		<![CDATA[ CONCAT('"민가" : "',#{priHouse},'",'),]]>
+        </if>
+        <if test="lcpcomplet != null">
+		<![CDATA[ CONCAT('"완료" : "',#{lcpcomplet},'",'),]]>
+        </if>
+        <if test="faciltyYear != null">
+		<![CDATA[ CONCAT('"시설년도" : "',#{faciltyYear},'",'),]]>
+        </if>
+        <if test="sttusprnt != null">
+		<![CDATA[ CONCAT('"현황도" : "',#{sttusprnt},'",'),]]>
+        </if>
+        <if test="fckRslt != null">
+		<![CDATA[ CONCAT('"최종점검결과" : "',#{fckRslt},'",'),]]>
+        </if>
+        <if test="mngmtr != null">
+		<![CDATA[ CONCAT('"조치사항" : "',#{mngmtr},'",'),]]>
+        </if>
+        <if test="appnRelis != null">
+		<![CDATA[ CONCAT('"지정해제" : "',#{appnRelis},'",'),]]>
+        </if>
+        <if test="lcmap != null">
+		<![CDATA[ CONCAT('"위치도" : "',#{lcmap},'",'),]]>
+        </if>
+        <if test="opinion1 != null">
+        <![CDATA[ CONCAT('"종합의견1" : "',#{opinion1},'",'),]]>
+        </if>
+        <if test="opinion2 != null">
+        <![CDATA[ CONCAT('"종합의견2" : "',#{opinion2},'",'),]]>
+        </if>
+        <if test="opinion3 != null">
+        <![CDATA[ CONCAT('"종합의견3" : "',#{opinion3},'",'),]]>
+        </if>
+        <if test="opinion4 != null">
+        <![CDATA[ CONCAT('"종합의견4" : "',#{opinion4},'",'),]]>
+        </if>
+        <if test="opinion5 != null">
+        <![CDATA[ CONCAT('"종합의견5" : "',#{opinion5},'",'),]]>
+        </if>
+        <if test="photoTagList != null and photoTagList != ''">
+       	<![CDATA[ CONCAT('"사진태그" : ',#{photoTagList},','),]]>
+        </if>
+        <if test="svyId != null">
+		<![CDATA[ CONCAT('"조사ID" : "',#{svyId},'"')]]>
+        </if>
+		<![CDATA[
+		,'}')::JSONB
+             WHERE MST_ID = CAST(#{mstId} AS INTEGER)
+             	AND SVY_LABEL = #{svyId}
+          ]]>   
+	</update>
+	
+	<delete id="deleteLcpSvyCompt">
+		<![CDATA[
+			DELETE FROM TN_FEIS_LCP_SVYCOMPT
+             WHERE GID = CAST(#{gid} AS INTEGER)
+		]]>	 
+	</delete>
+	
+	<!-- 엑셀 저장 -->
+	<select id="selectLcpSvyComptListExcel" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultType="egovMap">
+		<!-- 엑셀 저장 항목 추후 추가-->
+		<![CDATA[
+			SELECT
+			 	LTRIM(COALESCE(B.SVYID,'')) AS SVYID
+			 	, LTRIM(COALESCE(B.SD,'')) AS SD
+			 	, LTRIM(COALESCE(B.SN,'')) AS SN
+			 	, LTRIM(COALESCE(B.FID::TEXT,'')) AS FID
+			 	, LTRIM(COALESCE(B.SGG,'')) AS SGG
+			 	, LTRIM(COALESCE(B.EMD,'')) AS EMD
+			 	, LTRIM(COALESCE(B.RI,'')) AS RI
+			 	, LTRIM(COALESCE(B.JIBUN,'')) AS JIBUN
+			 	, LTRIM(COALESCE(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(B.PX,null),A.SVY_LON)::FLOAT,COALESCE(NULLIF(B.PY,null),A.SVY_LAT)::FLOAT),5186),4326)), 'D° M'' S.SS"'),'')) AS POINT
+			 	, TO_CHAR(B.CREAT_DT,'YYYY-MM-DD') AS SVYDT
+			 	, (SELECT DISTINCT MB.OFCPS_NM FROM TN_FEIS_GNRLMBER MB, TN_FEIS_ORGNZTINFO OI WHERE (MB.MBER_ID = SPLIT_PART(B.SVYUSER,',',1) OR MB.MBER_NM = SPLIT_PART(B.SVYUSER,',',1)) AND MB.INSTT_ID = OI.ORGNZT_ID) AS SVYDEPT
+			 	, LTRIM(COALESCE(B.SVYUSER,'')) AS SVYUSER
+			 	, LTRIM(COALESCE(B.PASSRESN,'')) AS PASSRESN
+			 	, LTRIM(COALESCE(B.PZ,'')) AS PZ
+			 	, LTRIM(COALESCE(B.LSSFRSM,'')) AS LSSFRSM
+			 	, LTRIM(COALESCE(B.LSSFRGRD,'')) AS LSSFRGRD
+			 	, LTRIM(COALESCE(B.GEOLOGYSM,'')) AS GEOLOGYSM
+			 	, LTRIM(COALESCE(B.GEOLOGYGRD,'')) AS GEOLOGYGRD
+			 	, LTRIM(COALESCE(B.CMPROKSCORE,'')) AS CMPROKSCORE
+			 	, LTRIM(COALESCE(B.CMPROKVAL,'')) AS CMPROKVAL
+			 	, LTRIM(COALESCE(B.INSTROKAT,'')) AS INSTROKAT
+			 	, LTRIM(COALESCE(B.ROKWTHRVAL,'')) AS ROKWTHRVAL
+			 	, LTRIM(COALESCE(B.GEOLOGYFLT,'')) AS GEOLOGYFLT
+			 	, LTRIM(COALESCE(B.GEOLOGYFLD,'')) AS GEOLOGYFLD
+			 	, LTRIM(COALESCE(B.GEOLOGYFLD,'')) AS GEOLOGYFLD
+			 	, LTRIM(COALESCE(B.DISCTNUPLN1,'')) AS DISCTNUPLN1
+			 	, LTRIM(COALESCE(B.DISCTNUPLN1_STRK,'')) AS DISCTNUPLN1_STRK
+			 	, LTRIM(COALESCE(B.DISCTNUPLN1_DIP,'')) AS DISCTNUPLN1_DIP
+			 	, LTRIM(COALESCE(B.DISCTNUPLN2,'')) AS DISCTNUPLN2
+			 	, LTRIM(COALESCE(B.DISCTNUPLN2_STRK,'')) AS DISCTNUPLN2_STRK
+			 	, LTRIM(COALESCE(B.DISCTNUPLN2_DIP,'')) AS DISCTNUPLN2_DIP
+			 	, LTRIM(COALESCE(B.DISCTNUPLN3,'')) AS DISCTNUPLN3
+			 	, LTRIM(COALESCE(B.DISCTNUPLN3_STRK,'')) AS DISCTNUPLN3_STRK
+			 	, LTRIM(COALESCE(B.DISCTNUPLN3_DIP,'')) AS DISCTNUPLN3_DIP
+			 	, LTRIM(COALESCE(B.DISCTNUPLN4,'')) AS DISCTNUPLN4
+			 	, LTRIM(COALESCE(B.DISCTNUPLN4_STRK,'')) AS DISCTNUPLN4_STRK
+			 	, LTRIM(COALESCE(B.DISCTNUPLN4_DIP,'')) AS DISCTNUPLN4_DIP
+			 	, LTRIM(COALESCE(B.DISCTNUPLN5,'')) AS DISCTNUPLN5
+			 	, LTRIM(COALESCE(B.DISCTNUPLN5_STRK,'')) AS DISCTNUPLN5_STRK
+			 	, LTRIM(COALESCE(B.DISCTNUPLN5_DIP,'')) AS DISCTNUPLN5_DIP
+			 	, LTRIM(COALESCE(B.DISCTNUPLNDRCNO,'')) AS DISCTNUPLNDRCNO
+			 	, LTRIM(COALESCE(B.DISCTNUPLNSLPSCORE,'')) AS DISCTNUPLNSLPSCORE
+			 	, LTRIM(COALESCE(B.DISCTNUPLNSLPVAL,'')) AS DISCTNUPLNSLPVAL
+			 	, LTRIM(COALESCE(B.DISCTNUPLNSLPVAL,'')) AS DISCTNUPLNSLPVAL
+			 	, LTRIM(COALESCE(B.DISCTNUPLNINTVLSCORE,'')) AS DISCTNUPLNINTVLSCORE
+			 	, LTRIM(COALESCE(B.DISCTNUPLNINTVLVAL,'')) AS DISCTNUPLNINTVLVAL
+			 	, LTRIM(COALESCE(B.SOILTY,'')) AS SOILTY
+			 	, LTRIM(COALESCE(B.SOILDEPTBSCORE,'')) AS SOILDEPTBSCORE
+			 	, LTRIM(COALESCE(B.SOILDEPTBVAL,'')) AS SOILDEPTBVAL
+			 	, LTRIM(COALESCE(B.SOILCLASSBSCORE,'')) AS SOILCLASSBSCORE
+			 	, LTRIM(COALESCE(B.SOILCLASSBVAL,'')) AS SOILCLASSBVAL
+			 	, LTRIM(COALESCE(B.SOILSTRCT,'')) AS SOILSTRCT
+			 	, LTRIM(COALESCE(B.SOILWTSCORE,'')) AS SOILWTSCORE
+			 	, LTRIM(COALESCE(B.SOILWTRVAL,'')) AS SOILWTRVAL
+			 	, LTRIM(COALESCE(B.ROKEXPSR,'')) AS ROKEXPSR
+			 	, LTRIM(COALESCE(B.TALUSATSCORE,'')) AS TALUSATSCORE
+			 	, LTRIM(COALESCE(B.TALUSAT,'')) AS TALUSAT
+			 	, LTRIM(COALESCE(B.MXHG,'')) AS MXHG
+			 	, LTRIM(COALESCE(B.TPGRPHSCORE,'')) AS TPGRPHSCORE
+			 	, LTRIM(COALESCE(B.TPGRPHVAL,'')) AS TPGRPHVAL
+			 	, LTRIM(COALESCE(B.AREALCRIDGE,'')) AS AREALCRIDGE
+			 	, LTRIM(COALESCE(B.AREALCVAL,'')) AS AREALCVAL
+			 	, LTRIM(COALESCE(B.PLNFORMSCORE,'')) AS PLNFORMSCORE
+			 	, LTRIM(COALESCE(B.PLNFORMVAL,'')) AS PLNFORMVAL
+			 	, LTRIM(COALESCE(B.LNGFORMSCORE,'')) AS LNGFORMSCORE
+			 	, LTRIM(COALESCE(B.LNGFORMVAL,'')) AS LNGFORMVAL
+			 	, LTRIM(COALESCE(B.SLPRNGAVGVAL,'')) AS SLPRNGAVGVAL
+			 	, LTRIM(COALESCE(B.SLPRNGVAL,'')) AS SLPRNGVAL
+			 	, LTRIM(COALESCE(B.UGRWTR_POSBLTY,'')) AS UGRWTRPOSBLTY
+			 	, LTRIM(COALESCE(B.DWSTRM_AT,'')) AS DWSTRMAT
+			 	, LTRIM(COALESCE(B.SPRG_AT,'')) AS SPRGAT
+			 	, LTRIM(COALESCE(B.FRSTFRVAL,'')) AS FRSTFRVAL
+			 	, LTRIM(COALESCE(B.MAINTREEKND,'')) AS MAINTREEKND
+			 	, LTRIM(COALESCE(B.FRLNDSTTUS,'')) AS FRLNDSTTUS
+			 	, LTRIM(COALESCE(B.LWBNDLWFRLNDSTTUS,'')) AS LWBNDLWFRLNDSTTUS 
+			 	, LTRIM(COALESCE(B.SYMPTMOCCUR,'')) AS SYMPTMOCCUR
+			 	, LTRIM(COALESCE(B.DIRSYMPTMSCORE,'')) AS DIRSYMPTMSCORE
+			 	, LTRIM(COALESCE(B.DIRSYMPTMVAL,'')) AS DIRSYMPTMVAL
+			 	, LTRIM(COALESCE(B.INDIRSYMPTMSCORE,'')) AS INDIRSYMPTMSCORE
+			 	, LTRIM(COALESCE(B.INDIRSYMPTMVAL,'')) AS INDIRSYMPTMVAL
+			 	, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2),''),'') AS LCPSTTUS_CRK_PY
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1),''),'') AS LCPSTTUS_CRK_PX
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'시점_고도',' ','','g'),'')) AS LCPSTTUS_CRK_PZ
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'연장',' ','','g'),'')) AS LCPSTTUS_CRK_LENGTH
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'높이',' ','','g'),'')) AS LCPSTTUS_CRK_HEIGHT
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_CRK::JSON->0->>'깊이',' ','','g'),'')) AS LCPSTTUS_CRK_DEPTH
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2),''),'') AS LCPSTTUS_STP_PY
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1),''),'') AS LCPSTTUS_STP_PX
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'시점_고도',' ','','g'),'')) AS LCPSTTUS_STP_PZ
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'연장',' ','','g'),'')) AS LCPSTTUS_STP_LENGTH
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'높이',' ','','g'),'')) AS LCPSTTUS_STP_HEIGHT
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STP::JSON->0->>'깊이',' ','','g'),'')) AS LCPSTTUS_STP_DEPTH
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2),''),'') AS LCPSTTUS_STRCT_PY
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1),''),'') AS LCPSTTUS_STRCT_PX
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_고도',' ','','g'),'')) AS LCPSTTUS_STRCT_PZ
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'연장',' ','','g'),'')) AS LCPSTTUS_STRCT_LENGTH
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'높이',' ','','g'),'')) AS LCPSTTUS_STRCT_HEIGHT
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'깊이',' ','','g'),'')) AS LCPSTTUS_STRCT_DEPTH
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2),''),'') AS LCPSTTUS_WDPT_PY
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1),''),'') AS LCPSTTUS_WDPT_PX
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'시점_고도',' ','','g'),'')) AS LCPSTTUS_WDPT_PZ
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'연장',' ','','g'),'')) AS LCPSTTUS_WDPT_LENGTH
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'높이',' ','','g'),'')) AS LCPSTTUS_WDPT_HEIGHT
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_STRCT::JSON->0->>'깊이',' ','','g'),'')) AS LCPSTTUS_WDPT_DEPTH
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_UGRWTR::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_UGRWTR::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2),''),'') AS LCPSTTUS_UGRWTR_PY
+				, LTRIM(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(REGEXP_REPLACE(B.LCPSTTUS_UGRWTR::JSON->0->>'시점_위도',' ','','g'),NULL)::FLOAT,NULLIF(REGEXP_REPLACE(B.LCPSTTUS_UGRWTR::JSON->0->>'시점_경도',' ','','g'),NULL)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1),''),'') AS LCPSTTUS_UGRWTR_PX
+				, LTRIM(COALESCE(REGEXP_REPLACE(B.LCPSTTUS_UGRWTR::JSON->0->>'시점_고도',' ','','g'),'')) AS LCPSTTUS_UGRWTR_PZ
+				, LTRIM(COALESCE(B.SAFTYSCORE,'')) AS SAFTYSCORE
+				, LTRIM(COALESCE(B.SAFTYVAL,'')) AS SAFTYVAL
+				, LTRIM(COALESCE(B.SLENSCORE,'')) AS SLENSCORE
+				, LTRIM(COALESCE(B.SLENVAL,'')) AS SLENVAL
+				, LTRIM(COALESCE(B.PRNTRCKSCORE,'')) AS PRNTRCKSCORE
+				, LTRIM(COALESCE(B.PRNTRCKVAL,'')) AS PRNTRCKVAL
+				, LTRIM(COALESCE(B.FRSTFRVAL,'')) AS FRSTFRVAL
+				, LTRIM(COALESCE(B.SLPLCSCORE,'')) AS SLPLCSCORE
+				, LTRIM(COALESCE(B.SFORMSCORE,'')) AS SFORMSCORE
+				, LTRIM(COALESCE(B.SOILDEPTSCORE,'')) AS SOILDEPTSCORE
+				, LTRIM(COALESCE(B.SLOPESCORE,'')) AS SLOPESCORE
+				, LTRIM(COALESCE(B.GEOLOGYSM,'')) AS GEOLOGYSM
+				, LTRIM(COALESCE(B.GEOLOGYGRD,'')) AS GEOLOGYGRD
+				, LTRIM(COALESCE(B.OPINION1,'')) AS OPINION1
+				, LTRIM(COALESCE(B.OPINION2,'')) AS OPINION2
+				, LTRIM(COALESCE(B.OPINION3,'')) AS OPINION3
+				, LTRIM(COALESCE(B.OPINION4,'')) AS OPINION4
+				, LTRIM(COALESCE(B.OPINION5,'')) AS OPINION5
+				, LTRIM(COALESCE(B.CNSUTRESN,'')) AS CNSUTRESN
+			FROM TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+			WHERE A.GID = B.GID
+			AND A.MST_ID = C.ID
+		]]>
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="lastgrd != null and lastgrd != ''">	<![CDATA[ AND
+				B.LASTGRD = #{lastgrd} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyYear == null">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_LCP_SVYMEMO) ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			ORDER BY COALESCE(REGEXP_REPLACE(B.SVYID , '[^a-zA-Z]','','g'), B.SVYID , '') ASC, B.SVYID LIKE '제보%' ASC, COALESCE(REGEXP_REPLACE(B.SVYID , '[0-9]','','g'), B.SVYID , ''), COALESCE(NULLIF(REGEXP_REPLACE(B.SVYID,'[^[:digit:]]','','g'),''),'0',B.SVYID)::INTEGER
+	</select>
+	
+	<select id ="selectLcpSvyComptMaxYear" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_SVYCOMPT a, TN_FEIS_LCP_CNRSSPCE b
+		WHERE a.MST_ID = b.ID
+	</select>
+	
+	<select id ="selectLcpSvyComptMaxMonth" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'MM') FROM TN_FEIS_LCP_SVYCOMPT a, TN_FEIS_LCP_CNRSSPCE b
+		WHERE a.MST_ID = b.ID
+	</select>
+	
+	<select id ="selectLcpSvyComptYear" resultType="egovMap">
+		SELECT DISTINCT TO_CHAR(CREAT_DT,'YYYY') AS svyYear FROM TN_FEIS_LCP_SVYCOMPT a, TN_FEIS_LCP_CNRSSPCE b
+		WHERE a.MST_ID = b.ID
+		ORDER BY svyYear DESC
+	</select>
+	
+	<insert id="updateLcpSvyComptExcel" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		INSERT INTO TN_FEIS_LCP_SVYCOMPT
+			(
+				MST_ID
+				, LOGIN_ID
+				, SVY_FID
+				<if test="px != null and py != null">
+					, SVY_LON
+					, SVY_LAT
+				</if>
+				<if test="passresn != null">
+					, SVY_DATA
+					, SVY_AT
+				</if>
+				, SVY_STYLE
+				, SVY_KEYWORD
+				, SVY_LABEL
+				, SVY_ATTR
+				, LAST_UPDT_PNTTM
+				, CREAT_DT
+				, SVY_MEMO
+		    ) VALUES (
+				CAST(#{mstId} AS INT)
+				, #{loginId}
+				, #{fid}
+				<if test="px != null and py != null">
+					, CAST(ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{px}::FLOAT,#{py}::FLOAT),4326),5186)) AS FLOAT)
+					, CAST(ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{px}::FLOAT,#{py}::FLOAT),4326),5186)) AS FLOAT)
+				</if>
+				<if test="passresn != null">
+<!-- 			    	, COALESCE(CAST(#{gid} AS INT),(SELECT MAX(GID)+1 FROM TN_FEIS_LCP_SVYCOMPT)) -->
+					, ST_ASTEXT(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{px}::FLOAT,#{py}::FLOAT),4326),5186))
+					, 'Y' 
+				</if>
+				, 'BRUSH(bc:#7a55478f,fc:#7a5547ff);SYMBOL(c:#7a5547ff,o:#7a5547ff,s:8)'
+				, #{svyId}
+				, #{svyId}
+		        , COALESCE(#{attr},'[]')
+				, now()
+				, to_timestamp(#{svyDt}, 'YYYY-MM-DD hh24:mi:ss')
+				, CONCAT('{',
+		        <if test="svyUser != null and svyUser != ''">
+				<![CDATA[ CONCAT('"조사자" : "',#{svyUser},'",'),CONCAT('"점검자" : "',#{svyUser},'",'),]]>
+		        </if>
+		        <if test="svySd != null and svySd != ''">
+				<![CDATA[ CONCAT('"시도" : "',#{svySd},'",'),]]>
+		        </if>
+		        <if test="svySgg != null and svySgg != ''">
+				<![CDATA[ CONCAT('"시군구" : "',#{svySgg},'",'),]]>
+		        </if>
+		        <if test="svyEmd != null and svyEmd != ''">
+				<![CDATA[ CONCAT('"읍면동" : "',#{svyEmd},'",'),]]>
+		        </if>
+		        <if test="svyRi != null and svyRi != ''">
+				<![CDATA[ CONCAT('"리" : "',#{svyRi},'",'),]]>
+		        </if>
+		        <if test="svyJibun != null and svyJibun != ''">
+				<![CDATA[ CONCAT('"지번" : "',#{svyJibun},'",'),]]>
+		        </if>
+		        <if test="svyDt != null and svyDt != ''">
+				<![CDATA[ CONCAT('"점검일시" : "',#{svyDt},'",'),]]>
+		        </if>
+		        <if test="pz != null ">
+				<![CDATA[ CONCAT('"고도" : "',#{pz},'",'),]]>
+		        </if>
+		        <if test="cmprokval != null">
+				<![CDATA[ CONCAT('"지질특성.주구성암석" : "',#{cmprokval},'",'),]]>
+		        </if>
+		        <if test="cmprokscore != null">
+				<![CDATA[ CONCAT('"지질특성.주구성암석.점수" : "',#{cmprokscore},'",'),]]>
+		        </if>
+		        <if test="instrokat != null">
+				<![CDATA[ CONCAT('"지질특성.타지층관입암" : "',#{instrokat},'",'),]]>
+		        </if>
+		        <if test="prntrckval != null">
+				<![CDATA[ CONCAT('"지질특성.모암" : "',#{prntrckval},'",'),]]>
+		        </if>
+		        <if test="prntrckscore != null">
+				<![CDATA[ CONCAT('"지질특성.모암.점수" : "',#{prntrckscore},'",'),]]>
+		        </if>
+		        <if test="rokwthrval != null">
+				<![CDATA[ CONCAT('"지질특성.암석풍화" : "',#{rokwthrval},'",'),]]>
+		        </if>
+		        <if test="rokwthrscore != null">
+				<![CDATA[ CONCAT('"지질특성.암석풍화.점수" : "',#{rokwthrscore},'",'),]]>
+		        </if>
+		        <if test="geologyflt != null">
+				<![CDATA[ CONCAT('"지질특성.지질구조_단층" : "',#{geologyflt},'",'),]]>
+		        </if>
+		        <if   test="geologyfld != null">
+				<![CDATA[ CONCAT('"지질특성.지질구조_습곡" : "',#{geologyfld},'",'),]]>
+		        </if>
+		        <if test="disctnupln1 != null">
+				<![CDATA[ CONCAT('"지질특성.조사1.종류" : "',#{disctnupln1},'",'),]]>
+		        </if>
+		        <if test="disctnupln1_strk != null">
+				<![CDATA[ CONCAT('"지질특성.조사1.주향" : "',#{disctnupln1_strk},'",'),]]>
+		        </if>
+		        <if test="disctnupln1_dip != null">
+				<![CDATA[ CONCAT('"지질특성.조사1.경사" : "',#{disctnupln1_dip},'",'),]]>
+		        </if>
+		        <if test="disctnupln2 != null">
+				<![CDATA[ CONCAT('"지질특성.조사2.종류" : "',#{disctnupln2},'",'),]]>
+		        </if>
+		        <if test="disctnupln2_strk != null">
+				<![CDATA[ CONCAT('"지질특성.조사2.주향" : "',#{disctnupln2_strk},'",'),]]>
+		        </if>
+		        <if test="disctnupln2_dip != null">
+				<![CDATA[ CONCAT('"지질특성.조사2.경사" : "',#{disctnupln2_dip},'",'),]]>
+		        </if>
+		        <if test="disctnupln3 != null">
+				<![CDATA[ CONCAT('"지질특성.조사3.종류" : "',#{disctnupln3},'",'),]]>
+		        </if>
+		        <if test="disctnupln3_strk != null">
+				<![CDATA[ CONCAT('"지질특성.조사3.주향" : "',#{disctnupln3_strk},'",'),]]>
+		        </if>
+		        <if test="disctnupln3_dip != null">
+				<![CDATA[ CONCAT('"지질특성.조사3.경사" : "',#{disctnupln3_dip},'",'),]]>
+		        </if>
+		        <if test="disctnupln4 != null">
+				<![CDATA[ CONCAT('"지질특성.조사4.종류" : "',#{disctnupln4},'",'),]]>
+		        </if>
+		        <if test="disctnupln4_strk != null">
+				<![CDATA[ CONCAT('"지질특성.조사4.주향" : "',#{disctnupln4_strk},'",'),]]>
+		        </if>        
+		        <if test="disctnupln4_dip != null">
+				<![CDATA[ CONCAT('"지질특성.조사4.경사" : "',#{disctnupln4_dip},'",'),]]>
+		        </if>
+		        <if test="disctnupln5 != null">
+				<![CDATA[ CONCAT('"지질특성.조사5.종류" : "',#{disctnupln5},'",'),]]>
+		        </if>
+		        <if test="disctnupln5_strk != null">
+				<![CDATA[ CONCAT('"지질특성.조사5.주향" : "',#{disctnupln5_strk},'",'),]]>
+		        </if>
+		        <if test="disctnupln5_dip != null">
+				<![CDATA[ CONCAT('"지질특성.조사5.경사" : "',#{disctnupln5_dip},'",'),]]>
+		        </if>
+		        <if test="disctnuplndrcno != null">
+				<![CDATA[ CONCAT('"지질특성.불연속면방향수" : "',#{disctnuplndrcno},'",'),]]>
+		        </if>
+		        <if test="disctnuplnslpval != null">
+				<![CDATA[ CONCAT('"지질특성.불연속면방향성" : "',#{disctnuplnslpval},'",'),]]>
+		        </if>
+		        <if test="disctnuplnslpscore != null">
+				<![CDATA[ CONCAT('"지질특성.불연속면방향성.점수" : "',#{disctnuplnslpscore},'",'),]]>
+		        </if>
+		        <if test="disctnuplnintvlval != null">
+				<![CDATA[ CONCAT('"지질특성.불연속면간격" : "',#{disctnuplnintvlval},'",'),]]>
+		        </if>
+		        <if test="disctnuplnintvlscore != null">
+				<![CDATA[ CONCAT('"지질특성.불연속면간격.점수" : "',#{disctnuplnintvlscore},'",'),]]>
+		        </if>
+		        <if test="soilty != null">
+				<![CDATA[ CONCAT('"토양특성.토양형" : "',#{soilty},'",'),]]>
+		        </if>
+		        <if test="soildeptbval != null">
+				<![CDATA[ CONCAT('"토양특성.토심" : "',#{soildeptbval},'",'),]]>
+		        </if>
+		        <if test="soildeptbscore != null">
+				<![CDATA[ CONCAT('"토양특성.토심판정값.점수" : "',#{soildeptbscore},'",'),]]>
+		        </if>
+		        <if test="soilclassbval != null">
+				<![CDATA[ CONCAT('"토양특성.토성" : "',#{soilclassbval},'",'),]]> 
+		        </if>
+		        <if test="soilclassbscore != null">
+				<![CDATA[ CONCAT('"토양특성.토성.점수" : "',#{soilclassbscore},'",'),]]>
+		        </if>
+		        <if test="soilwtrval != null">
+				<![CDATA[ CONCAT('"토양특성.토양수분" : "',#{soilwtrval},'",'),]]>
+		        </if>
+		        <if test="soilwtscore != null">
+				<![CDATA[ CONCAT('"토양특성.토양수분.점수" : "',#{soilwtscore},'",'),]]>
+		        </if>
+		        <if test="soilstrct != null">
+				<![CDATA[ CONCAT('"토양특성.토양구조" : "',#{soilstrct},'",'),]]>
+		        </if>
+		        <if test="rokexpsr != null">
+				<![CDATA[ CONCAT('"토양특성.암석노출도" : "',#{rokexpsr},'",'),]]>
+		        </if>
+		        <if test="talusat != null">
+				<![CDATA[ CONCAT('"토양특성.너덜유무" : "',#{talusat},'",'),]]>
+		        </if>
+		        <if test="talusat != null">
+				<![CDATA[ CONCAT('"토양특성.너덜유무.점수" : "',#{talusatscore},'",'),]]>
+		        </if>
+		        <if test="mxhg != null">
+				<![CDATA[ CONCAT('"지형특성.최대높이" : "',#{mxhg},'",'),]]>
+		        </if>
+		        <if test="slngval != null">
+				<![CDATA[ CONCAT('"지형특성.사면길이" : "',#{slngval},'",'),]]>
+		        </if>
+		        <if test="slngscore != null">
+				<![CDATA[ CONCAT('"지형특성.사면길이.점수" : "',#{slngscore},'",'),]]>
+		        </if>
+		        <if test="tpgrphval != null">
+				<![CDATA[ CONCAT('"지형특성.지형구분" : "',#{tpgrphval},'",'),]]>
+		        </if>
+		        <if test="tpgrphscore != null">
+				<![CDATA[ CONCAT('"지형특성.지형구분.점수" : "',#{tpgrphscore},'",'),]]>
+		        </if>
+		        <if test="arealcval != null">
+				<![CDATA[ CONCAT('"조사지역위치" : "',#{arealcval},'",'),]]>
+		        </if>
+		        <if test="arealcridge != null">
+				<![CDATA[ CONCAT('"지형특성.능선" : "',#{arealcridge},'",'),]]>
+		        </if>
+		        <if test="plnformval != null">
+				<![CDATA[ CONCAT('"지형특성.평면형" : "',#{plnformval},'",'),]]>
+		        </if>
+		        <if test="plnformscore != null">
+				<![CDATA[ CONCAT('"지형특성.평면형.점수" : "',#{plnformscore},'",'),]]>
+		        </if>
+		        <if test="lngformval != null">
+				<![CDATA[ CONCAT('"지형특성.종단면형" : "',#{lngformval},'",'),]]>
+		        </if>
+		        <if test="lngformscore != null">
+				<![CDATA[ CONCAT('"지형특성.종단면형.점수" : "',#{lngformscore},'",'),]]>
+		        </if>
+		        <if test="slprngval != null">
+				<![CDATA[ CONCAT('"지형특성.경사도" : "',#{slprngval},'",'),]]>
+		        </if>
+		        <if test="slprngminval != null">
+				<![CDATA[ CONCAT('"지형특성.경사_최소" : "',#{slprngminval},'",'),]]>
+		        </if>
+		        <if test="slprngmaxval != null">
+				<![CDATA[ CONCAT('"지형특성.경사_최대" : "',#{slprngmaxval},'",'),]]>
+		        </if>
+		        <if test="slprngavgval != null">
+				<![CDATA[ CONCAT('"지형특성.경사_평균" : "',#{slprngavgval},'",'),]]>
+		        </if>
+		        <if test="slprngscore != null">
+				<![CDATA[ CONCAT('"지형특성.경사도.점수" : "',#{slprngscore},'",'),]]>
+		        </if>
+		        <if test="slprngavrg != null">
+				<![CDATA[ CONCAT('"지형특성.경사" : "',#{slprngavrg},'",'),]]>
+		        </if>
+		        <if test="ugrwtr_posblty != null">
+				<![CDATA[ CONCAT('"수리특성.상부지하수유입" : "',#{ugrwtr_posblty},'",'),]]>
+		        </if>
+		        <if test="dwstrm_at != null">
+				<![CDATA[ CONCAT('"수리특성.하부계류" : "',#{dwstrm_at},'",'),]]>
+		        </if>
+		        <if test="sprg_at != null">
+				<![CDATA[ CONCAT('"수리특성.저수지" : "',#{sprg_at},'",'),]]> 
+		        </if>
+		        <if test="frstfrval != null">
+				<![CDATA[ CONCAT('"산림특성.임상" : "',#{frstfrval},'",'),]]> 
+		        </if>
+		        <if test="maintreeknd != null">
+				<![CDATA[ CONCAT('"산림특성.주요수종" : "',#{maintreeknd},'",'),]]>
+		        </if>
+		        <if test="frlndsttus != null">
+				<![CDATA[ CONCAT('"기타특성.임지이용상태" : "',#{frlndsttus},'",'),]]>
+		        </if>
+		        <if test="lwbndlwfrlndsttus != null">
+				<![CDATA[ CONCAT('"기타특성.하부이용상태" : "',#{lwbndlwfrlndsttus},'",'),]]>
+		        </if>
+		        <if test="symptmoccur != null">
+				<![CDATA[ CONCAT('"땅밀림현황.징후발생여부" : "',#{symptmoccur},'",'),]]>
+		        </if>
+		        <if test="dirsymptmval != null">
+				<![CDATA[ CONCAT('"직접징후" : "',#{dirsymptmval},'",'),]]>
+		        </if>
+		        <if test="dirsymptmscore != null">
+				<![CDATA[ CONCAT('"직접징후.점수" : "',#{dirsymptmscore},'",'),]]>
+		        </if>
+		        <if test="indirsymptmval != null">
+				<![CDATA[ CONCAT('"간접징후" : "',#{indirsymptmval},'",'),]]>
+		        </if>
+		        <if test="indirsymptmscore != null">
+				<![CDATA[ CONCAT('"간접징후.점수" : "',#{indirsymptmscore},'",'),]]>
+		        </if>
+		        <if test="lcpsttus != null">
+				<![CDATA[ CONCAT('"땅밀림현황" : "',#{lcpsttus},'",'),]]>
+		        </if>
+		        <if test="lcpsttus_crk != null">
+				<![CDATA[ CONCAT('"땅밀림현황.균열" : ',#{lcpsttus_crk},','),]]>
+		        </if>
+		        <if test="lcpsttus_stp != null">
+				<![CDATA[ CONCAT('"땅밀림현황.단차" : ',#{lcpsttus_stp},','),]]>
+		        </if>
+		        <if test="lcpsttus_strct != null">
+				<![CDATA[ CONCAT('"땅밀림현황.구조물이상" : ',#{lcpsttus_strct},','),]]>
+		        </if>
+		        <if test="lcpsttus_wdpt != null">
+				<![CDATA[ CONCAT('"땅밀림현황.수목이상생장" : ',#{lcpsttus_wdpt},','),]]>
+		        </if>
+		        <if test="lcpsttus_ugrwtr != null">
+				<![CDATA[ CONCAT('"땅밀림현황.지하수용출" : ', #{lcpsttus_ugrwtr},','),]]>
+		        </if>
+		        <if test="judgScore_geo != null">
+				<![CDATA[ CONCAT('"판정점수_지질특성" : "',#{judgScore_geo},'",'),]]>
+		        </if>
+		        <if test="judgScore_topo != null">
+				<![CDATA[ CONCAT('"판정점수_지형특성" : "',#{judgScore_topo},'",'),]]>
+		        </if>
+		        <if test="judgScore_soil != null">
+				<![CDATA[ CONCAT('"판정점수_토양특성" : "',#{judgScore_soil},'",'),]]>
+		        </if>
+		        <if test="judgScore_strct != null">
+				<![CDATA[ CONCAT('"판정점수_구조물이상" : "',#{judgScore_strct},'",'),]]>
+		        </if>
+		        <if test="judgScore_ugwtr != null">
+				<![CDATA[ CONCAT('"판정점수_지하수용출" : "',#{judgScore_ugwtr},'",'),]]>
+		        </if>
+		        <if test="judgScore_wdpt != null">
+				<![CDATA[ CONCAT('"판정점수_수목생장이상" : "',#{judgScore_wdpt},'",'),]]>
+		        </if>
+		        <if test="judgScore_crk != null">
+				<![CDATA[ CONCAT('"판정점수_균열" : "',#{judgScore_crk},'",'),]]>
+		        </if>
+		        <if test="judgScore_stp != null">
+				<![CDATA[ CONCAT('"판정점수_단차" : "',#{judgScore_stp},'",'),]]>
+		        </if>
+		        <if test="passresn != null">
+				<![CDATA[ CONCAT('"땅밀림.패스사유" : "',#{passresn},'",'),]]>
+		        </if>
+		        <if test="passat != null">
+				<![CDATA[ CONCAT('"땅밀림.패스유무" : "',#{passat},'",'),]]>
+		        </if>
+		        <if test="priHouse != null">
+				<![CDATA[ CONCAT('"민가" : "',#{priHouse},'",'),]]>
+		        </if>
+		        <if test="lcpcomplet != null">
+				<![CDATA[ CONCAT('"완료" : "',#{lcpcomplet},'",'),]]>
+		        </if>
+		        <if test="faciltyYear != null">
+				<![CDATA[ CONCAT('"시설년도" : "',#{faciltyYear},'",'),]]>
+		        </if>
+		        <if test="sttusprnt != null">
+				<![CDATA[ CONCAT('"현황도" : "',#{sttusprnt},'",'),]]>
+		        </if>
+		        <if test="lssfrsm != null">
+				<![CDATA[ CONCAT('"판정점수합계" : "',#{lssfrsm},'",'),]]>
+		        </if>
+		        <if test="lssfrgrd != null">
+				<![CDATA[ CONCAT('"판정표등급" : "',#{lssfrgrd},'",'),]]>
+		        </if>
+		        <if test="lastgrd != null">
+				<![CDATA[ CONCAT('"최종판정등급" : "',#{lastgrd},'",'),]]>
+		        </if>
+		        <if test="cnsutgrd != null">
+				<![CDATA[ CONCAT('"자문판정등급" : "',#{cnsutgrd},'",'),]]>
+		        </if>
+		        <if test="cnsutresn != null">
+				<![CDATA[ CONCAT('"자문사유" : "',#{cnsutresn},'",'),]]>
+		        </if>
+		        <if test="lastgrd != null">
+				<![CDATA[ CONCAT('"최종판정등급" : "',#{lastgrd},'",'),]]>
+		        </if>
+		        <if test="fckRslt != null">
+				<![CDATA[ CONCAT('"최종점검결과" : "',#{fckRslt},'",'),]]>
+		        </if>
+		        <if test="mngmtr != null">
+				<![CDATA[ CONCAT('"조치사항" : "',#{mngmtr},'",'),]]>
+		        </if>
+		        <if test="appnRelis != null">
+				<![CDATA[ CONCAT('"지정해제" : "',#{appnRelis},'",'),]]>
+		        </if>
+		        <if test="lcmap != null">
+				<![CDATA[ CONCAT('"위치도" : "',#{lcmap},'",'),]]>
+		        </if>
+		        <if test="opinion1 != null">
+		        <![CDATA[ CONCAT('"종합의견1" : "',#{opinion1},'",'),]]>
+		        </if>
+		        <if test="opinion2 != null">
+		        <![CDATA[ CONCAT('"종합의견2" : "',#{opinion2},'",'),]]>
+		        </if>
+		        <if test="opinion3 != null">
+		        <![CDATA[ CONCAT('"종합의견3" : "',#{opinion3},'",'),]]>
+		        </if>
+		        <if test="opinion4 != null">
+		        <![CDATA[ CONCAT('"종합의견4" : "',#{opinion4},'",'),]]>
+		        </if>
+		        <if test="opinion5 != null">
+		        <![CDATA[ CONCAT('"종합의견5" : "',#{opinion5},'",'),]]>
+		        </if>	        
+		        <if test="px != null">
+				<![CDATA[ CONCAT('"위치정보_X" : "',CAST(ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{px}::FLOAT,#{py}::FLOAT),4326),5186)) AS FLOAT),'",'),]]>
+		        </if>
+		        <if test="py != null">
+				<![CDATA[ CONCAT('"위치정보_Y" : "',CAST(ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{px}::FLOAT,#{py}::FLOAT),4326),5186)) AS FLOAT),'",'),]]>
+		        </if>
+		        <if test="svyId != null and svyId != ''">
+				<![CDATA[ CONCAT('"조사ID" : "',#{svyId},'",'),]]>
+		        </if>  	
+		        <if test="fid != null and fid != ''">
+				<![CDATA[ CONCAT('"PNU번호" : "',#{fid},'",'),]]>
+		        </if>  	
+		        <if test="sn != null and sn != ''">
+				<![CDATA[ CONCAT('"일련번호" : "',#{sn},'"')]]>
+		        </if>  	
+				<![CDATA[
+				,'}')::JSONB || '{"완료":"완료"}' || '{"조사유형":"땅밀림 실태조사"}'
+		         ]]>
+		    )
+	</insert>
+	
+	<!-- 조사완료지 현장사진 일괄 다운로드 -->
+	<select id="selectLcpSvyComptListSvyId" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultMap="svyComptListVO" resultType="egovMap">
+		<![CDATA[
+			SELECT
+				COALESCE(B.SVYID,'') AS SVY_ID,
+				C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			FROM TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+			WHERE A.GID = B.GID
+				AND A.MST_ID = C.ID
+		]]>
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyYear == null">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_SVYMEMO) ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+	
+	<!-- 조사완료지 현장사진정보 불러오기-->
+	<select id="selectLcpSvyComptPhotoInfo" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultType="egovMap">
+		<![CDATA[
+			SELECT 
+				 REPLACE(B.PHOTO::TEXT,'gimg:///','') AS PHOTO
+				 , REPLACE(B.PHOTOTAG::TEXT,'gimg:///','') AS PHOTOTAG
+			FROM TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+			WHERE A.GID = B.GID
+				AND A.MST_ID = C.ID 
+				AND B.SVYID = #{id}
+				AND C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')
+			LIMIT 6
+		]]>
+	</select>
+	
+	<!-- 땅밀림현황 조사 시점종점 좌표 변환 -->
+	<select id ="selectLssLcpProjDMS" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+				SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS EX_BPX
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS EX_BPY
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),5186),4326)) AS BPX
+				, ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),5186),4326)) AS BPY
+			</if>
+			<if test="epx != null and epx != '' and epy != null and epy != ''">
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS EX_EPX
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS EX_EPY
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),5186),4326)) AS EPX
+				, ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),5186),4326)) AS EPY
+			</if>
+	</select>
+	
+	<!-- 땅밀림현황 조사완료 엑셀  -->
+	<select id ="selectLssLcpProjBessel" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+				ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpy}::FLOAT, #{bpx}::FLOAT),4326),5186)) AS BPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpy}::FLOAT, #{bpx}::FLOAT),4326),5186)) AS BPY
+			</if>
+			<if test="epx != null and epx != '' and epy != null and epy != ''">
+				, ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epy}::FLOAT, #{epx}::FLOAT),4326),5186)) AS EPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epy}::FLOAT, #{epx}::FLOAT),4326),5186)) AS EPY
+			</if>
+	</select>
+	
+	<select id="selectLcpLocReCreateSvyId" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultType="egovMap">
+		SELECT 
+			A.GID AS GID, 
+			A.MST_ID AS mstId,
+			A.LOGIN_ID AS loginId,
+			A.SVY_ATTR AS ATTR,
+			A.SVY_LON as LON,
+			A.SVY_LAT as LAT,
+			A.SVY_FID as FID,
+			A.SVY_ATTR AS ATTR
+		FROM TN_FEIS_LCP_SVYCOMPT A
+		WHERE A.SVY_LABEL = #{svyId}
+	</select>
+	
+	<select id="selectLcpSttusList" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO" resultType="egovMap">
+		SELECT A.LCPSTTUS_CRK
+			, A.LCPSTTUS_STP
+			, A.LCPSTTUS_WDPT
+			, A.LCPSTTUS_STRCT
+			, A.LCPSTTUS_UGRWTR
+		FROM TN_FEIS_LCP_SVY_MEMO A, TN_FEIS_LCP_SVYCOMPT B
+		WHERE A.GID = B.GID
+			AND A.GID = CAST(#{gid} AS INTEGER)
+		
+	</select>
+	
+	<!-- 기간 별 조사완료지 최소날짜,최대날짜,총건수 -->
+	<select id="selectLastUpdateMinMaxDate" parameterType="or.sabang.sys.service.LocReCreateVO" resultType="egovMap">
+		<![CDATA[
+		SELECT 
+			 TO_CHAR(MIN(A.CREAT_DT),'YYYY-MM-DD') AS MINDT
+			,TO_CHAR(MAX(A.CREAT_DT),'YYYY-MM-DD') AS MAXDT
+			,COUNT(*) AS ALLCNT
+		FROM TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C 
+		WHERE A.GID = B.GID
+		AND A.MST_ID = C.ID
+		]]>
+		<if test="lastGrd != null and lastGrd != ''">	<![CDATA[ AND
+			B.LASTGRD = #{lastGrd} ]]>
+		</if>
+		<if test="startDate != null and startDate != ''">	<![CDATA[ AND
+			A.CREAT_DT >= TO_TIMESTAMP(#{startDate}||' 00:00:00','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		<if test="endDate != null and endDate != ''">	<![CDATA[ AND
+			A.CREAT_DT < TO_TIMESTAMP(#{endDate}||' 23:59:59','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+	</select>
+	
+	<!-- 기간 별 위치도 파라메터 전송값 조회 -->
+	<select id="updateLocReCreate" parameterType="or.sabang.sys.service.LocReCreateVO" resultType="egovMap">
+		SELECT 
+			B.GID AS GID,
+			B.SVYTYPE AS svyType,
+			A.MST_ID AS mstId,
+			C.MST_CORPNAME ||'-'|| C.MST_PARTNAME AS mstPath,
+			A.SVY_LABEL AS svyLabel,
+			'LCP' AS svySe
+		FROM TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C 
+		WHERE A.GID = B.GID
+		AND A.MST_ID = C.ID
+		<if test="lastGrd != null and lastGrd != ''">	<![CDATA[ AND
+			B.LASTGRD = #{lastGrd} ]]>
+		</if>
+		<if test="startDate != null and startDate != ''">	<![CDATA[ AND
+			A.CREAT_DT >= TO_TIMESTAMP(#{startDate}||' 00:00:00','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		<if test="endDate != null and endDate != ''">	<![CDATA[ AND
+			A.CREAT_DT < TO_TIMESTAMP(#{endDate}||' 23:59:59','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		ORDER BY A.CREAT_DT ASC
+	</select>
+	
+	<!-- 공유방 권한 확인 -->
+	<select id="selectAuthorCheck" resultType="String">
+		SELECT USER_GRADE FROM TN_FEIS_CNRSSPCE_AUTHORMGT
+		WHERE MST_ID = #{id}
+			AND ESNTL_ID = #{esntlId}
+	</select>
+</mapper>

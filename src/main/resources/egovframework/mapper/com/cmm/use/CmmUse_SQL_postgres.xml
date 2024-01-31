@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:39 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CmmUseDAO">
+
+	<resultMap id="CmmCodeDetail" type="or.sabang.cmm.service.CmmnDetailCode">
+		<result property="codeId" column="CODE_ID"/>
+		<result property="code" column="CODE"/>
+		<result property="codeNm" column="CODE_NM"/>
+		<result property="codeDc" column="CODE_DC"/>
+	</resultMap>
+
+	<select id="selectCmmCodeDetail" parameterType="ComDefaultCodeVO" resultMap="CmmCodeDetail">
+		 
+			SELECT 
+			CODE_ID, CODE, CODE_NM, CODE_DC
+			FROM 
+			TN_FEIS_DETAILCODE
+			WHERE
+			USE_AT = 'Y'
+			AND CODE_ID = #{codeId}
+			<if test='code != ""'> <![CDATA[ AND
+              CODE = #{code} ]]>
+        	</if>
+			<if test='codeDc == "Cldr"'>	<![CDATA[
+				ORDER BY last_updt_pnttm ASC; ]]>
+			</if>
+	</select>
+
+    <select id="selectOgrnztIdDetail" parameterType="ComDefaultCodeVO" resultMap="CmmCodeDetail">
+             
+            SELECT 
+                #{tableNm}     CODE_ID, 
+                ORGNZT_ID     CODE, 
+                ORGNZT_NM     CODE_NM, 
+                ORGNZT_DC     CODE_DC
+            FROM 
+                TN_FEIS_ORGNZTINFO
+            WHERE 1=1
+            
+            <if test='haveDetailCondition == "Y"'>AND
+                ORGNZT_ID  LIKE  #{detailConditionValue}
+            </if>
+    </select>
+    
+    <select id="selectGroupIdDetail" parameterType="ComDefaultCodeVO" resultMap="CmmCodeDetail">
+             
+            SELECT 
+                #{tableNm}     CODE_ID, 
+                GROUP_ID     CODE, 
+                GROUP_NM     CODE_NM, 
+                GROUP_DC     CODE_DC
+            FROM 
+                TN_FEIS_AUTHORGROUPINFO
+            WHERE 1=1
+            
+            <if test='haveDetailCondition == "Y"'>AND
+                GROUP_ID  LIKE  #{detailConditionValue}
+            </if>
+    </select>
+    
+    <select id="selectRegionDetail" parameterType="ComDefaultCodeVO" resultMap="CmmCodeDetail">
+    		SELECT
+    			GROUP_ID CODE_ID,
+    			CODE,
+    			CODE_NM,
+    			CODE_DC
+    		FROM
+    			TN_FEIS_REGIONINFO
+    		WHERE 1=1
+    		AND GROUP_ID = #{codeId}
+    		ORDER BY CODE_NM
+    </select>
+
+    <!--
+    API KEY 목록 조회
+    @author ipodo
+    @name selectAPIKeyList
+    @param map
+    @returns List<EgovMap>
+     -->
+    <select id="selectAPIKeyList" parameterType="hashMap" resultType="egovMap">
+        SELECT DISTINCT ORG_NM, APIKEY FROM TN_FEIS_API_LIST
+		WHERE ORG_NM = #{orgNm};
+    </select>
+    
+   	<!-- 땅밀림 코드 조회 -->
+   	<select id="selectLcpCodeDetail" parameterType="ComDefaultCodeVO" resultType="string">
+   		SELECT CODE_NM FROM TN_FEIS_DETAILCODE
+   		WHERE CODE_ID = #{codeId}
+   			AND CODE_DC = #{codeDc}
+			<!-- AND CODE_DC LIKE CONCAT(#{codeDc},'%') -->
+   	</select>
+   	
+   	<!-- 땅밀림 코드 조회 -->
+   	<select id="selectWkaCodeDetail" parameterType="ComDefaultCodeVO" resultMap="CmmCodeDetail">
+   		SELECT 
+			CODE_ID, CODE, CODE_NM, CODE_DC
+			FROM 
+			TN_FEIS_DETAILCODE
+			WHERE
+			USE_AT = 'Y'
+   			AND CODE_ID BETWEEN #{codeId} AND #{detailCondition}
+   			ORDER BY CODE ASC
+   	</select>
+
+   	<!--조사 코드 목록 조회 -->
+   	<select id="selectSvyCodeLst" resultType="egovMap">
+   		<!-- 기초조사 -->
+		SELECT C.SVY_TYPE, C.CODE_ID_NM, B.CODE_ID, B.CODE_NM, B.CODE, B.CODE_DC
+		FROM TN_FEIS_DETAILCODE AS B
+		RIGHT JOIN (
+		SELECT A.CODE_ID, A.CODE_ID_NM, A.CODE_ID_DC, 'bsc' AS SVY_TYPE
+		FROM TN_FEIS_CODE A
+		WHERE 
+			1=1
+		AND A.USE_AT = 'Y'
+		AND A.CODE_ID_DC LIKE '기초조사%'
+		UNION ALL
+		<!-- 땅밀림실태조사 -->
+		SELECT A.CODE_ID, A.CODE_ID_NM, A.CODE_ID_DC, 'lcp' AS SVY_TYPE
+		FROM TN_FEIS_CODE A
+		WHERE 
+			1=1
+		AND A.USE_AT = 'Y'
+		AND A.CODE_ID_DC LIKE '땅밀림%실태조사%'
+		OR  A.CODE_ID_DC~('^너덜|^암석|^토양|^지형|^조사지역|^사면|^임상|^주구성')
+		UNION ALL
+		<!-- 취약지역 실태조사 -->
+		SELECT A.CODE_ID, A.CODE_ID_NM, A.CODE_ID_DC, 'wka' AS SVY_TYPE
+		FROM TN_FEIS_CODE A
+		WHERE 
+			1=1
+		AND A.USE_AT = 'Y'
+		AND A.CODE_ID_DC LIKE '취약지역%실태조사%'
+		UNION ALL
+		<!-- 취약지역 해제조사 -->
+		SELECT A.CODE_ID, A.CODE_ID_NM, A.CODE_ID_DC, 'cnl' AS SVY_TYPE
+		FROM TN_FEIS_CODE A
+		WHERE 
+			1=1
+		AND A.USE_AT = 'Y'
+		AND A.CODE_ID_DC LIKE '취약지역%해제조사%'
+		OR  A.CODE_ID_DC~('^사면상태')
+		UNION ALL
+		<!-- 외관점검 -->
+		SELECT A.CODE_ID, A.CODE_ID_NM, A.CODE_ID_DC, 'apr' AS SVY_TYPE
+		FROM TN_FEIS_CODE A
+		WHERE 
+			1=1
+		AND A.USE_AT = 'Y'
+		AND A.CODE_ID_DC LIKE '외관점검%'
+		) AS C
+		ON C.CODE_ID = B.CODE_ID 
+		WHERE 
+			1=1
+		AND USE_AT = 'Y'
+		ORDER BY SVY_TYPE, B.CODE_ID 
+   	</select>
+
+</mapper>

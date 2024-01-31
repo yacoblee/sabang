@@ -1,0 +1,906 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="VytFrdSvyCompt">
+
+	<resultMap id="svyComptListVO" type="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO">
+		<result property="gid" column="GID" /><!-- 고유아이디 -->
+		<result property="mstId" column="MST_ID" /><!-- 공유방아이디 -->
+		<result property="svyId" column="SVY_ID" /><!-- 조사아이디 -->
+		<result property="svyUser" column="SVY_USER" /><!-- 조사자 -->
+		<result property="svyType" column="SVY_TYPE" /><!-- 조사유형 -->
+		<result property="routeType" column="ROUTE_TYPE" /><!-- 조사유형 -->
+		<result property="creatDt" column="CREAT_DT" /><!-- 등록일자 -->
+		<result property="lastUpdtPnttm" column="LAST_UPDT_PNTTM" /><!-- 수정일자 -->
+		<result property="photoResultAt" column="PHOTO_RESULT_AT" /><!-- 현장사진 유무 -->
+		<result property="analFileResultAt1" column="ANALFILE_RESULT_AT1" /><!-- 분석파일 유무 -->
+		<result property="analFileResultAt2" column="ANALFILE_RESULT_AT2" /><!-- 분석파일 유무 -->
+	</resultMap>
+	
+	<resultMap id="analDownAllVO" type="or.sabang.sys.gis.service.AnalFileVO">
+		<result property="analId" column="analId"/>
+		<result property="fileStreCours" column="fileStreCours"/>
+		<result property="streFileNm" column="streFileNm"/>
+		<result property="orignlFileNm" column="orignlFileNm"/>
+		<result property="fileExtsn" column="fileExtsn"/>
+		<result property="analType" column="analType"/>
+	</resultMap>
+	
+	<select id="selectFrdSvyComptList" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO" resultMap="svyComptListVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID
+				, A.MST_ID AS MST_ID
+			 	, B.SVYID AS SVY_ID
+				, COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = TRIM(B.SVYUSER)),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),TRIM(B.SVYUSER))) AS SVY_USER
+				, B.SVYTYPE AS SVY_TYPE
+				, B.FRDTYPE AS FRD_TYPE
+			 	, TO_CHAR(A.CREAT_DT,'YYYY-MM-DD') AS CREAT_DT
+			 	, TO_CHAR(A.LAST_UPDT_PNTTM,'YYYY-MM-DD HH24:MI:SS') AS LAST_UPDT_PNTTM
+			 	, CASE 
+			 		WHEN (SELECT COUNT(*) FROM TN_FEIS_FRD_ANALFILE WHERE SMID = CAST(A.SVY_MEMO::JSON->>'대상지관리_번호' AS INTEGER )) > 0 THEN 'Y'
+			 		ELSE 'N' 
+			 		END AS ANALFILE_RESULT_AT1
+			 	, CASE 
+			 		WHEN (SELECT COUNT(*) FROM TN_FEIS_FRD_ANALFILE WHERE SMID = (SELECT SMID FROM TF_FEIS_FRD_SVYSLDINFO WHERE SLD_LABEL = A.SVY_MEMO::JSON->>'조사ID' AND MST_ID = A.MST_ID AND ROUTECODE ='02')) > 0 THEN 'Y'
+			 		ELSE 'N' 
+			 		END AS ANALFILE_RESULT_AT2
+			 	, CASE WHEN POSITION('gimg' IN A.SVY_MEMO) > 0 THEN 'Y' ELSE 'N' END AS PHOTO_RESULT_AT
+			 FROM TN_FEIS_FRD_SVYCOMPT A, TN_FEIS_FRD_SVYMEMO B, TN_FEIS_FRD_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+		<if test="frdType != null and frdType != ''">	<![CDATA[ AND
+			B.FRDTYPE = #{frdType} ]]>
+		</if>
+		<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+		</if>
+		<if test="svyYear == null">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_FRD_SVYMEMO) ]]>
+		</if>
+		<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+		</if>
+		<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+			B.SD = #{svySd} ]]>
+		</if>
+		<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+			B.SGG = #{svySgg} ]]>
+		</if>
+		<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+			B.EMD = #{svyEmd}]]>
+		</if>
+		<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+			B.RI = #{svyRi} ]]>
+		</if>
+		<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+			B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+		</if>
+		<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+			COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = TRIM(B.SVYUSER)),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),TRIM(B.SVYUSER))) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+		</if>
+		<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+			C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+		</if>
+		 ORDER BY A.LAST_UPDT_PNTTM DESC
+		 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+		<select id="selectFrdSvyComptListTotCnt" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO" resultType="int">
+		<![CDATA[
+			SELECT
+				COUNT(*)
+			 FROM TN_FEIS_FRD_SVYCOMPT A, TN_FEIS_FRD_SVYMEMO B, TN_FEIS_FRD_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+		<if test="frdType != null and frdType != ''">	<![CDATA[ AND
+			B.FRDTYPE = #{frdType} ]]>
+		</if>
+		<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+		</if>
+		<if test="svyYear == null">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_FRD_SVYMEMO) ]]>
+		</if>
+		<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+		</if>
+		<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+			B.SD = #{svySd} ]]>
+		</if>
+		<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+			B.SGG = #{svySgg} ]]>
+		</if>
+		<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+			B.EMD = #{svyEmd}]]>
+		</if>
+		<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+			B.RI = #{svyRi} ]]>
+		</if>
+		<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+			B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+		</if>
+		<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+			COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = TRIM(B.SVYUSER)),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),TRIM(B.SVYUSER))) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+		</if>
+		<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+			C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+		</if>
+	</select>
+	
+	<select id ="selectFrdSvyComptMaxYear" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') AS YEAR FROM TN_FEIS_FRD_SVYCOMPT A, TN_FEIS_FRD_CNRSSPCE B
+		WHERE A.MST_ID = B.ID
+	</select>
+	
+	<select id ="selectFrdSvyComptMaxMonth" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'MM') FROM TN_FEIS_FRD_SVYCOMPT A, TN_FEIS_FRD_CNRSSPCE B
+		WHERE A.MST_ID = B.ID
+	</select>
+	
+	<select id ="selectFrdSvyComptYear" resultType="egovMap">
+		SELECT DISTINCT TO_CHAR(CREAT_DT,'YYYY') AS SVYYEAR FROM TN_FEIS_FRD_SVYCOMPT A, TN_FEIS_FRD_CNRSSPCE B
+		WHERE A.MST_ID = B.ID
+		ORDER BY SVYYEAR DESC
+	</select>
+	
+	<select id ="selectSldNumber" parameterType="java.util.Map" resultType="egovMap">
+		SELECT 
+			SMID
+			, SLD_ID
+			, ROUTECODE AS ROUTE_CODE
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE 1=1 
+		<if test="svyLabel != null and svyLabel != ''">	<![CDATA[ 
+			AND SLD_LABEL = #{svyLabel} ]]>
+		</if>
+		<if test="mstId != null and mstId != ''">	<![CDATA[
+			AND MST_ID = CAST(#{mstId} AS INTEGER) ]]>
+		</if>
+	</select>
+	
+	<select id ="selectFieldBookNumber" parameterType="java.util.Map" resultType="String">
+		SELECT 
+			GID
+		FROM TN_FEIS_FRD_FIELDINFO
+		WHERE 1=1 
+		<if test="svyLabel != null and svyLabel != ''">	<![CDATA[ AND
+			SVY_LABEL = #{svyLabel} ]]>
+		</if>
+		<if test="mstId != null and mstId != ''">	<![CDATA[ AND
+			MST_ID = CAST(#{mstId} AS INTEGER) ]]>
+		</if>
+	</select>
+	
+	<select id="selectFrdSvyComptDetail" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO" resultType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO">
+		SELECT
+			A.GID AS GID
+			, A.MSTID AS MSTID
+			, A.SVYID AS SVYID
+			, A.COMPENTAUTH AS COMPENTAUTH
+			, A.USERNAME AS SVYUSER
+			, A.SVYDT AS SVYDT
+			, A.SD AS SVYSD
+			, A.SGG AS SVYSGG
+			, A.EMD AS SVYEMD
+			, A.RI AS SVYRI
+			, A.JIBUN AS SVYJIBUN
+			, A.JIMOK AS SVYJIMOK
+			, A.COMMONLY AS COMMONLY
+			, A.FRDTYPE AS FRDTYPE
+			, A.ROUTETYPE AS ROUTETYPE
+			, A.FRDRNK AS FRDRNK
+			, A.SCHDST AS SCHDST
+			, A.FRDEXTNS AS FRDEXTNS
+		<![CDATA[
+			, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.BPX,null),B.SVY_LON)::FLOAT,COALESCE(NULLIF(A.BPY,null),B.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS BPY
+			, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.BPX,null),B.SVY_LON)::FLOAT,COALESCE(NULLIF(A.BPY,null),B.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS BPX
+			, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.EPX,null),B.SVY_LON)::FLOAT,COALESCE(NULLIF(A.EPY,null),B.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS EPY
+			, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.EPX,null),B.SVY_LON)::FLOAT,COALESCE(NULLIF(A.EPY,null),B.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS EPX
+		]]>	 
+			, A.SAFEFCT AS SAFEFCT<!-- 보호시설 개수 -->
+			, A.FIELD AS FIELD<!-- 보호시설 전답-->
+			, A.ACSBL AS ACSBL<!-- 보호시설 접근성 -->
+			, A.SAFEFCTLIST AS SAFEFCTLIST<!-- 보호시설(위도, 경도, 유형) -->
+			, A.LONSLOPEMIN AS LONSLOPEMIN<!-- 종단기울기_최소 -->
+			, A.LONSLOPEMAX AS LONSLOPEMAX<!-- 종단기울기_최대 -->
+			, A.LONSLOPEAVG AS LONSLOPEAVG<!-- 종단기울기_평균 -->
+			, A.LONSLOPELIST AS LONSLOPELIST<!-- 종단기울기_목록 -->
+			, A.MTSLOPEMIN AS MTSLOPEMIN<!-- 산지경사_최소 -->
+			, A.MTSLOPEMAX AS MTSLOPEMAX<!-- 산지경사_최대 -->
+			, A.MTSLOPEAVG AS MTSLOPEAVG<!-- 산지경사_평균 -->
+			, A.MTSLOPELIST AS MTSLOPELIST<!-- 산지경사_목록 -->
+			, A.ROCKEXPOSMIN AS ROCKEXPOSMIN<!-- 암반노출_최소 -->
+			, A.ROCKEXPOSMAX AS ROCKEXPOSMAX<!-- 암반노출_최대 -->
+			, A.ROCKEXPOSAVG AS ROCKEXPOSAVG<!-- 암반노출_평균 -->
+			, A.ROCKEXPOSLIST AS ROCKEXPOSLIST<!-- 암반노출_목록 -->
+			, A.AFRSTAT AS AFRSTAT<!-- 조림지 유무 -->
+			, A.AFRSTLIST AS AFRSTLIST<!-- 조림지 목록 -->
+			, A.CUTTINGAT AS CUTTINGAT<!-- 벌채지 유무 -->
+			, A.CUTTINGLIST AS CUTTINGLIST<!-- 벌채지 목록 -->
+			, A.STMILIST AS STMILIST<!-- 석력지 목록(석력지는 유무 없어서 시스템상으로 판단해줘야할듯) -->
+			, A.MRNGKIND AS MRNGKIND<!-- 계류종류_목록 -->
+			, A.WETLANDLIST AS WETLANDLIST<!-- 습지_목록 -->
+			, A.WETLANDAT AS WETLANDAT<!-- 습지_유무 -->
+			, A.CMTRYLIST AS CMTRYLIST<!-- 묘지_목록 -->
+			, A.CMTRYAT AS CMTRYAT<!-- 묘지_유무 -->
+			, A.ELTNWATERAT AS ELTNWATERAT<!-- 용출수_유무 -->
+			, A.ELTNWATERLIST AS ELTNWATERLIST<!-- 용출수_목록 -->
+			, A.SOFRTGRNDLIST AS SOFRTGRNDLIST<!-- 연약지반_목록 -->
+			, A.SOFRTGRNDAT AS SOFRTGRNDAT<!--연약지반_유무  -->
+			, A.CLPSCNRNLIST AS CLPSCNRNLIST<!-- 붕괴우려_목록 -->
+			, A.CLPSCNRN AS CLPSCNRN<!-- 붕괴우려_사면 -->
+			, A.MAINTREEKNDCNT AS MAINTREEKNDCNT<!-- 주요수종_건수 -->
+			, A.MAINTREEKNDLIST AS MAINTREEKNDLIST<!-- 주요수종_목록 -->
+			, A.MAINVEGCNT AS MAINVEGCNT<!-- 주요식생_건수 -->
+			, A.MAINVEGLIST AS MAINVEGLIST<!-- 주요식생_목록 -->
+			, A.WTRPLTNAT AS WTRPLTNAT<!-- 상수원오염_유무 -->
+			, A.WTRPLTNLIST AS WTRPLTNLIST<!-- 상수원오염_목록 -->
+			, A.DMGCNCRNLIST AS DMGCNCRNLIST<!-- 훼손우려지_목록 -->
+			, A.DMGCNCRNAT AS DMGCNCRNAT<!-- 훼손우려지_유무 -->
+			, A.FRSTDSSTRCNT AS FRSTDSSTRCNT<!-- 산림재해_건수 -->
+			, A.FRSTDSSTRLIST AS FRSTDSSTRLIST<!-- 산림재해_목록 -->
+			, A.FRSTDSSTRFIRE AS FRSTDSSTRFIRE<!-- 산림재해_유무 -->
+			, A.WILDANMLCNT AS WILDANMLCNT<!-- 야생동물_건수 -->
+			, A.WILDANMLLIST AS WILDANMLLIST<!-- 야생동물_목록 -->
+			, A.WILDANMLKIND AS WILDANMLKIND<!-- 야생동물_종류 -->
+			, A.ECNRFCLTYINSTLCNT AS ECNRFCLTYINSTLCNT<!-- 사방시설설치_건수 -->
+			, A.ECNRFCLTYINSTLTYPE AS ECNRFCLTYINSTLTYPE<!-- 사방시설설치_종류 -->
+			, A.ECNRFCLTYINSTLLIST AS ECNRFCLTYINSTLLIST<!-- 사방시설설치_목록 -->
+			, A.ECNRFCLTYNCSTYCNT AS ECNRFCLTYNCSTYCNT<!-- 사방시설필요_건수 -->
+			, A.ECNRFCLTYNCSTYTYPE AS ECNRFCLTYNCSTYTYPE<!-- 사방시설필요_종류 -->
+			, A.ECNRFCLTYNCSTYLIST AS ECNRFCLTYNCSTYLIST<!-- 사방시설필요_목록 -->
+			, A.GNRLSTTS AS GNRLSTTS<!-- 일반현황 -->
+			, A.LONSLOPE AS LONSLOPE<!-- 종단기울기 -->
+			, A.MTSLOPE AS MTSLOPE<!-- 산지경사 -->
+			, A.SLOPESTATUS AS SLOPESTATUS<!-- 사면현황 -->
+			, A.DESTROCK AS DESTROCK<!-- 대상지 내 암반 -->
+			, A.DESTERSN AS DESTERSN<!-- 대상지 내 사면침식현황 -->
+			, A.DESTMRNGSTAT AS DESTMRNGSTAT<!-- 대상지 계류현황 -->
+			, A.MRNGERSNSTAT AS MRNGERSNSTAT<!-- 계류 내 침식현황 -->
+			, A.ETC AS ETC<!-- 기타(용출수, 묘지 등) -->
+			, A.ECONTRMAP AS ECONTRMAP<!-- 생태자연도 -->
+			, A.ENDSPC AS ENDSPC<!-- 멸종위기종 서식 현황 -->
+			, A.SPCFRSPRT AS SPCFRSPRT<!-- 특별산림보호종 -->
+			, A.SUBCOMPENTAUTH AS SUBCOMPENTAUTH<!-- 세부관할 -->
+			, C.MST_PARTNAME AS MSTNM
+		FROM TN_FEIS_FRD_SVYMEMO A, TN_FEIS_FRD_SVYCOMPT B, TN_FEIS_FRD_CNRSSPCE C
+		WHERE A.GID = B.GID
+		AND A.MSTID = C.ID
+		AND A.GID = CAST(#{gid} AS INTEGER)
+	</select>
+	
+	<!-- 좌표변환( EPSG:5186 좌표를 도분초 형식의 좌표로 변환한다. ) -->
+	<select id ="selectVytFrdProjDMS" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon1}::FLOAT, #{lat1}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS LAT1,
+			SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon1}::FLOAT, #{lat1}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS LON1
+			<if test="lat2 != null and lat2 != '' and lon2 != null and lon2 != ''">
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon2}::FLOAT, #{lat2}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS LAT2
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon2}::FLOAT, #{lat2}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS LON2
+			</if>
+	</select>
+	
+	<!-- 타당성평가라인 중심 좌표를 조회한다. -->
+	<select id="selectVytFrdLineCntPnt" parameterType="java.util.Map" resultType="egovMap">
+		SELECT
+			ST_ASTEXT(ST_MAKEPOINT(ST_X(ST_CENTROID(ST_ENVELOPE(SMGEOMETRY))),ST_Y(ST_CENTROID(ST_ENVELOPE(SMGEOMETRY))))) AS FRD_LNE_CNT_PNT
+			, ST_ASTEXT(SMGEOMETRY) AS FRD_LNE
+			, ROUTETYPE AS ROUTETYPE
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE 1=1
+		<if test="svyLabel != null and svyLabel != ''">	<![CDATA[
+			AND SLD_LABEL = #{svyLabel}  ]]>
+		</if>
+		<if test="mstId != null and mstId != ''">	<![CDATA[ 
+			AND MST_ID = CAST(#{mstId} AS INTEGER) ]]>
+		</if>
+	</select>
+		
+	<!-- 추가SHP파일 등록 -->
+	<update id="updateExtraShp" parameterType="java.util.Map">
+		UPDATE TF_FEIS_FRD_SVYSLDINFO SET
+			SLD_ID = CAST(#{id} AS INTEGER)
+			,COMPENTAUTH = #{compentauth}
+			,ROUTETYPE = #{routetype}
+			,FRDTYPE = #{frdtype}
+			,CREAT_DT= NOW()
+		<if test="mstId != null and mstId != ''">	
+			,MST_ID = CAST(#{mstId} AS INTEGER)
+		</if>
+		<if test="sldlabel != null and sldlabel != ''">	
+			,SLD_LABEL = #{sldlabel}
+		</if>
+			,ROUTECODE = #{routeCode}
+		WHERE 1=1
+		AND SMID IN
+		<foreach item="item" index="index" collection="smidList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</update>
+	
+	<!-- 조사완료 수정 -->
+	<update id="updateFrdSvyCompt">
+		<![CDATA[
+            UPDATE  TN_FEIS_FRD_SVYCOMPT
+               SET LAST_UPDT_PNTTM = NOW()  
+               , SVY_MEMO = (COALESCE(NULLIF(REPLACE(SVY_MEMO,'\\','\'),''),'{}'))::JSONB || CONCAT('{'
+          ]]>
+        <if test="compentauth != null">
+		<![CDATA[ ,CONCAT('"관할청" : "',#{compentauth},'",')]]>
+        </if>
+        <if test="svySd != null">
+		<![CDATA[ ,CONCAT('"시도" : "',#{svySd},'",')]]>
+        </if>
+        <if test="svySgg != null">
+		<![CDATA[ ,CONCAT('"시군구" : "',#{svySgg},'",')]]>
+        </if>
+        <if test="svyEmd != null">
+		<![CDATA[ ,CONCAT('"읍면동" : "',#{svyEmd},'",')]]>
+        </if>
+        <if test="svyRi != null">
+		<![CDATA[ ,CONCAT('"리" : "',#{svyRi},'",')]]>
+        </if>
+        <if test="svyJibun != null">
+		<![CDATA[ ,CONCAT('"지번" : "',#{svyJibun},'",')]]>
+        </if>
+        <if test="frdType != null">
+		<![CDATA[ ,CONCAT('"임도종류" : "',#{frdType},'",')]]>
+        </if>
+        <if test="routeType != null">
+		<![CDATA[ ,CONCAT('"노선종류" : "',#{routeType},'",')]]>
+        </if>
+        <if test="frdRnk != null">
+		<![CDATA[ ,CONCAT('"조사구분" : "',#{frdRnk},'",')]]>
+        </if>
+        <if test="commonly != null">
+		<![CDATA[ ,CONCAT('"속칭" : "',#{commonly},'",')]]>
+        </if>
+        <if test="schdst != null">
+		<![CDATA[ ,CONCAT('"예정거리" : "',#{schdst},'",')]]>
+        </if>
+        <if test="frdExtns != null">
+		<![CDATA[ ,CONCAT('"임도연장(km)" : "',#{frdExtns},'",')]]>
+        </if>
+        <if test="bpx != null">
+		<![CDATA[ ,CONCAT('"시점 경도" : "',#{bpx},'",')]]>
+        </if>
+        <if test="bpy != null">
+		<![CDATA[ ,CONCAT('"시점 위도" : "',#{bpy},'",')]]>
+        </if>
+        <if test="epx != null">
+		<![CDATA[ ,CONCAT('"종점 경도" : "',#{epx},'",')]]>
+        </if>
+        <if test="epy != null">
+		<![CDATA[ ,CONCAT('"종점 위도" : "',#{epy},'",')]]>
+        </if>
+        <if test="safeFct != null">
+		<![CDATA[ ,CONCAT('"보호시설" : "',#{safeFct},'",')]]>
+        </if>
+        <if test="field != null">
+		<![CDATA[ ,CONCAT('"전답" : "',#{field},'",')]]>
+        </if>
+        <if test="acsbl != null">
+		<![CDATA[ ,CONCAT('"접근성" : "',#{acsbl},'",')]]>
+        </if>
+        <if test="safeFctList != null">
+		<![CDATA[ ,CONCAT('"보호시설_목록" : ',#{safeFctList},',')]]>
+        </if>
+        <if test="lonSlopeMax != null">
+		<![CDATA[ ,CONCAT('"종단기울기_최대" : "',#{lonSlopeMax},'",')]]>
+        </if>
+        <if test="lonSlopeMin != null">
+		<![CDATA[ ,CONCAT('"종단기울기_최소" : "',#{lonSlopeMin},'",')]]>
+        </if>
+        <if test="lonSlopeAvg != null">
+		<![CDATA[ ,CONCAT('"종단기울기_평균" : "',#{lonSlopeAvg},'",')]]>
+        </if>
+        <if test="lonSlopeList != null">
+		<![CDATA[ ,CONCAT('"종단기울기_목록" : ',#{lonSlopeList},',')]]>
+        </if>
+        <if test="mtSlopeMax != null">
+		<![CDATA[ ,CONCAT('"산지경사_최대" : "',#{mtSlopeMax},'",')]]>
+        </if>
+        <if test="mtSlopeMin != null">
+		<![CDATA[ ,CONCAT('"산지경사_최소" : "',#{mtSlopeMin},'",')]]>
+        </if>
+        <if test="mtSlopeAvg != null">
+		<![CDATA[ ,CONCAT('"산지경사_평균" : "',#{mtSlopeAvg},'",')]]>
+        </if>
+        <if test="mtSlopeList != null">
+		<![CDATA[ ,CONCAT('"산지경사_목록" : ',#{mtSlopeList},',')]]>
+        </if>
+        <if test="rockExposMax != null">
+		<![CDATA[ ,CONCAT('"암반노출_최대" : "',#{rockExposMax},'",')]]>
+        </if>
+        <if test="rockExposMin != null">
+		<![CDATA[ ,CONCAT('"암반노출_최소" : "',#{rockExposMin},'",')]]>
+        </if>
+        <if test="rockExposAvg != null">
+		<![CDATA[ ,CONCAT('"암반노출_평균" : "',#{rockExposAvg},'",')]]>
+        </if>
+        <if test="rockExposList != null">
+		<![CDATA[ ,CONCAT('"암반노출_목록" : ',#{rockExposList},',')]]>
+        </if>
+        <if test="afrstAt != null">
+		<![CDATA[ ,CONCAT('"조림지_유무" : "',#{afrstAt},'",')]]>
+        </if>
+        <if test="afrstList != null">
+		<![CDATA[ ,CONCAT('"조림지_목록" : ',#{afrstList},',')]]>
+        </if>
+        <if test="cuttingAt != null">
+		<![CDATA[ ,CONCAT('"벌채지_유무" : "',#{cuttingAt},'",')]]>
+        </if>
+        <if test="cuttingList != null">
+		<![CDATA[ ,CONCAT('"벌채지_목록" : ',#{cuttingList},',')]]>
+        </if>
+        <if test="stmiList != null">
+		<![CDATA[ ,CONCAT('"석력지_목록" : ',#{stmiList},',')]]>
+        </if>
+        <if test="mrngBig != null">
+		<![CDATA[ ,CONCAT('"계류_대계류" : "',#{mrngBig},'",')]]>
+        </if>
+        <if test="mrngKind != null">
+		<![CDATA[ ,CONCAT('"계류종류_목록" : ',#{mrngKind},',')]]>
+        </if>
+        <if test="wetLandAt != null">
+		<![CDATA[ ,CONCAT('"습지_유무" : "',#{wetLandAt},'",')]]>
+        </if>
+        <if test="wetLandList != null">
+		<![CDATA[ ,CONCAT('"습지_목록" : ',#{wetLandList},',')]]>
+        </if>
+        <if test="cmtryAt != null">
+		<![CDATA[ ,CONCAT('"묘지_유무" : "',#{cmtryAt},'",')]]>
+        </if>
+        <if test="cmtryList != null">
+		<![CDATA[ ,CONCAT('"묘지_목록" : ',#{cmtryList},',')]]>
+        </if>
+        <if test="eltnWaterAt != null">
+		<![CDATA[ ,CONCAT('"용출수_유무" : "',#{eltnWaterAt},'",')]]>
+        </if>
+        <if test="eltnWaterList != null">
+		<![CDATA[ ,CONCAT('"용출수_목록" : ',#{eltnWaterList},',')]]>
+        </if>
+        <if test="sofrtGrndAt != null">
+		<![CDATA[ ,CONCAT('"연약지반_유무" : "',#{sofrtGrndAt},'",')]]>
+        </if>
+        <if test="sofrtGrndList != null">
+		<![CDATA[ ,CONCAT('"연약지반_목록" : ',#{sofrtGrndList},',')]]>
+        </if>
+        <if test="clpsCnrn != null">
+		<![CDATA[ ,CONCAT('"붕괴우려_사면" : "',#{clpsCnrn},'",')]]>
+        </if>
+        <if test="clpsCnrnList != null">
+		<![CDATA[ ,CONCAT('"붕괴우려_목록" : ',#{clpsCnrnList},',')]]>
+        </if>
+        <if test="maintreekndList != null">
+		<![CDATA[ ,CONCAT('"주요수종_목록" : ',#{maintreekndList},',')]]>
+        </if>
+        <if test="maintreekndCnt != null">
+		<![CDATA[ ,CONCAT('"주요수종_건수" : "',#{maintreekndCnt},'",')]]>
+        </if>
+        <if test="mainvegList != null">
+		<![CDATA[ ,CONCAT('"주요식생_목록" : ',#{mainvegList},',')]]>
+        </if>
+        <if test="mainvegCnt != null">
+		<![CDATA[ ,CONCAT('"주요식생_건수" : "',#{mainvegCnt},'",')]]>
+        </if>
+        <if test="wtrPltnAt != null">
+		<![CDATA[ ,CONCAT('"상수원오염_유무" : "',#{wtrPltnAt},'",')]]>
+        </if>
+        <if test="wtrPltnList != null">
+		<![CDATA[ ,CONCAT('"상수원오염_목록" : ',#{wtrPltnList},',')]]>
+        </if>
+        <if test="dmgCncrnAt != null">
+		<![CDATA[ ,CONCAT('"훼손우려지_유무" : "',#{dmgCncrnAt},'",')]]>
+        </if>
+        <if test="dmgCncrnList != null">
+		<![CDATA[ ,CONCAT('"훼손우려지_목록" : ',#{dmgCncrnList},',')]]>
+        </if>
+        <if test="frstDsstrList != null">
+		<![CDATA[ ,CONCAT('"산림재해_목록" : ',#{frstDsstrList},',')]]>
+        </if>
+        <if test="frstDsstrCnt != null">
+		<![CDATA[ ,CONCAT('"산림재해_건수" : "',#{frstDsstrCnt},'",')]]>
+        </if>
+        <if test="frstDsstrFire != null">
+		<![CDATA[ ,CONCAT('"산림재해_산불" : "',#{frstDsstrFire},'",')]]>
+        </if>
+        <if test="wildAnmlList != null">
+		<![CDATA[ ,CONCAT('"야생동물_목록" : ',#{wildAnmlList},',')]]>
+        </if>
+        <if test="wildAnmlCnt != null">
+		<![CDATA[ ,CONCAT('"야생동물_건수" : "',#{wildAnmlCnt},'",')]]>
+        </if>
+        <if test="wildAnmlKind != null">
+		<![CDATA[ ,CONCAT('"야생동물_종류" : "',#{wildAnmlKind},'",')]]>
+        </if>
+        <if test="ecnrFcltyInstlList != null">
+		<![CDATA[ ,CONCAT('"사방시설설치_목록" : ',#{ecnrFcltyInstlList},',')]]>
+        </if>
+        <if test="ecnrFcltyInstlCnt != null">
+		<![CDATA[ ,CONCAT('"사방시설설치_건수" : "',#{ecnrFcltyInstlCnt},'",')]]>
+        </if>
+        <if test="ecnrFcltyInstlType != null">
+		<![CDATA[ ,CONCAT('"사방시설설치_종류" : "',#{ecnrFcltyInstlType},'",')]]>
+        </if>
+        <if test="ecnrFcltyNcstyList != null">
+		<![CDATA[ ,CONCAT('"사방시설필요_목록" : ',#{ecnrFcltyNcstyList},',')]]>
+        </if>
+        <if test="ecnrFcltyNcstyCnt != null">
+		<![CDATA[ ,CONCAT('"사방시설필요_건수" : "',#{ecnrFcltyNcstyCnt},'",')]]>
+        </if>
+        <if test="ecnrFcltyNcstyType != null">
+		<![CDATA[ ,CONCAT('"사방시설필요_종류" : "',#{ecnrFcltyNcstyType},'",')]]>
+        </if>
+        <if test="gnrlStts != null">
+		<![CDATA[ ,CONCAT('"일반현황" : "',#{gnrlStts},'",')]]>
+        </if>
+        <if test="lonSlope != null">
+		<![CDATA[ ,CONCAT('"종단기울기" : "',#{lonSlope},'",')]]>
+        </if>
+        <if test="mtSlope != null">
+		<![CDATA[ ,CONCAT('"산지경사" : "',#{mtSlope},'",')]]>
+        </if>
+        <if test="slopeStatus != null">
+		<![CDATA[ ,CONCAT('"사면현황" : "',#{slopeStatus},'",')]]>
+        </if>
+        <if test="destRock != null">
+		<![CDATA[ ,CONCAT('"대상지 내 암반" : "',#{destRock},'",')]]>
+        </if>
+        <if test="destErsn != null">
+		<![CDATA[ ,CONCAT('"대상지 내 사면침식현황" : "',#{destErsn},'",')]]>
+        </if>
+        <if test="destMrngStat != null">
+		<![CDATA[ ,CONCAT('"대상지 계류현황" : "',#{destMrngStat},'",')]]>
+        </if>
+        <if test="mrngErsnStat != null">
+		<![CDATA[ ,CONCAT('"계류 내 침식현황" : "',#{mrngErsnStat},'",')]]>
+        </if>
+        <if test="etc != null">
+		<![CDATA[ ,CONCAT('"기타(용출수, 묘지 등)" : "',#{etc},'",')]]>
+        </if>
+        <if test="ecoNtrMap != null">
+		<![CDATA[ ,CONCAT('"생태자연도" : "',#{ecoNtrMap},'",')]]>
+        </if>
+        <if test="endSpc != null">
+		<![CDATA[ ,CONCAT('"멸종위기종서식_현황" : "',#{endSpc},'",')]]>
+        </if>
+        <if test="spcFrsPrt != null">
+		<![CDATA[ ,CONCAT('"특별산림보호종" : "',#{spcFrsPrt},'",')]]>
+        </if>
+        <if test="subcompentauth != null">
+		<![CDATA[ ,CONCAT('"세부관할" : "',#{subcompentauth},'",')]]>
+        </if>
+        <if test="svyId != null">
+		<![CDATA[ ,CONCAT('"조사ID" : "',#{svyId},'"')]]>
+        </if>
+		<![CDATA[
+		,'}')::JSONB
+             WHERE GID = CAST(#{gid} AS INTEGER)
+          ]]> 
+	</update>
+	
+	<select id="selectBufferSize" parameterType="java.util.Map" resultType="egovMap">
+		SELECT
+			ANAL_TYPE
+			, BUFFER_SIZE 
+		FROM TN_FEIS_FRD_ANALFILE
+		WHERE 1=1
+		AND SMID = CAST(#{smid} AS INTEGER)
+		AND SLD_ID = #{sldId}
+		AND FILE_EXTSN = #{fileExtsn}
+		AND ROUTE_CODE = #{routeCode}
+	</select>
+	
+	<select id="selectDownloadAnalAll" resultMap="analDownAllVO" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO">
+		SELECT 
+			ANAL_ID AS analId
+			, FILE_STRE_COURS AS fileStreCours
+			, STRE_FILE_NM AS streFileNm
+			, CASE 
+				WHEN ORIGNL_FILE_NM = 'destloc' THEN '대상지 위치'
+				WHEN ORIGNL_FILE_NM = 'admin' THEN '행정구역'
+				WHEN ORIGNL_FILE_NM = 'rllgstr' THEN '관계지적도'
+				WHEN ORIGNL_FILE_NM = 'culture' THEN '문화재보존관리지도'
+				WHEN ORIGNL_FILE_NM = 'frtp' THEN '임상분포도'
+				WHEN ORIGNL_FILE_NM = 'fror' THEN '임종분포도'
+				WHEN ORIGNL_FILE_NM = 'agcls' THEN '영급분포도'
+				WHEN ORIGNL_FILE_NM = 'dmcls' THEN '경급분포도'
+				WHEN ORIGNL_FILE_NM = 'dnst' THEN '밀도분포도'
+				WHEN ORIGNL_FILE_NM = 'koftr' THEN '수종분포도'
+				WHEN ORIGNL_FILE_NM = 'slope' THEN '경사분포도'
+				WHEN ORIGNL_FILE_NM = 'aspect' THEN '향분포도'
+				WHEN ORIGNL_FILE_NM = 'dem' THEN '표고분포도'
+				WHEN ORIGNL_FILE_NM = 'soil' THEN '토양분포도'
+				WHEN ORIGNL_FILE_NM = 'geology' THEN '지질분포도'
+				WHEN ORIGNL_FILE_NM = 'prrck' THEN '모암분포도'
+				WHEN ORIGNL_FILE_NM = 'accma' THEN '퇴적양식분포도'
+				WHEN ORIGNL_FILE_NM = 'rock' THEN '암석노출도'
+				WHEN ORIGNL_FILE_NM = 'nature' THEN '생태자연도'
+				WHEN ORIGNL_FILE_NM = 'animal' THEN '멸종위기 동식물 분석'
+				WHEN ORIGNL_FILE_NM = 'forestFire' THEN '산불취약지도'
+				WHEN ORIGNL_FILE_NM = 'landslide' THEN '산사태위험등급도'
+				WHEN ORIGNL_FILE_NM like 'safeFct%' THEN CONCAT('pnt_보호시설', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'lonSlope%' THEN CONCAT('pnt_종단기울기', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'mtSlope%' THEN CONCAT('pnt_산지경사', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'rockExpos%' THEN CONCAT('pnt_암반노출', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'afrst%' THEN CONCAT('pnt_조림지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'cutting%' THEN CONCAT('pnt_벌채지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'stmi%' THEN CONCAT('pnt_석력지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'mrngKind%' THEN CONCAT('pnt_계류종류및현황', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'wetLand%' THEN CONCAT('pnt_습지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'cmtry%' THEN CONCAT('pnt_묘지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'eltnWater%' THEN CONCAT('pnt_용출수', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'sofrtGrnd%' THEN CONCAT('pnt_연약지반', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'clpsCnrn%' THEN CONCAT('pnt_붕괴우려지역', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'maintreeknd%' THEN CONCAT('pnt_주요수종', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'mainveg%' THEN CONCAT('pnt_주요식생', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'wtrPltn%' THEN CONCAT('pnt_상수원오염', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'dmgCncrn%' THEN CONCAT('pnt_훼손우려지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'frstDsstr%' THEN CONCAT('pnt_산림재해', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'wildAnml%' THEN CONCAT('pnt_야생동물', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'ecnrFcltyInstl%' THEN CONCAT('pnt_사방시설설치', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'ecnrFcltyNcsty%' THEN CONCAT('pnt_사방시설필요', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				ELSE ORIGNL_FILE_NM
+			END AS orignlFileNm
+			, FILE_EXTSN AS fileExtsn
+			, ANAL_TYPE AS analType
+		FROM TN_FEIS_FRD_ANALFILE
+		WHERE SMID = CAST(#{smid} AS INT)
+		AND SLD_ID = #{sldId}
+	</select>
+		
+	<delete id="deleteFrdSvyCompt">
+		<![CDATA[
+			DELETE FROM TN_FEIS_FRD_SVYCOMPT
+            WHERE GID = CAST(#{gid} AS INTEGER)
+		]]>	 
+	</delete>
+	
+	<delete id="deleteFrdAnalFile">
+		<![CDATA[
+			DELETE FROM TN_FEIS_FRD_ANALFILE 
+			WHERE 1=1
+			AND SMID = CAST(#{smid} AS INTEGER)
+		]]>	 
+	</delete>
+	
+	<delete id="deleteFrdLines">
+		<![CDATA[
+			DELETE FROM TF_FEIS_FRD_SVYSLDINFO 
+			WHERE 1=1
+			AND SMID = CAST(#{smid} AS INTEGER)
+		]]>	 
+	</delete>
+	
+	<select id="selectDownloadPhotoList" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO" resultType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO">
+	<![CDATA[
+	    SELECT
+		    A.GID AS GID
+   			, A.MSTID AS MSTID
+			, A.SVYID AS SVYID
+		    , (COALESCE(NULLIF(REPLACE(A.LONSLOPELIST,'gimg://',''),''),'[]'))::JSON AS LONSLOPELIST
+			, COALESCE((SVY_MEMO::JSON->'종단기울기_목록'),'[]') AS LONSLOPEPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.MTSLOPELIST,'gimg://',''),''),'[]'))::JSON AS MTSLOPELIST
+			, COALESCE((SVY_MEMO::JSON->'산지경사_목록'),'[]') AS MTSLOPEPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.ROCKEXPOSLIST,'gimg://',''),''),'[]'))::JSON AS ROCKEXPOSLIST
+			, COALESCE((SVY_MEMO::JSON->'암반노출_목록'),'[]') AS ROCKEXPOSPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.AFRSTLIST,'gimg://',''),''),'[]'))::JSON AS AFRSTLIST
+			, COALESCE((SVY_MEMO::JSON->'조림지_목록'),'[]') AS AFRSTPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.CUTTINGLIST,'gimg://',''),''),'[]'))::JSON AS CUTTINGLIST
+			, COALESCE((SVY_MEMO::JSON->'벌채지_목록'),'[]') AS CUTTINGPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.STMILIST,'gimg://',''),''),'[]'))::JSON AS STMILIST
+			, COALESCE((SVY_MEMO::JSON->'석력지_목록'),'[]') AS STMIPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.MRNGKIND,'gimg://',''),''),'[]'))::JSON AS MRNGKIND
+			, COALESCE((SVY_MEMO::JSON->'계류종류_목록'),'[]') AS MRNGKINDPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.WETLANDLIST,'gimg://',''),''),'[]'))::JSON AS WETLANDLIST
+			, COALESCE((SVY_MEMO::JSON->'습지_목록'),'[]') AS WETLANDPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.CMTRYLIST,'gimg://',''),''),'[]'))::JSON AS CMTRYLIST
+			, COALESCE((SVY_MEMO::JSON->'묘지_목록'),'[]') AS CMTRYPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.ELTNWATERLIST,'gimg://',''),''),'[]'))::JSON AS ELTNWATERLIST
+			, COALESCE((SVY_MEMO::JSON->'용출수_목록'),'[]') AS ELTNWATERPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.SOFRTGRNDLIST,'gimg://',''),''),'[]'))::JSON AS SOFRTGRNDLIST
+			, COALESCE((SVY_MEMO::JSON->'연약지반_목록'),'[]') AS SOFRTGRNDPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.CLPSCNRNLIST,'gimg://',''),''),'[]'))::JSON AS CLPSCNRNLIST
+			, COALESCE((SVY_MEMO::JSON->'붕괴우려_목록'),'[]') AS CLPSCNRNPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.MAINTREEKNDLIST,'gimg://',''),''),'[]'))::JSON AS MAINTREEKNDLIST
+			, COALESCE((SVY_MEMO::JSON->'주요수종_목록'),'[]') AS MAINTREEKNDPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.MAINVEGLIST,'gimg://',''),''),'[]'))::JSON AS MAINVEGLIST
+			, COALESCE((SVY_MEMO::JSON->'주요식생_목록'),'[]') AS MAINVEGPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.WTRPLTNLIST,'gimg://',''),''),'[]'))::JSON AS WTRPLTNLIST
+			, COALESCE((SVY_MEMO::JSON->'상수원오염_목록'),'[]') AS WTRPLTNPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.DMGCNCRNLIST,'gimg://',''),''),'[]'))::JSON AS DMGCNCRNLIST
+			, COALESCE((SVY_MEMO::JSON->'훼손우려지_목록'),'[]') AS DMGCNCRNPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.FRSTDSSTRLIST,'gimg://',''),''),'[]'))::JSON AS FRSTDSSTRLIST
+			, COALESCE((SVY_MEMO::JSON->'산림재해_목록'),'[]') AS FRSTDSSTRPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.WILDANMLLIST,'gimg://',''),''),'[]'))::JSON AS WILDANMLLIST
+			, COALESCE((SVY_MEMO::JSON->'야생동물_목록'),'[]') AS WILDANMLPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.ECNRFCLTYINSTLLIST,'gimg://',''),''),'[]'))::JSON AS ECNRFCLTYINSTLLIST
+			, COALESCE((SVY_MEMO::JSON->'사방시설설치_목록'),'[]') AS ECNRFCLTYINSTLPHOTO
+		    , (COALESCE(NULLIF(REPLACE(A.ECNRFCLTYNCSTYLIST,'gimg://',''),''),'[]'))::JSON AS ECNRFCLTYNCSTYLIST
+			, COALESCE((SVY_MEMO::JSON->'사방시설필요_목록'),'[]') AS ECNRFCLTYNCSTYPHOTO
+			, C.MST_PARTNAME AS MSTNM
+		FROM TN_FEIS_FRD_SVYMEMO A, TN_FEIS_FRD_SVYCOMPT B, TN_FEIS_FRD_CNRSSPCE C
+		    WHERE A.GID = B.GID
+    		AND A.MSTID = C.ID
+			AND A.GID = CAST(#{gid} AS INTEGER)
+		]]>
+	</select>
+	
+	 <select id="selectAnalPntInfo" parameterType="String" resultType="or.sabang.sys.gis.service.AnalFileVO">
+		SELECT
+			FILE_STRE_COURS
+			, STRE_FILE_NM
+			, ORIGNL_FILE_NM
+			, GID
+			, FILE_EXTSN AS FILEEXTSN
+		FROM TN_FEIS_FRD_ANALFILE
+		WHERE 1=1
+		AND CAST(ROUTE_CODE AS INTEGER) >= 20
+		AND SMID = CAST(#{smid} AS INTEGER)
+   </select>
+   
+    <select id="selectDownloadAnalPntAll" resultMap="analDownAllVO" parameterType="java.util.List">
+		SELECT 
+			ANAL_ID AS analId
+			, FILE_STRE_COURS AS fileStreCours
+			, STRE_FILE_NM AS streFileNm
+			, CASE 
+				WHEN ORIGNL_FILE_NM like 'safeFct%' THEN CONCAT('pnt_보호시설', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'lonSlope%' THEN CONCAT('pnt_종단기울기', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'mtSlope%' THEN CONCAT('pnt_산지경사', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'rockExpos%' THEN CONCAT('pnt_암반노출', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'afrst%' THEN CONCAT('pnt_조림지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'cutting%' THEN CONCAT('pnt_벌채지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'stmi%' THEN CONCAT('pnt_석력지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'mrngKind%' THEN CONCAT('pnt_계류종류및현황', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'wetLand%' THEN CONCAT('pnt_습지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'cmtry%' THEN CONCAT('pnt_묘지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'eltnWater%' THEN CONCAT('pnt_용출수', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'sofrtGrnd%' THEN CONCAT('pnt_연약지반', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'clpsCnrn%' THEN CONCAT('pnt_붕괴우려지역', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'maintreeknd%' THEN CONCAT('pnt_주요수종', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'mainveg%' THEN CONCAT('pnt_주요식생', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'wtrPltn%' THEN CONCAT('pnt_상수원오염', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'dmgCncrn%' THEN CONCAT('pnt_훼손우려지', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'frstDsstr%' THEN CONCAT('pnt_산림재해', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'wildAnml%' THEN CONCAT('pnt_야생동물', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'ecnrFcltyInstl%' THEN CONCAT('pnt_사방시설설치', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				WHEN ORIGNL_FILE_NM like 'ecnrFcltyNcsty%' THEN CONCAT('pnt_사방시설필요', SUBSTRING(ORIGNL_FILE_NM FROM '\d+$'))
+				ELSE ORIGNL_FILE_NM
+			END AS orignlFileNm
+			, FILE_EXTSN AS fileExtsn
+			, ANAL_TYPE AS analType
+		FROM TN_FEIS_FRD_ANALFILE
+		WHERE GID IN
+		<foreach item="item" collection="list" open="(" separator="," close=")">
+           	#{item}
+        </foreach>
+	</select>
+	
+	<select id="selectFrdSvyComptDetailExcel" parameterType="String" resultType="egovMap">
+	<![CDATA[
+		SELECT
+			REGEXP_REPLACE(COALESCE(B.SVYID,''),E'[\\n\\r]+', ' ', 'g') AS SVYID
+			, REGEXP_REPLACE(COALESCE(B.FRDRNK,''),E'[\\n\\r]+', ' ', 'g') AS FRDRNK
+			, REGEXP_REPLACE(COALESCE(B.FRDTYPE,''),E'[\\n\\r]+', ' ', 'g') AS FRDTYPE
+			, REGEXP_REPLACE(COALESCE(B.SD,''),E'[\\n\\r]+', ' ', 'g') AS SVYSD
+			, REGEXP_REPLACE(COALESCE(B.SGG,''),E'[\\n\\r]+', ' ', 'g') AS SVYSGG
+			, REGEXP_REPLACE(COALESCE(B.EMD,''),E'[\\n\\r]+', ' ', 'g') AS SVYEMD
+			, REGEXP_REPLACE(COALESCE(B.RI,''),E'[\\n\\r]+', ' ', 'g') AS SVYRI
+			, REGEXP_REPLACE(COALESCE(B.JIBUN,''),E'[\\n\\r]+', ' ', 'g') AS SVYJIBUN
+			, REGEXP_REPLACE(COALESCE(B.COMPENTAUTH,''),E'[\\n\\r]+', ' ', 'g') AS COMPENTAUTH
+			, REGEXP_REPLACE(COALESCE(B.SUBCOMPENTAUTH,''),E'[\\n\\r]+', ' ', 'g') AS SUBCOMPENTAUTH
+			, REGEXP_REPLACE(COALESCE(B.SVYUSER,''),E'[\\n\\r]+', ' ', 'g') AS SVYUSER
+			, REGEXP_REPLACE(COALESCE(B.SVYDT,''),E'[\\n\\r]+', ' ', 'g') AS SVYDT
+			, REGEXP_REPLACE(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(B.BPX,null),A.SVY_LON)::FLOAT,COALESCE(NULLIF(B.BPY,null),A.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1),''),E'[\\n\\r]+', ' ', 'g') AS BPY
+			, REGEXP_REPLACE(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(B.BPX,null),A.SVY_LON)::FLOAT,COALESCE(NULLIF(B.BPY,null),A.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2),''),E'[\\n\\r]+', ' ', 'g') AS BPX
+			, REGEXP_REPLACE(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(B.EPX,null),A.SVY_LON)::FLOAT,COALESCE(NULLIF(B.EPY,null),A.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1),''),E'[\\n\\r]+', ' ', 'g') AS EPY
+			, REGEXP_REPLACE(COALESCE(SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(B.EPX,null),A.SVY_LON)::FLOAT,COALESCE(NULLIF(B.EPY,null),A.SVY_LAT)::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2),''),E'[\\n\\r]+', ' ', 'g') AS EPX
+			, REGEXP_REPLACE(COALESCE(B.COMMONLY,''),E'[\\n\\r]+', ' ', 'g') AS COMMONLY
+			, REGEXP_REPLACE(COALESCE(B.SCHDST,''),E'[\\n\\r]+', ' ', 'g') AS SCHDST
+			, REGEXP_REPLACE(COALESCE(B.FRDEXTNS,''),E'[\\n\\r]+', ' ', 'g') AS FRDEXTNS
+			, REGEXP_REPLACE(COALESCE(B.GNRLSTTS,''),E'[\\n\\r]+', ' ', 'g') AS GNRLSTTS
+			, REGEXP_REPLACE(COALESCE(B.LONSLOPE,''),E'[\\n\\r]+', ' ', 'g') AS LONSLOPE
+			, REGEXP_REPLACE(COALESCE(B.MTSLOPE,''),E'[\\n\\r]+', ' ', 'g') AS MTSLOPE
+			, REGEXP_REPLACE(COALESCE(B.SLOPESTATUS,''),E'[\\n\\r]+', ' ', 'g') AS SLOPESTATUS
+			, REGEXP_REPLACE(COALESCE(B.DESTROCK,''),E'[\\n\\r]+', ' ', 'g') AS DESTROCK
+			, REGEXP_REPLACE(COALESCE(B.DESTERSN,''),E'[\\n\\r]+', ' ', 'g') AS DESTERSN
+			, REGEXP_REPLACE(COALESCE(B.DESTMRNGSTAT,''),E'[\\n\\r]+', ' ', 'g') AS DESTMRNGSTAT
+			, REGEXP_REPLACE(COALESCE(B.MRNGERSNSTAT,''),E'[\\n\\r]+', ' ', 'g') AS MRNGERSNSTAT
+			, REGEXP_REPLACE(COALESCE(B.ETC,''),E'[\\n\\r]+', ' ', 'g') AS ETC
+			, REGEXP_REPLACE(COALESCE(B.SAFEFCT,''),E'[\\n\\r]+', ' ', 'g') as SAFEFCT
+			, REGEXP_REPLACE(COALESCE(B.FIELD,''),E'[\\n\\r]+', ' ', 'g') as FIELD
+			, REGEXP_REPLACE(COALESCE(B.ACSBL,''),E'[\\n\\r]+', ' ', 'g') as ACSBL
+			, REGEXP_REPLACE(COALESCE(B.SAFEFCTLIST,''),E'[\\n\\r]+', ' ', 'g') as SAFEFCTLIST
+			, REGEXP_REPLACE(COALESCE(B.LONSLOPEMIN,''),E'[\\n\\r]+', ' ', 'g') as LONSLOPEMIN
+			, REGEXP_REPLACE(COALESCE(B.LONSLOPEMAX,''),E'[\\n\\r]+', ' ', 'g') as LONSLOPEMAX
+			, REGEXP_REPLACE(COALESCE(B.LONSLOPEAVG,''),E'[\\n\\r]+', ' ', 'g') as LONSLOPEAVG
+			, REGEXP_REPLACE(COALESCE(B.LONSLOPELIST,''),E'[\\n\\r]+', ' ', 'g') as LONSLOPELIST
+			, REGEXP_REPLACE(COALESCE(B.MTSLOPEMIN,''),E'[\\n\\r]+', ' ', 'g') as MTSLOPEMIN
+			, REGEXP_REPLACE(COALESCE(B.MTSLOPEMAX,''),E'[\\n\\r]+', ' ', 'g') as MTSLOPEMAX
+			, REGEXP_REPLACE(COALESCE(B.MTSLOPEAVG,''),E'[\\n\\r]+', ' ', 'g') as MTSLOPEAVG
+			, REGEXP_REPLACE(COALESCE(B.MTSLOPELIST,''),E'[\\n\\r]+', ' ', 'g') as MTSLOPELIST
+			, REGEXP_REPLACE(COALESCE(B.ROCKEXPOSMIN,''),E'[\\n\\r]+', ' ', 'g') as ROCKEXPOSMIN
+			, REGEXP_REPLACE(COALESCE(B.ROCKEXPOSMAX,''),E'[\\n\\r]+', ' ', 'g') as ROCKEXPOSMAX
+			, REGEXP_REPLACE(COALESCE(B.ROCKEXPOSAVG,''),E'[\\n\\r]+', ' ', 'g') as ROCKEXPOSAVG
+			, REGEXP_REPLACE(COALESCE(B.ROCKEXPOSLIST,''),E'[\\n\\r]+', ' ', 'g') as ROCKEXPOSLIST
+			, REGEXP_REPLACE(COALESCE(B.AFRSTAT,''),E'[\\n\\r]+', ' ', 'g') as AFRSTAT
+			, REGEXP_REPLACE(COALESCE(B.AFRSTLIST,''),E'[\\n\\r]+', ' ', 'g') as AFRSTLIST
+			, REGEXP_REPLACE(COALESCE(B.CUTTINGAT,''),E'[\\n\\r]+', ' ', 'g') as CUTTINGAT
+			, REGEXP_REPLACE(COALESCE(B.CUTTINGLIST,''),E'[\\n\\r]+', ' ', 'g') as CUTTINGLIST
+			, REGEXP_REPLACE(COALESCE(B.STMILIST,''),E'[\\n\\r]+', ' ', 'g') as STMILIST
+			, REGEXP_REPLACE(COALESCE(B.MRNGKIND,''),E'[\\n\\r]+', ' ', 'g') as MRNGKIND
+			, REGEXP_REPLACE(COALESCE(B.WETLANDAT,''),E'[\\n\\r]+', ' ', 'g') as WETLANDAT
+			, REGEXP_REPLACE(COALESCE(B.WETLANDLIST,''),E'[\\n\\r]+', ' ', 'g') as WETLANDLIST
+			, REGEXP_REPLACE(COALESCE(B.CMTRYAT,''),E'[\\n\\r]+', ' ', 'g') as CMTRYAT
+			, REGEXP_REPLACE(COALESCE(B.CMTRYLIST,''),E'[\\n\\r]+', ' ', 'g') as CMTRYLIST
+			, REGEXP_REPLACE(COALESCE(B.ELTNWATERAT,''),E'[\\n\\r]+', ' ', 'g') as ELTNWATERAT
+			, REGEXP_REPLACE(COALESCE(B.ELTNWATERLIST,''),E'[\\n\\r]+', ' ', 'g') as ELTNWATERLIST
+			, REGEXP_REPLACE(COALESCE(B.SOFRTGRNDAT,''),E'[\\n\\r]+', ' ', 'g') as SOFRTGRNDAT
+			, REGEXP_REPLACE(COALESCE(B.SOFRTGRNDLIST,''),E'[\\n\\r]+', ' ', 'g') as SOFRTGRNDLIST
+			, REGEXP_REPLACE(COALESCE(B.SOFRTGRNDAT,''),E'[\\n\\r]+', ' ', 'g') as SOFRTGRNDAT
+			, REGEXP_REPLACE(COALESCE(B.CLPSCNRNLIST,''),E'[\\n\\r]+', ' ', 'g') as CLPSCNRNLIST
+			, REGEXP_REPLACE(COALESCE(B.MAINTREEKNDCNT,''),E'[\\n\\r]+', ' ', 'g') as MAINTREEKNDCNT
+			, REGEXP_REPLACE(COALESCE(B.MAINTREEKNDLIST,''),E'[\\n\\r]+', ' ', 'g') as MAINTREEKNDLIST
+			, REGEXP_REPLACE(COALESCE(B.MAINVEGCNT,''),E'[\\n\\r]+', ' ', 'g') as MAINVEGCNT
+			, REGEXP_REPLACE(COALESCE(B.MAINVEGLIST,''),E'[\\n\\r]+', ' ', 'g') as MAINVEGLIST
+			, REGEXP_REPLACE(COALESCE(B.WTRPLTNAT,''),E'[\\n\\r]+', ' ', 'g') as WTRPLTNAT
+			, REGEXP_REPLACE(COALESCE(B.WTRPLTNLIST,''),E'[\\n\\r]+', ' ', 'g') as WTRPLTNLIST
+			, REGEXP_REPLACE(COALESCE(B.DMGCNCRNAT,''),E'[\\n\\r]+', ' ', 'g') as DMGCNCRNAT
+			, REGEXP_REPLACE(COALESCE(B.DMGCNCRNLIST,''),E'[\\n\\r]+', ' ', 'g') as DMGCNCRNLIST
+			, REGEXP_REPLACE(COALESCE(B.FRSTDSSTRCNT,''),E'[\\n\\r]+', ' ', 'g') as FRSTDSSTRCNT
+			, REGEXP_REPLACE(COALESCE(B.FRSTDSSTRLIST,''),E'[\\n\\r]+', ' ', 'g') as FRSTDSSTRLIST
+			, REGEXP_REPLACE(COALESCE(B.FRSTDSSTRFIRE,''),E'[\\n\\r]+', ' ', 'g') as FRSTDSSTRFIRE
+			, REGEXP_REPLACE(COALESCE(B.WILDANMLCNT,''),E'[\\n\\r]+', ' ', 'g') as WILDANMLCNT
+			, REGEXP_REPLACE(COALESCE(B.WILDANMLLIST,''),E'[\\n\\r]+', ' ', 'g') as WILDANMLLIST
+			, REGEXP_REPLACE(COALESCE(B.WILDANMLKIND,''),E'[\\n\\r]+', ' ', 'g') as WILDANMLKIND
+			, REGEXP_REPLACE(COALESCE(B.ECNRFCLTYINSTLCNT,''),E'[\\n\\r]+', ' ', 'g') as ECNRFCLTYINSTLCNT
+			, REGEXP_REPLACE(COALESCE(B.ECNRFCLTYINSTLTYPE,''),E'[\\n\\r]+', ' ', 'g') as ECNRFCLTYINSTLTYPE
+			, REGEXP_REPLACE(COALESCE(B.ECNRFCLTYINSTLLIST,''),E'[\\n\\r]+', ' ', 'g') as ECNRFCLTYINSTLLIST
+			, REGEXP_REPLACE(COALESCE(B.ECNRFCLTYNCSTYCNT,''),E'[\\n\\r]+', ' ', 'g') as ECNRFCLTYNCSTYCNT
+			, REGEXP_REPLACE(COALESCE(B.ECNRFCLTYNCSTYTYPE,''),E'[\\n\\r]+', ' ', 'g') as ECNRFCLTYNCSTYTYPE
+			, REGEXP_REPLACE(COALESCE(B.ECNRFCLTYNCSTYLIST,''),E'[\\n\\r]+', ' ', 'g') as ECNRFCLTYNCSTYLIST
+		FROM TN_FEIS_FRD_SVYCOMPT A, TN_FEIS_FRD_SVYMEMO B
+		WHERE A.GID = B.GID
+	]]>
+		AND B.GID = CAST(#{gid} AS INTEGER)
+	</select>
+	
+	<select id="selectCheckLines" parameterType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO" resultType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO">
+		SELECT
+			SMID
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE
+			SLD_LABEL = #{sldlabel}
+			AND ROUTETYPE = #{routetype}
+			AND MST_ID = CAST(#{mstId} AS INTEGER)
+	</select>
+	
+	
+	<delete id="deleteExistLines">
+		DELETE FROM TF_FEIS_FRD_SVYSLDINFO WHERE SMID = CAST(#{smid} AS INTEGER)
+	</delete>
+   
+   <!-- 수정노선 등록시 tf_feis_frd_svycompt에 지오메트리 최신화 -->
+   <update id="updateNewGeomInfo">
+		UPDATE TF_FEIS_FRD_SVYCOMPT A
+		SET SMGEOMETRY = C.SMGEOMETRY
+		, ROUTE_TYPE = '수정노선'
+		FROM 
+			(
+			SELECT
+				A.MST_ID, A.SLD_LABEL, SMGEOMETRY 
+			 FROM TF_FEIS_FRD_SVYSLDINFO A
+				WHERE A.MST_ID = CAST(#{mstId} AS INTEGER)
+				AND A.SLD_LABEL = #{sldlabel}
+				AND A.ROUTETYPE = '수정노선'
+			) C
+		WHERE A.MST_ID = C.MST_ID
+		AND A.SVY_LABEL = C.SLD_LABEL
+   </update>
+   
+</mapper>

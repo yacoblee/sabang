@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vytEcbSldManageDAO">
+
+	<resultMap id="workVO" type="or.sabang.sys.vyt.ecb.service.VytEcbWorkVO">
+		<result property="id" column="mstId" />
+		<result property="workNm" column="workNm" />
+		<result property="workType" column="workType" />
+		<result property="creatUser" column="creatUser" />
+		<result property="creatDt" column="creatDt" />
+		<result property="lastUpdtDt" column="lastUpdtDt" />
+		<result property="workCnt" column="workCnt" />
+	</resultMap>
+	
+	<resultMap id="stripLandVO" type="or.sabang.sys.vyt.ecb.service.VytEcbStripLandVO">
+		<result property="sldId" column="sldId" />
+		<result property="lgstrCd" column="lgstrCd" />
+		<result property="sdNm" column="sdNm" />
+		<result property="sggNm" column="sggNm" />
+		<result property="emdNm" column="emdNm" />
+		<result property="riNm" column="riNm" />
+		<result property="jibun" column="jibun" />
+		<result property="creatDt" column="creatDt" />
+	</resultMap>
+
+	<!-- 사업 최대연도 조회 -->
+	<select id ="selectVytEcbWorkMaxYear" resultType="String">
+		SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) AS WORKYEAR FROM TN_FEIS_VYT_ECBWORKLIST
+	</select>
+
+	<!-- 사업 연도목록 조회 -->	
+	<select id ="selectVytEcbWorkYear" resultType="egovMap">
+		SELECT DISTINCT(TO_CHAR(CREAT_DT,'YYYY')) AS WORKYEAR FROM TN_FEIS_VYT_ECBWORKLIST
+		ORDER BY WORKYEAR DESC
+	</select>
+	
+	<!-- 사업 목록조회 -->
+	<select id="selectVytEcbWorkList" resultMap="workVO" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbWorkVO">
+		<![CDATA[
+			SELECT
+				ID AS mstId
+				, WORK_NAME AS workNm
+				, (SELECT CODE_NM FROM TN_FEIS_DETAILCODE T3 WHERE T3.CODE_ID = 'FEI089' AND T3.CODE = T1.WORK_TYPE) AS workType
+				, CREAT_USER AS creatUser
+				, TO_CHAR(CREAT_DT ,'YYYY-MM-DD') AS creatDt
+				, TO_CHAR(LAST_UPDT_PNTTM ,'YYYY-MM-DD') AS lastUpdtDt
+				, (SELECT COUNT(*) FROM TN_FEIS_VYT_ECBSLDLIST T2 WHERE T2.MST_ID = T1.ID) AS workCnt
+			FROM TN_FEIS_VYT_ECBWORKLIST T1
+			WHERE  1=1
+		]]>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				T1.ID = CAST(#{mstId} AS INT) ]]>
+			</if>
+			<if test="workYear != null and workYear != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT ,'YYYY') = #{workYear} ]]>
+			</if>
+			<if test="workNm != null and workNm != ''">	<![CDATA[ AND
+				T1.WORK_NAME like CONCAT ('%', #{workNm},'%') ]]>
+			</if>
+			<if test="workType != null and workType != ''">	<![CDATA[ AND
+				T1.WORK_TYPE like CONCAT ('%', #{workType},'%') ]]>
+			</if>
+			<if test="creatUser != null and creatUser != ''">	<![CDATA[ AND
+				T1.CREAT_USER like CONCAT ('%', #{creatUser},'%') ]]>
+			</if>
+  		ORDER BY T1.CREAT_DT DESC, T1.ID DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 사업목록 갯수조회 -->
+	<select id="selectVytEcbWorkListTotCnt" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbWorkVO" resultType="int">
+		<![CDATA[
+			SELECT  COUNT(*) TOTCNT
+			FROM  TN_FEIS_VYT_ECBWORKLIST T1
+			WHERE  1=1
+		]]>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				T1.ID = CAST(#{mstId} AS INT) ]]>
+			</if>
+			<if test="workYear != null and workYear != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT ,'YYYY') = #{workYear} ]]>
+			</if>
+			<if test="workNm != null and workNm != ''">	<![CDATA[ AND
+				T1.WORK_NAME like CONCAT ('%', #{workNm},'%') ]]>
+			</if>
+			<if test="workType != null and workType != ''">	<![CDATA[ AND
+				T1.WORK_TYPE like CONCAT ('%', #{workType},'%') ]]>
+			</if>
+			<if test="creatUser != null and creatUser != ''">	<![CDATA[ AND
+				T1.CREAT_USER like CONCAT ('%', #{creatUser},'%') ]]>
+			</if>
+	</select>
+	
+	<!-- 사업 등록 -->
+	<insert id="insertWork" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO TN_FEIS_VYT_ECBWORKLIST
+		(
+			WORK_NAME
+			, WORK_TYPE
+			, CREAT_USER		
+		) VALUES (
+			#{workNm}
+			, #{workType}
+			, #{creatUser}
+	    )
+	</insert>
+	
+	<!-- 사업 대상지 등록 -->
+	<insert id="insertStripLandVO" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbStripLandVO">
+		INSERT INTO TN_FEIS_VYT_ECBSLDLIST
+		( MST_ID,SLD_ID,LGSTR_CD,SD_NM,SGG_NM,EMD_NM,RI_NM,JIBUN)
+		VALUES
+		(
+			CAST(#{mstId} AS INT)
+			, CAST(#{sldId} as INT)
+			, (SELECT A1 FROM TF_FEIS_LGSTR WHERE ST_INTERSECTS(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(#{lon}::FLOAT,NULL),NULLIF(#{lat}::FLOAT,NULL)),4326),5186),SMGEOMETRY))
+			, #{sdNm}
+			, #{sggNm}
+			, #{emdNm}
+			, #{riNm}
+			, #{jibun}
+		)
+		ON CONFLICT (MST_ID, SLD_ID)
+		DO UPDATE
+		SET LGSTR_CD = (SELECT A1 FROM TF_FEIS_LGSTR WHERE ST_INTERSECTS(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(NULLIF(#{lon}::FLOAT,NULL),NULLIF(#{lat}::FLOAT,NULL)),4326),5186),SMGEOMETRY))
+			, SD_NM = #{sdNm}
+			, SGG_NM = #{sggNm}
+			, EMD_NM = #{emdNm}
+			, RI_NM = #{riNm}
+			, JIBUN = #{jibun}
+			, LAST_UPDT_PNTTM = now()
+	</insert>
+	
+	<!-- 사업 상세조회 -->
+	<select id="selectVytEcbWorkDetail" parameterType="java.util.Map" resultMap="workVO">
+		<![CDATA[
+			SELECT
+				ID AS mstId
+				, WORK_NAME AS workNm
+				, (SELECT CODE_NM FROM TN_FEIS_DETAILCODE T3 WHERE T3.CODE_ID = 'FEI089' AND T3.CODE = T1.WORK_TYPE) AS workType
+				, CREAT_USER AS creatUser
+				, TO_CHAR(CREAT_DT ,'YYYY-MM-DD') AS creatDt
+				, TO_CHAR(LAST_UPDT_PNTTM ,'YYYY-MM-DD') AS lastUpdtDt
+				, (SELECT COUNT(*) FROM TN_FEIS_VYT_ECBSLDLIST T2 WHERE T2.MST_ID = T1.ID) AS workCnt
+			FROM TN_FEIS_VYT_ECBWORKLIST T1
+			WHERE  1=1
+			AND T1.ID = #{id}
+		]]>
+	</select>
+	
+	<!-- 사업 대상지 목록 조회 -->
+	<select id="selectVytEcbWorkSldList" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbWorkVO" resultMap="stripLandVO">
+		<![CDATA[
+			SELECT
+				SLD_ID AS sldId
+				, LGSTR_CD AS lgstrCd
+				, SD_NM AS sdNm
+				, SGG_NM AS sggNm
+				, EMD_NM AS emdNm
+				, RI_NM AS riNm
+				, JIBUN AS jibun
+			FROM TN_FEIS_VYT_ECBSLDLIST
+			WHERE 1=1
+			AND MST_ID = CAST(#{id} AS INT)
+			ORDER BY SLD_ID ASC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+		]]>
+	</select>
+	
+	<!-- 사업 대상지 목록 갯수조회 -->
+	<select id="selectVytEcbWorkSldListTotCnt" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbWorkVO" resultType="int">
+		<![CDATA[
+			SELECT  COUNT(*) TOTCNT
+			FROM  TN_FEIS_VYT_ECBSLDLIST
+			WHERE  1=1
+			AND MST_ID = CAST(#{id} AS INT)
+		]]>
+	</select>
+	
+	<!-- 사업 삭제 -->
+   <delete id="deleteWork" parameterType="java.util.Map">
+      	<![CDATA[
+      	    DELETE FROM TN_FEIS_VYT_ECBWORKLIST
+      	    WHERE ID = CAST(#{id} as INT)
+      	]]>
+   </delete>
+   
+   <!-- 공유방 조사데이터 삭제 -->
+   <delete id="deleteWorkItem" parameterType="java.util.Map">
+		DELETE FROM TN_FEIS_VYT_ECBSLDLIST
+		WHERE MST_ID = CAST(#{id} as INT)
+		AND SLD_ID IN
+		<foreach collection="label" item="code" index="index" separator="," open="(" close=")">
+			#{code}
+		</foreach>
+   </delete>
+   
+	<!-- 사업 대상지 목록 일괄삭제 -->
+   <delete id="deleteWorkAllSld" parameterType="java.util.Map">
+      	<![CDATA[
+      	    DELETE FROM TN_FEIS_VYT_ECBSLDLIST
+      	    WHERE MST_ID = CAST(#{id} as INT)
+      	]]>
+   </delete>
+   
+   <!-- 사업 대상지 수정조회 -->
+	<select id="selectVytEcbWorkSldListView" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbWorkVO" resultMap="stripLandVO">
+		<![CDATA[
+			SELECT
+				SLD_ID AS sldId
+				, LGSTR_CD AS lgstrCd
+				, SD_NM AS sdNm
+				, SGG_NM AS sggNm
+				, EMD_NM AS emdNm
+				, RI_NM AS riNm
+				, JIBUN AS jibun
+			FROM TN_FEIS_VYT_ECBSLDLIST
+			WHERE 1=1
+			AND MST_ID = CAST(#{id} AS INT)
+			ORDER BY SLD_ID ASC
+		]]>
+	</select>
+</mapper>

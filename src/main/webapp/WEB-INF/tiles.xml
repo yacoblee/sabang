@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" 
+	"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<!-- 개발 -->
+<!-- "http://tiles.apache.org/dtds/tiles-config_3_0.dtd" -->
+<!-- 운영 -->
+<!-- "/home/swadm/apps/apache-tomcat-8.5.57/webapps/apfs/WEB-INF/dtds/tiles-config_3_0.dtd" -->		
+
+<tiles-definitions>
+	<!-- 레이아웃 -->
+	<!-- 기본 레이아웃(디자인) -->
+	<definition name="base" template="/WEB-INF/views/cmm/layout.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="header" value="/WEB-INF/views/cmm/header.jsp" />
+		<put-attribute name="content" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/cmm/footer.jsp" />
+		<put-list-attribute name="defaultjavascripts">
+	        <add-attribute value="/js/jquery/jquery-3.4.1.js" />
+	        <add-attribute value="/js/cmm/common.js" />
+	    </put-list-attribute>
+	    <put-list-attribute name="defaultstylesheets">
+	        <add-attribute value="/css/main_style.css" />
+	    </put-list-attribute>
+	</definition>
+	<!-- 사이드 메뉴 레이아웃 -->
+	<definition name="leftmenu" template="/WEB-INF/views/cmm/layout_left.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="header" value="/WEB-INF/views/cmm/header.jsp" />
+		<put-attribute name="left" value="" />
+		<put-attribute name="content" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/cmm/footer.jsp" />
+		<put-list-attribute name="defaultjavascripts">
+	        <add-attribute value="/js/jquery/jquery-3.4.1.js" />
+	        <add-attribute value="/js/jquery/jquery-3.4.1.min.js" />
+<!-- 	        <add-attribute value="/js/jquery/jquery-ui.js" /> -->
+<!-- 	        <add-attribute value="/js/jquery/jquery-ui.min.js" /> -->
+	        <add-attribute value="/js/jquery/jquery.form.min.js" />
+	        <add-attribute value="/js/cmm/common.js" />
+	    </put-list-attribute>
+	    <put-list-attribute name="defaultstylesheets">
+	        <add-attribute value="/css/main_style.css" />
+<!-- 	        <add-attribute value="/css/jquery/jquery-ui.css" /> -->
+	    </put-list-attribute>
+	</definition>
+	<!-- 빈 레이아웃 -->
+	<definition name="baseEmpty" template="/WEB-INF/views/cmm/layout_empty.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="content" value="" />
+		<put-attribute name="js" value="" />
+		<put-list-attribute name="defaultjavascripts">
+	        <add-attribute value="/js/jquery/jquery-3.4.1.js" />
+	        <add-attribute value="/js/jquery/jquery.form.min.js" />
+	    </put-list-attribute>
+		<put-list-attribute name="defaultstylesheets">
+	        <add-attribute value="/css/main_style.css" />
+	    </put-list-attribute>
+	</definition>
+	<!-- //레이아웃 -->
+	<!-- 지도 레이아웃 -->
+	<definition name="baseMap" template="/WEB-INF/views/cmm/layout_map.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="content" value="" />
+		<put-attribute name="js" value="" />
+		<put-list-attribute name="defaultjavascripts">
+	        <add-attribute value="/js/jquery/jquery-3.4.1.js" />
+	        <add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+	        <add-attribute value="/js/jquery/jquery.form.min.js" />
+	    </put-list-attribute>
+		<put-list-attribute name="defaultstylesheets">
+	        <add-attribute value="/css/main_style.css" />
+	        <add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+	    </put-list-attribute>
+	</definition>
+	<!-- //지도 레이아웃 -->
+	<!-- 로그인 -->
+	<definition name="login" extends="baseEmpty">
+		<put-attribute name="title" value="치산정보시스템 > 로그인" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/uia/loginUsr.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/cmm/validator.do" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/uia/login.js" />
+			<add-attribute value="/js/mng/sec/authorManage.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 마이페이지 -->
+	<definition name="sys/uia/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 > 로그인 > 마이페이지 " />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/uia/myinfo.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/uia/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/cmm/validator.do" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/uia/login.js" />
+			<add-attribute value="/js/sys/uia/user.js" />
+			<add-attribute value="/js/mng/sec/authorManage.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 메인 -->
+	<definition name="sys/main" extends="base">
+		<put-attribute name="title" value="치산정보시스템" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/main.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+			<add-attribute value="/js/sys/main.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 지도서비스 -->
+	<definition name="sys/gis/*" extends="baseMap">
+		<put-attribute name="title" value="치산정보시스템 > 지도서비스" />
+		<put-attribute name="left" value="/WEB-INF/jsp/sys/gis/leftContent.jsp" />
+		<put-attribute name="right" value="/WEB-INF/jsp/sys/gis/rightContent.jsp" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/gis/mainMap.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/ol/include-ol.js" />
+			<add-attribute value="/js/proj4js/2.6.2/proj4.js" />
+			<add-attribute value="/js/ol/ol-ext.js" />
+			<add-attribute value="/js/sys/gis/config.js" />
+			<add-attribute value="/js/sys/gis/common-ui.js" />
+			<add-attribute value="/js/sys/gis/map.js" />
+			<add-attribute value="/js/sys/gis/common.js" />
+			<add-attribute value="/js/sys/gis/svy-common.js" />
+			
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/sys/gis/map.css" />
+			<add-attribute value="/css/ol/ol-ext.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 기초조사 Start-->
+	<!-- 기초조사 - 조사현황 -->
+	<definition name="sys/lss/bsc/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 기초조사 > 조사현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/bsc/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/bsc/surveySttus.js" />
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 기초조사 - 대상지목록 -->
+	<definition name="sys/lss/bsc/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 기초조사 > 대상지목록" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/bsc/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/bsc/stripLand.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 기초조사 - 전자야장연계 -->
+	<definition name="sys/lss/bsc/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 기초조사 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/bsc/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">			
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/bsc/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 기초조사 - 전자야장연계(외부접속) -->
+	<definition name="ext/lss/bsc/*" extends="baseEmpty">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 기초조사 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/ext/lss/bsc/{1}.jsp" />		
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/bsc/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 기초조사 - 조사완료 -->
+	<definition name="sys/lss/bsc/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 기초조사 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/bsc/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/lss/bsc/surveyComp.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+	    </put-list-attribute>
+	</definition>
+	<!-- 기초조사 End-->
+		
+	<!-- 땅밀림실태조사 Start -->
+	<!-- 땅밀림실태조사 - 조사현황 -->
+	<definition name="sys/lss/lcp/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 땅밀림실태조사 > 조사현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/lcp/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/sys/lss/lcp/surveySttus.js" />
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/lcp/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 땅밀림실태조사 - 조사대상지관리 -->
+	<definition name="sys/lss/lcp/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 땅밀림실태조사 > 조사대상지관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/lcp/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/lcp/stripLand.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 땅밀림실태조사 - 랭크관리 -->
+	<definition name="sys/lss/lcp/rnk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 땅밀림실태조사 > 랭크관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/lcp/rnk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/lcp/rankManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 땅밀림실태조사 - 제보관리 -->
+	<definition name="sys/lss/lcp/gvf/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 땅밀림실태조사 > 제보관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/lcp/gvf/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/lcp/gvfManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 땅밀림실태조사 - 전자야장연계 -->
+	<definition name="sys/lss/lcp/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 땅밀림실태조사> 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/lcp/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/lcp/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 땅밀림실태조사 - 전자야장연계(외부접속) -->
+	<definition name="ext/lss/lcp/*" extends="baseEmpty">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 땅밀림실태조사 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/ext/lss/lcp/{1}.jsp" />		
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/lcp/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 땅밀림실태조사 - 조사완료 -->
+	<definition name="sys/lss/lcp/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 땅밀림실태조사 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/lcp/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/lss/lcp/surveyComp.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+	    </put-list-attribute>
+	</definition>
+	<!-- 땅밀림실태조사 End-->
+	
+	<!-- 취약지역실태조사 - 조사현황 -->
+	<definition name="sys/lss/wka/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역실태조사 > 조사현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/wka/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/wka/surveySttus.js" />
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/wka/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 취약지역실태조사 - 전자야장연계 -->
+	<definition name="sys/lss/wka/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역실태조사 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/wka/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">			
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/wka/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 취약지역실태조사 - 조사완료 -->
+	<definition name="sys/lss/wka/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역실태조사 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/wka/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/lss/wka/surveyComp.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<definition name="sys/lss/wka/sct/svyComptGeomUpdt" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역실태조사 > 조사완료 > 공간정보" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/wka/sct/svyComptGeomUpdt.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/ol/include-ol.js" />
+			<add-attribute value="/js/proj4js/2.6.2/proj4.js" />
+			<add-attribute value="/js/ol/ol-ext.js" />
+			<add-attribute value="/js/sys/lss/wka/map.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/sys/gis/anal-map.css" />
+			<add-attribute value="/css/ol/ol-ext.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 취약지역 해제조사 Start-->
+	<!-- 취약지역 해제조사 - 조사현황 -->
+	<definition name="sys/lss/cnl/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역해제조사 > 조사현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/cnl/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/cnl/surveySttus.js" />
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/cnl/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 취약지역 해제조사 - 대상지목록 -->
+	<definition name="sys/lss/cnl/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역해제조사 > 대상지목록" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/cnl/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/cnl/stripLand.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 취약지역 해제조사 - 전자야장연계 -->
+	<definition name="sys/lss/cnl/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역해제조사 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/cnl/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">			
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/lss/cnl/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 취약지역 해제조사 - 조사완료 -->
+	<definition name="sys/lss/cnl/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역해제조사 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/cnl/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/lss/cnl/surveyComp.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<definition name="sys/lss/cnl/sct/svyComptGeomUpdt" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 취약지역해제조사 > 조사완료 > 공간정보" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/lss/cnl/sct/svyComptGeomUpdt.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/lss/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/ol/include-ol.js" />
+			<add-attribute value="/js/proj4js/2.6.2/proj4.js" />
+			<add-attribute value="/js/ol/ol-ext.js" />
+			<add-attribute value="/js/sys/lss/cnl/map.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/sys/gis/anal-map.css" />
+			<add-attribute value="/css/ol/ol-ext.css" />
+	    </put-list-attribute>
+	</definition>
+	<!-- 취약지역 해제조사 End-->
+	
+	<!-- 외관점검 - 조사현황 -->
+	<definition name="sys/fck/apr/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 외관점검 > 조사현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/apr/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 외관점검 - 대상지등록 -->
+	<definition name="sys/fck/apr/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 외관점검 > 대상지등록" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/apr/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/fck/apr/stripLand.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 외관점검 - 전자야장연계 -->
+	<definition name="sys/fck/apr/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 산사태조사 > 기초조사 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/apr/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">			
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/fck/apr/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 외관점검 - 조사완료 -->
+	<definition name="sys/fck/apr/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 외관점검 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/apr/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/fck/apr/aprComp.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+			<add-attribute value="/css/sys/gis/anal-map.css" />
+	    </put-list-attribute>
+	</definition>
+
+	<!-- 기초조사 End-->
+	
+	<!-- 정밀점검- 조사현황 -->
+	<definition name="sys/fck/pcs/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 정밀점검 > 조사현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/pcs/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 정밀점검 - 대상지등록-->
+	<definition name="sys/fck/pcs/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 정밀점검 > 대상지등록" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/pcs/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/fck/pcs/stripLand.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 정밀점검 - 전자야장연계-->
+	<definition name="sys/fck/pcs/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 정밀점검 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/pcs/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">			
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/fck/pcs/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/sys/fck/pcs/map.css" />			
+	    </put-list-attribute>
+	</definition>
+  	
+	<!-- 정밀점검 - 조사완료 -->
+	<definition name="sys/fck/pcs/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 정밀점검 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/pcs/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/fck/pcs/pcsComp.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+			<add-attribute value="/css/sys/gis/anal-map.css" />
+			<add-attribute value="/css/sys/fck/pcs/map.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 계측장비 - 조사현황 -->
+	<definition name="sys/fck/mse/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 계측장비 > 조사현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/mse/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+			<add-attribute value="/css/sys/fck/mse/mse_content.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 계측장비 - 대상지관리 -->
+	<definition name="sys/fck/mse/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 계측장비 > 대상지관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/mse/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/fck/mse/stripLand.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/sys/fck/mse/mse_content.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 계측장비 - 전자야장연계 -->
+	<definition name="sys/fck/mse/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 계측장비 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/mse/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">			
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/fck/mse/fieldBook.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/sys/fck/mse/mse_content.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 계측장비 - 조사완료 -->
+	<definition name="sys/fck/mse/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 사방시설점검 > 계측장비 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/fck/mse/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/fck/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.1.min.js" />
+			<add-attribute value="/js/cmm/cmmUtl.js" />
+			<add-attribute value="/js/sys/fck/mse/mseComp.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.1.min.css" />
+			<add-attribute value="/css/sys/gis/anal-map.css" />
+			<add-attribute value="/css/sys/fck/mse/mse_content.css" />
+	    </put-list-attribute>
+	</definition>
+		
+	<!-- 타당성평가 - 사방사업 - 평가현황 -->
+	<definition name="sys/vyt/ecb/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 사방사업 > 평가현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/ecb/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/sys/vyt/ecb/surveySttus.js" />
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 타당성평가 - 사방사업 - 대상지관리 -->
+	<definition name="sys/vyt/ecb/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 사방사업 > 대상지관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/ecb/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/vyt/ecb/sldManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 타당성평가 - 사방사업 - 분석관리 - 분석대상지 목록 -->
+	<definition name="sys/vyt/ecb/als/analManageList" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 사방사업 > 분석관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/ecb/als/analManageList.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/vyt/ecb/analManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 타당성평가 - 사방사업 - 분석관리 - 분석대상지 상세조회 지도 -->
+	<definition name="sys/vyt/ecb/als/analManageDetail" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 사방사업 > 분석관리 > 분석대상지 상세조회" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/ecb/als/analManageDetail.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/ol/include-ol.js" />
+			<add-attribute value="/js/proj4js/2.6.2/proj4.js" />
+			<add-attribute value="/js/ol/ol-ext.js" />
+			<add-attribute value="/js/sys/gis/anal-config.js" />
+			<add-attribute value="/js/sys/gis/anal-map.js" />
+			<add-attribute value="/js/sys/gis/anal-common.js" />
+			<add-attribute value="/js/sys/gis/anal-common-ui.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/sys/gis/anal-map.css" />
+			<add-attribute value="/css/ol/ol-ext.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 타당성평가 - 임도 - 평가현황 -->
+	<definition name="sys/vyt/frd/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 임도 > 평가현황" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/frd/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/sys/vyt/frd/surveySttus.js" />
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 타당성평가 - 임도 - 대상지관리 -->
+	<definition name="sys/vyt/frd/sld/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 임도 > 대상지관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/frd/sld/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/sys/vyt/frd/stripLand.js" />
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 타당성평가 - 임도 - 전자야장연계 -->
+	<definition name="sys/vyt/frd/fbk/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 임도 > 전자야장연계" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/frd/fbk/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/sys/vyt/frd/fieldBook.js" />
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 타당성평가 - 임도 - 조사완료 -->
+	<definition name="sys/vyt/frd/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 타당성평가 > 임도 > 조사완료" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/vyt/frd/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/vyt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/sys/vyt/frd/surveyComp.js" />
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/ol/include-ol.js" />
+			<add-attribute value="/js/proj4js/2.6.2/proj4.js" />
+			<add-attribute value="/js/ol/ol-ext.js" />
+			<add-attribute value="/js/sys/vyt/frd/map.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/sys/gis/anal-map.css" />
+			<add-attribute value="/css/ol/ol-ext.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 업무지원 Start-->
+	<!-- 업무지원 - 보고서관리 -->
+	<definition name="sys/spt/rpt/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 업무지원 > 보고서관리 " />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/spt/rpt/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/spt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/spt/rpt/rptBscManage.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 업무지원 - 통계관리 -->
+	<definition name="sys/spt/sts/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 업무지원 > 통계관리 " />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/spt/sts/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/spt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/d3/d3.min.js" />
+			<add-attribute value="/js/c3/c3.min.js" />
+			<add-attribute value="/js/sys/spt/sts/sttusManage.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+			<add-attribute value="/css/sys/lss/bsc/svyChart.css" />
+			<add-attribute value="/css/c3/c3-0.7.15.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 업무지원 - 완료보고서 -->
+	<definition name="sys/spt/sct/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 업무지원 > 완료보고서 " />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/spt/sct/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/spt/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/spt/sct/rptCompt.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	<!-- 업무지원 End-->
+
+	<!-- 사용자관리 -->
+	<definition name="mng/umt/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 사용자관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/umt/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/mng/umt/mberManage.js" />
+			<add-attribute value="/js/mng/sec/authorManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 권한관리 -->
+	<definition name="mng/sec/*/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 권한관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/sec/{1}/{2}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/mng/sec/authorManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 로그관리 -->
+	<definition name="mng/log/*/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 로그관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/log/{1}/{2}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/mng/log/logManage.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 공통코드관리 -->
+	<definition name="mng/ccm/*/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 공통코드관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/ccm/{1}/{2}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/mng/ccm/codeManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 메뉴관리 - 메뉴생성관리 -->
+	<definition name="mng/mnu/mcm/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 메뉴관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/mnu/mcm/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/mng/mnu/menuManage.js" />
+			<add-attribute value="/js/mng/mnu/menuCreat.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 메뉴관리 - 메뉴목록관리 -->
+	<definition name="mng/mnu/mpm/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 메뉴관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/mnu/mpm/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/mng/mnu/menuManage.js" />
+			<add-attribute value="/js/mng/mnu/menuList.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 프로그램관리 -->
+	<definition name="mng/prm/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 프로그램관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/prm/{1}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/mng/prm/programManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 관리서비스 > 보고서관리 -->
+	<definition name="mng/rpt/*/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 보고서관리 " />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/rpt/{1}/{2}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/spt/rpt/rptBscManage.js" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+			<add-attribute value="/css/jquery-ui/jquery-ui-1.13.0.min.css" />
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 관리서비스 > 게시물관리 -->
+	<definition name="mng/bbs/*/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 관리서비스 > 게시물관리" />
+		<put-attribute name="content" value="/WEB-INF/jsp/mng/bbs/{1}/{2}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/mng/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/mng/bbs/bbsManage.js" />
+			<add-attribute value="/cmm/validator.do" />
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 알림마당 -->
+	<definition name="sys/bbs/*/*" extends="leftmenu">
+		<put-attribute name="title" value="치산정보시스템 - 알림마당" />
+		<put-attribute name="content" value="/WEB-INF/jsp/sys/bbs/{1}/{2}.jsp" />
+		<put-attribute name="left" value="/WEB-INF/views/sys/bbs/left_menu.jsp" />
+		<put-list-attribute name="javascripts">
+			<add-attribute value="/js/jquery/jquery-ui-1.13.0.min.js" />
+			<add-attribute value="/js/sys/bbs/bbsManage.js" />
+			<!-- <add-attribute value="/cmm/validator.do" /> -->
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+		</put-list-attribute>
+	</definition>
+	
+	<!-- 이용안내 -->
+<!-- 	<definition name="sys/cms/*" extends="leftmenu"> -->
+<!-- 		<put-attribute name="title" value="치산정보시스템 - 알림마당" /> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/jsp/sys/cms/{1}.jsp" /> -->
+<!-- 		<put-attribute name="left" value="/WEB-INF/views/sys/cms/left_menu.jsp" /> -->
+<!-- 		<put-list-attribute name="javascripts"> -->
+<!-- 		</put-list-attribute> -->
+<!-- 		<put-list-attribute name="stylesheets"> -->
+<!-- 		</put-list-attribute> -->
+<!-- 	</definition> -->
+	
+	<!-- 접근불가 페이지 -->
+	<definition name="cmm/accessDenied" extends="base">
+		<put-attribute name="title" value="치산정보시스템" />
+		<put-attribute name="content" value="/WEB-INF/jsp/cmm/accessDenied.jsp" />
+		<put-list-attribute name="javascripts">
+		</put-list-attribute>
+		<put-list-attribute name="stylesheets">
+	    </put-list-attribute>
+	</definition>
+	
+	<!-- 관리자서비스 메뉴관리 메뉴명 검색 팝업 -->
+	<definition name="mng/mnu/mpm/menuMvmnPopup" template="/WEB-INF/jsp/mng/mnu/mpm/menuMvmnPopup.jsp" />
+	<!-- 관리자서비스 프로그램관리 프로그램파일명 검색 팝업 -->
+	<definition name="mng/prm/fileNmSearchPopup" template="/WEB-INF/jsp/mng/prm/fileNmSearchPopup.jsp" />
+	<!-- 관리자서비스 프로그램관리 일괄업로드 팝업 -->
+	<definition name="mng/prm/insertMultiProgramListPopup" template="/WEB-INF/jsp/mng/prm/insertMultiProgramListPopup.jsp" />
+	<!-- 기초조사 대상지등록 팝업 -->
+	<definition name="sys/lss/bsc/sld/stripLandExcelPopup" template="/WEB-INF/jsp/sys/lss/bsc/sld/stripLandExcelPopup.jsp" />
+	<!-- 기초조사 전자야장 공유방등록 팝업 -->
+	<definition name="sys/lss/bsc/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/lss/bsc/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 기초조사 전자야장 대상지등록 팝업 -->
+	<definition name="sys/lss/bsc/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/lss/bsc/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 땅밀림실태조사 대상지등록 팝업 -->
+	<definition name="sys/lss/lcp/sld/stripLandExcelPopup" template="/WEB-INF/jsp/sys/lss/lcp/sld/stripLandExcelPopup.jsp" />
+	<!-- 땅밀림실태조사 랭크등록 팝업 -->
+	<definition name="sys/lss/lcp/rnk/insertLcpSvyRankPopup" template="/WEB-INF/jsp/sys/lss/lcp/rnk/insertLcpSvyRankPopup.jsp" />
+	<!-- 땅밀림실태조사 제보등록 팝업 -->
+	<definition name="sys/lss/lcp/gvf/insertLcpSvyGvfPopup" template="/WEB-INF/jsp/sys/lss/lcp/gvf/insertLcpSvyGvfPopup.jsp" />
+	<!-- 땅밀림실태조사  전자야장 공유방등록 팝업 -->
+	<definition name="sys/lss/lcp/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/lss/lcp/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 땅밀림실태조사  전자야장 대상지등록 팝업 -->
+	<definition name="sys/lss/lcp/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/lss/lcp/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 땅밀림실태조사  조사완료 엑셀등록 팝업 -->
+	<definition name="sys/lss/lcp/sct/updateLcpSvyComptPopup" template="/WEB-INF/jsp/sys/lss/lcp/sct/updateLcpSvyComptPopup.jsp" />
+	<!-- 땅밀림실태조사  조사완료 Shp 파일등록 팝업 -->
+	<definition name="sys/lss/lcp/sct/insertShpFilePopup" template="/WEB-INF/jsp/sys/lss/lcp/sct/insertShpFilePopup.jsp" />
+	<!-- 땅밀림실태조사 조사완료 위치도 재생성 팝업 -->
+	<definition name="sys/lss/lcp/sct/updateLocReCreatePopup" template="/WEB-INF/jsp/sys/lss/lcp/sct/updateLocReCreatePopup.jsp" />
+	<!-- 취약지역실태조사 대상지등록 팝업 -->
+	<definition name="sys/lss/wka/sld/stripLandExcelPopup" template="/WEB-INF/jsp/sys/lss/wka/sld/stripLandExcelPopup.jsp" />
+	<!-- 취약지역실태조사 전자야장 공유방등록 팝업 -->
+	<definition name="sys/lss/wka/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/lss/wka/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 취약지역실태조사 전자야장 대상지등록 팝업 -->
+	<definition name="sys/lss/wka/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/lss/wka/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 취약지역실태조사 전자야장 대상지등록 팝업 -->
+	<definition name="sys/lss/wka/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/lss/wka/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 취약지역실태조사 완료지등록 팝업 -->
+	<definition name="sys/lss/wka/sct/updateWkaSvyComptPopup" template="/WEB-INF/jsp/sys/lss/wka/sct/updateWkaSvyComptPopup.jsp" />
+	<!-- 취약지역해제조사 대상지등록 팝업 -->
+	<definition name="sys/lss/cnl/sld/stripLandExcelPopup" template="/WEB-INF/jsp/sys/lss/cnl/sld/stripLandExcelPopup.jsp" />
+	<!-- 취약지역해제조사 전자야장 공유방등록 팝업 -->
+	<definition name="sys/lss/cnl/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/lss/cnl/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 취약지역해제조사 전자야장 대상지등록 팝업 -->
+	<definition name="sys/lss/cnl/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/lss/cnl/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 외관점검 대상지등록 팝업 -->
+	<definition name="sys/fck/apr/sld/stripLandExcelPopup" template="/WEB-INF/jsp/sys/fck/apr/sld/stripLandExcelPopup.jsp" />
+	<!-- 외관점검 전자야장 공유방등록 팝업 -->
+	<definition name="sys/fck/apr/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/fck/apr/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 외관점검 전자야장 대상지등록 팝업 -->
+	<definition name="sys/fck/apr/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/fck/apr/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 정밀점검 대상지등록 팝업 -->
+	<definition name="sys/fck/pcs/sld/stripLandExcelPopup" template="/WEB-INF/jsp/sys/fck/pcs/sld/stripLandExcelPopup.jsp" />
+	<!-- 정밀점검 전자야장 공유방등록 팝업 -->
+	<definition name="sys/fck/pcs/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/fck/pcs/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 정밀점검 전자야장 대상지등록 팝업 -->
+	<definition name="sys/fck/pcs/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/fck/pcs/fbk/insertCnrsSpceSldPopup.jsp" />	
+	<!-- 계측장비 대상지등록 팝업 -->
+	<definition name="sys/fck/mse/sld/stripLandExcelPopup" template="/WEB-INF/jsp/sys/fck/mse/sld/stripLandExcelPopup.jsp" />
+	<!-- 계측장비 전자야장 공유방등록 팝업 -->
+	<definition name="sys/fck/mse/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/fck/mse/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 계측장비 전자야장 대상지등록 팝업 -->
+	<definition name="sys/fck/mse/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/fck/mse/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 업무지원 완료보고서 등록 팝업 -->
+	<definition name="sys/spt/sct/uploadBscComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadBscComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadAprComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadAprComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadLcpComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadLcpComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadWkaComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadWkaComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadCnlComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadCnlComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadEcbComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadEcbComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadFrdComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadFrdComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadMseComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadMseComptReportPopup.jsp" />
+	<definition name="sys/spt/sct/uploadPcsComptReportPopup" template="/WEB-INF/jsp/sys/spt/sct/uploadPcsComptReportPopup.jsp" />
+
+	<!-- 기초조사 완료지등록 팝업 -->
+	<definition name="sys/lss/bsc/sct/updateBscSvyComptPopup" template="/WEB-INF/jsp/sys/lss/bsc/sct/updateBscSvyComptPopup.jsp" />
+	<!-- 외관점검 완료지등록 팝업 -->
+	<definition name="sys/fck/apr/sct/updateFckAprComptPopup" template="/WEB-INF/jsp/sys/fck/apr/sct/updateFckAprComptPopup.jsp" />
+	<!-- 정밀점검 완료지등록 팝업 -->
+	<definition name="sys/fck/pcs/sct/updateFckPcsComptPopup" template="/WEB-INF/jsp/sys/fck/pcs/sct/updateFckPcsComptPopup.jsp" />
+	<!-- 취약지역해제조사 완료지등록 팝업 -->
+	<definition name="sys/lss/cnl/sct/updateCnlSvyComptPopup" template="/WEB-INF/jsp/sys/lss/cnl/sct/updateCnlSvyComptPopup.jsp" />
+	<!-- 위치도 기간 별 재생성 팝업 -->
+	<definition name="sys/cmm/pop/updateLocReCreatePopup" template="/WEB-INF/jsp/sys/cmm/pop/updateLocReCreatePopup.jsp" />
+	<!-- 기초조사 모집단 변경 팝업 -->
+	<definition name="sys/lss/bsc/sts/insertBscSvyPopultnPopup" template="/WEB-INF/jsp/sys/lss/bsc/sts/insertBscSvyPopultnPopup.jsp" />
+	<!-- 취약지역해제조사 모집단 변경 팝업 -->
+	<definition name="sys/lss/cnl/sts/insertCnlSvyPopultnPopup" template="/WEB-INF/jsp/sys/lss/cnl/sts/insertCnlSvyPopultnPopup.jsp" />
+	<!-- 현장사진 동기화 팝업 -->
+	<definition name="sys/cmm/pop/updatePhotoPopup" template="/WEB-INF/jsp/sys/cmm/pop/updatePhotoPopup.jsp" />
+	<!-- 사방사업 타당성평가 사업 등록 팝업 -->
+	<definition name="sys/vyt/ecb/sld/insertWorkManagePopup" template="/WEB-INF/jsp/sys/vyt/ecb/sld/insertWorkManagePopup.jsp" />
+	<!-- 사방사업 타당성평가 사업대상지 등록 팝업 -->
+	<definition name="sys/vyt/ecb/sld/insertWorkSldManagePopup" template="/WEB-INF/jsp/sys/vyt/ecb/sld/insertWorkSldManagePopup.jsp" />
+	<!-- 사방사업 임도 공유방등록 팝업 -->
+	<definition name="sys/vyt/frd/fbk/insertCnrsSpcePopup" template="/WEB-INF/jsp/sys/vyt/frd/fbk/insertCnrsSpcePopup.jsp" />
+	<!-- 사방사업 임도 전자야장 대상지등록 팝업 -->
+	<definition name="sys/vyt/frd/fbk/insertCnrsSpceSldPopup" template="/WEB-INF/jsp/sys/vyt/frd/fbk/insertCnrsSpceSldPopup.jsp" />
+	<!-- 사방사업 임도 완료지등록 팝업 -->
+	<definition name="sys/vyt/frd/sct/updateFrdSvyComptPopup" template="/WEB-INF/jsp/sys/vyt/frd/sct/updateFrdSvyComptPopup.jsp" />
+	<!-- 사방사업 임도 대상지관리 대상지등록 팝업 -->
+	<definition name="sys/vyt/frd/sld/stripLandRegist" template="/WEB-INF/jsp/sys/vyt/frd/sld/stripLandRegist.jsp" />
+	<!-- 사방사업 임도 대상지관리 대상지추가등록 팝업 -->
+	<definition name="sys/vyt/frd/sld/stripLandSldRegist" template="/WEB-INF/jsp/sys/vyt/frd/sld/stripLandSldRegist.jsp" />
+	<!-- 사방사업 임도 대상지관리 대상지분석 팝업 -->
+	<definition name="sys/vyt/frd/sld/stripLandAnalPopup" template="/WEB-INF/jsp/sys/vyt/frd/sld/stripLandAnalPopup.jsp" />
+	<!-- 사방사업 임도 대상지 관계지적필지 팝업 -->
+	<definition name="sys/vyt/frd/sld/stripLandOtherAddrPopup" template="/WEB-INF/jsp/sys/vyt/frd/sld/stripLandOtherAddrPopup.jsp" />
+	<!-- 사방사업 임도 조사완료 노선추가등록 팝업 -->
+	<definition name="sys/vyt/frd/sct/svyComptSldRegist" template="/WEB-INF/jsp/sys/vyt/frd/sct/svyComptSldRegist.jsp" />
+	<!-- 사방사업 임도 조사완료 노선추가등록 팝업 -->
+	<definition name="sys/vyt/frd/sct/svyComptAnalPopup" template="/WEB-INF/jsp/sys/vyt/frd/sct/svyComptAnalPopup.jsp" />
+	
+	<!-- 슈퍼맵 등록 테스트 팝업 -->
+	<definition name="sys/lss/lcp/rnk/upsertLcpSvyComptTestPopup" template="/WEB-INF/jsp/sys/lss/lcp/rnk/upsertLcpSvyComptTestPopup.jsp" />
+	<!-- 슈퍼맵 삭제 테스트 팝업 -->
+	<definition name="sys/lss/lcp/rnk/deleteLcpSvyComptTestPopup" template="/WEB-INF/jsp/sys/lss/lcp/rnk/deleteLcpSvyComptTestPopup.jsp" />
+	<!-- 땅밀림 위치도 테스트 팝업 -->
+	<definition name="sys/lss/lcp/sct/creatLocationPopupTest" template="/WEB-INF/jsp/sys/lss/lcp/sct/creatLocationPopupTest.jsp" />
+	<!-- 취약지역실태조사 전자야장연계 권한부여 조직도 팝업 -->
+	<definition name="sys/lss/wka/fbk/searchAuthorUserPopup" template="/WEB-INF/jsp/sys/lss/wka/fbk/searchAuthoreUserPopup.jsp" />
+	<!-- 취약지역해제조사 전자야장연계 권한부여 조직도 팝업 -->
+	<definition name="sys/lss/cnl/fbk/searchAuthorUserPopup" template="/WEB-INF/jsp/sys/lss/cnl/fbk/searchAuthoreUserPopup.jsp" />
+	<!-- 땅밀림실태조사 전자야장연계 권한부여 조직도 팝업 -->
+	<definition name="sys/lss/lcp/fbk/searchAuthorUserPopup" template="/WEB-INF/jsp/sys/lss/lcp/fbk/searchAuthoreUserPopup.jsp" />
+	<!-- 외관점검 전자야장연계 권한부여 조직도 팝업 -->
+	<definition name="sys/fck/apr/fbk/searchAuthorUserPopup" template="/WEB-INF/jsp/sys/fck/apr/fbk/searchAuthoreUserPopup.jsp" />
+	<!-- 정밀점검 전자야장연계 권한부여 조직도 팝업 -->
+	<definition name="sys/fck/pcs/fbk/searchAuthorUserPopup" template="/WEB-INF/jsp/sys/fck/pcs/fbk/searchAuthoreUserPopup.jsp" />
+	<!-- 타당성평가 임도 전자야장연계 권한부여 조직도 팝업 -->
+	<definition name="sys/vyt/frd/fbk/searchAuthorUserPopup" template="/WEB-INF/jsp/sys/vyt/frd/fbk/searchAuthoreUserPopup.jsp" />
+	<!-- 계측장비  전자야장연계 권한부여 조직도 팝업 -->
+	<definition name="sys/fck/mse/fbk/searchAuthorUserPopup" template="/WEB-INF/jsp/sys/fck/mse/fbk/searchAuthoreUserPopup.jsp" />
+	<!-- 취약지역해제조사 공간정보수정 현황도 팝업 -->
+	<definition name="sys/lss/cnl/sct/svySvyComptStatPopup" template="/WEB-INF/jsp/sys/lss/cnl/sct/svySvyComptStatPopup.jsp" />
+
+	<definition name="cmm/clipReport" template="/ClipReport5/report.jsp" />
+	
+	<!-- validator -->
+	<definition name="cmm/validator" template="/WEB-INF/jsp/cmm/validator.jsp" />
+</tiles-definitions>

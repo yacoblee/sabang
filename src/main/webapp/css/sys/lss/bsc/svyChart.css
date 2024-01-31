@@ -1,0 +1,23 @@
+@charset "utf-8";
+
+.BoardList.chartDiv{margin-top: 20px;width: calc(100% - 1px);height: 100%;display: inline-block;padding: 10px;border: 1px solid #cccccc;overflow: hidden;}
+div.chartDiv > div.chartSub1 {width:100%;display: inline-block;border: 1px solid #bdbdbd;margin: 2px;box-shadow: 0 0 5px rgb(0 0 0 / 30%);}
+div.chartDiv > div.chartSub2 {width:100%;float: left;}
+div.chartDiv > div.chartSub2 > div {width:calc(50% - 4px);float:left;border: 1px solid #bdbdbd;margin:2px;box-shadow: 0 0 5px rgb(0 0 0 / 30%);}
+div.chartDiv > div.chartSub3 > div {width:calc(33% - 1px);float:left;border: 1px solid #bdbdbd;margin:2px;box-shadow: 0 0 5px rgb(0 0 0 / 30%);}
+/* div.chartDiv > div.chartSub2 > div:first-child {margin-right:3px;} */
+/* div.chartDiv #pieSurveyAll,div.chartDiv #barSurveyAll {margin:5px;} */
+div.chartDiv > #barSurveyMonth {width:100%;float:left;}
+div.chartDiv div.chartTitle {border-bottom: 1px solid #cccccc;}
+div.chartDiv div.chartTitle > h4 {display: block;font-size: 16px;font-weight: bold;text-indent: 3px;margin-top: 2px;}
+div.chartDiv div.chartTitle > p {font-size: 12px;text-indent: 4px;color: #818181;margin-bottom: 2px;}
+#barSurveyRegion tspan {
+    font-size: 10px;
+}
+
+div.chartDiv > div.chartSub2 > div > div:nth-child(2),div.chartDiv > div.chartSub1 > div:nth-child(2) {height: 300px;text-align: center;}
+div.chartDiv > div.chartSub2 > div > div:nth-child(2) > div {top:20px;}
+
+div.chartDiv > div.chartSub1 > div:nth-child(2) > div {top:15px;}
+
+.c3-legend-background {opacity: 0 !important;}

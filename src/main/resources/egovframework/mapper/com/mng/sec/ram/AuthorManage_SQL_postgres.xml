@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="authorManageDAO">
+
+    <resultMap id="author" type="or.sabang.mng.sec.ram.service.AuthorManageVO">
+        <result property="authorCode" column="AUTHOR_CODE"/>
+        <result property="authorNm" column="AUTHOR_NM"/>
+        <result property="authorDc" column="AUTHOR_DC"/>
+        <result property="authorCreatDe" column="AUTHOR_CREAT_DE"/>
+    </resultMap>
+
+    <select id="selectAuthorList" parameterType="or.sabang.mng.sec.ram.service.AuthorManageVO" resultMap="author">
+            SELECT
+                   AUTHOR_CODE, AUTHOR_NM, AUTHOR_DC, TO_CHAR(AUTHOR_CREAT_DE,'YYYYMMDD HH24:MI:SS') AS AUTHOR_CREAT_DE
+              FROM TN_FEIS_AUTHORINFO
+             WHERE 1=1
+            <if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">		
+			<if test="searchCondition == 0">
+				<![CDATA[
+					AND (AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+						OR AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+					)
+				]]>
+			</if>
+			<if test="searchCondition == 1">
+	 			<![CDATA[
+					AND AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+				]]>
+			</if>
+			<if test="searchCondition == 2">
+	 			<![CDATA[
+					AND AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+				]]>
+			</if>
+			</if>
+            ORDER BY AUTHOR_CREAT_DE DESC
+            LIMIT #{recordCountPerPage} OFFSET #{firstIndex}      
+    </select>
+
+    <insert id="insertAuthor" parameterType="or.sabang.mng.sec.ram.service.AuthorManage">
+        
+            INSERT INTO TN_FEIS_AUTHORINFO 
+                  ( AUTHOR_CODE
+                  , AUTHOR_NM
+                  , AUTHOR_DC
+                  , AUTHOR_CREAT_DE )
+           VALUES ( #{authorCode}
+                  , #{authorNm}
+                  , #{authorDc}
+                  , now())
+         
+    </insert>
+
+    <update id="updateAuthor" parameterType="or.sabang.mng.sec.ram.service.AuthorManage">
+        
+            UPDATE TN_FEIS_AUTHORINFO 
+               SET AUTHOR_NM=#{authorNm}
+                 , AUTHOR_DC=#{authorDc}
+             WHERE AUTHOR_CODE=#{authorCode}
+        
+    </update>
+    
+    <delete id="deleteAuthor">
+        
+            DELETE FROM TN_FEIS_AUTHORINFO 
+             WHERE AUTHOR_CODE=#{authorCode}
+        
+    </delete>
+    
+    <select id="selectAuthor" resultMap="author">
+        
+            SELECT AUTHOR_CODE, AUTHOR_NM, AUTHOR_DC, AUTHOR_CREAT_DE
+              FROM TN_FEIS_AUTHORINFO 
+             WHERE AUTHOR_CODE=#{authorCode}
+        
+    </select>
+    
+    <select id="selectAuthorListTotCnt" parameterType="or.sabang.mng.sec.ram.service.AuthorManageVO" resultType="int">
+            SELECT COUNT(*) totcnt
+            FROM TN_FEIS_AUTHORINFO
+            WHERE 1=1
+            <if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">		
+			<if test="searchCondition == 0">
+				<![CDATA[
+					AND (AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+						OR AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+					)
+				]]>
+			</if>
+			<if test="searchCondition == 1">
+	 			<![CDATA[
+					AND AUTHOR_CODE LIKE CONCAT('%', #{searchKeyword}, '%')
+				]]>
+			</if>
+			<if test="searchCondition == 2">
+	 			<![CDATA[
+					AND AUTHOR_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+				]]>
+			</if>
+			</if>
+    </select>
+    
+    <select id="selectAuthorAllList" parameterType="or.sabang.mng.sec.ram.service.AuthorManageVO" resultMap="author">
+            SELECT
+                   AUTHOR_CODE, AUTHOR_NM, AUTHOR_DC, AUTHOR_CREAT_DE
+              FROM TN_FEIS_AUTHORINFO
+    </select>
+</mapper>

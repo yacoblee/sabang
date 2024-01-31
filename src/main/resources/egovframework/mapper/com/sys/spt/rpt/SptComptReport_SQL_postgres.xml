@@ -1,0 +1,973 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sptComptReportDAO">
+
+	<resultMap id="SptRptReporFieldBookVO" type="or.sabang.sys.spt.rpt.service.SptRptReportListVO">
+        <result property="mstId" column="MSTID"/>
+        <result property="corpNm" column="CORPNM"/>
+        <result property="partNm" column="PARTNM"/>
+        <result property="creatNm" column="CREATNM"/>
+        <result property="cnt" column="CNT"/>
+        <result property="createDt" column="CREATEDT"/>
+    </resultMap>
+    
+    <resultMap id="SptComptReportFile" type="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+        <result property="file_id" column="file_id"/>
+        <result property="file_orginl_nm" column="file_orginl_nm"/>
+        <result property="file_stre_nm" column="file_stre_nm"/>
+        <result property="file_size" column="file_size"/>
+        <result property="file_path" column="file_path"/>
+        <result property="create_de" column="create_de"/>
+        <result property="file_wrter" column="file_wrter"/>
+    </resultMap>
+    
+    <!-- 기초조사 완료보고서 파일목록조회 -->
+	<select id="selectBscComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_BSC_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 기초조사 완료보고서 파일갯수조회 -->
+	<select id="selectBscComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_BSC_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+	
+	<!-- 기초조사 완료보고서 파일등록 -->
+	<insert id="insertBscComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_BSC_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+				, CORPNM
+			)
+			VALUES
+			(
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+				, #{corpNm}
+			)
+		]]>
+	</insert>
+	
+
+	
+	<!-- 기초조사 완료보고서 파일상세조회 -->
+	<select id="selectBscComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_BSC_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 기초조사 완료보고서 파일삭제 -->
+	<delete id="deleteBscComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_BSC_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+	
+	<!-- 외관점검 완료보고서 파일목록조회 -->
+	<select id="selectAprComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_APR_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 외관점검 완료보고서 파일갯수조회 -->
+	<select id="selectAprComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_APR_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+	
+	<!-- 외관점검 완료보고서 파일등록 -->
+	<insert id="insertAprComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_APR_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 외관점검 완료보고서 파일상세조회 -->
+	<select id="selectAprComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_APR_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 외관점검 완료보고서 파일삭제 -->
+	<delete id="deleteAprComptReportFile"  parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_APR_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+	
+    <!-- 땅밀림실태조사 완료보고서 파일목록조회 -->
+	<select id="selectLcpComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_LCP_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 땅밀림실태조사 완료보고서 파일갯수조회 -->
+	<select id="selectLcpComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_LCP_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+	
+	<!-- 땅밀림실태조사 완료보고서 파일등록 -->
+	<insert id="insertLcpComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_LCP_COMPTREPRT
+			(	FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(	
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 땅밀림실태조사 완료보고서 파일상세조회 -->
+	<select id="selectLcpComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_LCP_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 땅밀림실태조사 완료보고서 파일삭제 -->
+	<delete id="deleteLcpComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_LCP_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+	
+	<!-- 취약지역 실태조사 완료보고서 파일목록조회 -->
+	<select id="selectWkaComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_WKA_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 취약지역 실태조사 완료보고서 파일갯수조회 -->
+	<select id="selectWkaComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_WKA_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+		
+	<!-- 취약지역실태조사 완료보고서 파일등록 -->
+	<insert id="insertWkaComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_WKA_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(
+
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 취약지역실태조사 완료보고서 파일상세조회 -->
+	<select id="selectWkaComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_WKA_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 취약지역실태조사 완료보고서 파일삭제 -->
+	<delete id="deleteWkaComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_WKA_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+	
+	<!-- 취약지역 해제조사 완료보고서 파일목록조회 -->
+	<select id="selectCnlComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_CNL_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 취약지역 해제조사 완료보고서 파일갯수조회 -->
+	<select id="selectCnlComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_CNL_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+		
+	<!-- 취약지역 해제조사 완료보고서 파일등록 -->
+	<insert id="insertCnlComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_CNL_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 취약지역 해제조사 완료보고서 파일상세조회 -->
+	<select id="selectCnlComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_CNL_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 취약지역 해제조사 완료보고서 파일삭제 -->
+	<delete id="deleteCnlComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_CNL_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+	
+	<!-- 사방사업타당성평가 완료보고서 파일목록조회 -->
+	<select id="selectEcbComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_ECB_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 사방사업타당성평가 완료보고서 파일갯수조회 -->
+	<select id="selectEcbComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_ECB_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+	
+	<!-- 사방사업타당성평가 완료보고서 파일등록 -->
+	<insert id="insertEcbComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_ECB_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 사방사업타당성평가 완료보고서 파일상세조회 -->
+	<select id="selectEcbComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_ECB_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 사방사업타당성평가 완료보고서 파일삭제 -->
+	<delete id="deleteEcbComptReportFile"  parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_ECB_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+
+	<!-- 임도타당성평가 완료보고서 파일목록조회 -->
+	<select id="selectFrdComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_FRD_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 임도타당성평가 완료보고서 파일갯수조회 -->
+	<select id="selectFrdComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_FRD_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+	
+	<!-- 임도타당성평가 완료보고서 파일등록 -->
+	<insert id="insertFrdComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_FRD_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 임도타당성평가 완료보고서 파일상세조회 -->
+	<select id="selectFrdComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_FRD_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 임도타당성평가 완료보고서 파일삭제 -->
+	<delete id="deleteFrdComptReportFile"  parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_FRD_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+	
+	<!-- 계측장비 완료보고서 파일목록조회 -->
+	<select id="selectMseComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_MSE_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 계측장비 완료보고서 파일갯수조회 -->
+	<select id="selectMseComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_MSE_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+	
+	<!-- 계측장비 완료보고서 파일등록 -->
+	<insert id="insertMseComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_MSE_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 계측장비 완료보고서 파일상세조회 -->
+	<select id="selectMseComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_MSE_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 계측장비 완료보고서 파일삭제 -->
+	<delete id="deleteMseComptReportFile"  parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_MSE_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+	
+	<!-- 정밀점검 완료보고서 파일목록조회 -->
+	<select id="selectPcsComptReportFileList" resultMap="SptComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_PCS_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+         ORDER BY CREATE_DE
+	     LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 정밀점검 완료보고서 파일갯수조회 -->
+	<select id="selectPcsComptReportFileTotCnt" resultType="int" parameterType="String">
+		<![CDATA[
+		SELECT COUNT(FILE_ID) as CNT
+		FROM
+			TN_FEIS_PCS_COMPTREPRT
+		WHERE 1=1
+		]]>
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">	<![CDATA[ AND
+	             (FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') OR
+	             FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%')) ]]>
+	        </if>
+	        <if test="searchCondition == 1">	
+	        	<![CDATA[ AND FILE_ORGINL_NM LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+	        <if test="searchCondition == 2">	
+	        	<![CDATA[ AND FILE_WRTER LIKE CONCAT ('%', #{searchKeyword},'%') ]]>
+	        </if>
+        </if>
+	</select>
+	
+	<!-- 정밀점검 완료보고서 파일등록 -->
+	<insert id="insertPcsComptReportFile" parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		INSERT INTO 
+			TN_FEIS_PCS_COMPTREPRT
+			(
+				FILE_ID
+				, FILE_ORGINL_NM
+				, FILE_STRE_NM
+				, FILE_WRTER
+				, FILE_PATH
+				, FILE_SIZE
+				, CREATE_DE
+				, DEPTNM
+				, ORDERSD
+				, ORDERSGG
+				, CNSTRNAME
+				, CNSTRYEAR
+			)
+			VALUES
+			(
+				#{file_id}
+				, #{file_orginl_nm} 
+				, #{file_stre_nm}
+				, #{file_wrter}
+				, #{file_path}
+				, #{file_size}
+				,  now()
+				, #{deptNm}
+				, #{orderSd}
+				, #{orderSgg}
+				, #{cnstrName}
+				, #{cnstrYear}
+			)
+		]]>
+	</insert>
+	
+	<!-- 정밀점검 완료보고서 파일상세조회 -->
+	<select id="selectPcsComptReportFileDetail" resultMap="SptComptReportFile" resultType="String">
+		<![CDATA[
+		SELECT *
+		FROM
+			TN_FEIS_PCS_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</select>
+	
+	<!-- 정밀점검 완료보고서 파일삭제 -->
+	<delete id="deletePcsComptReportFile"  parameterType="or.sabang.sys.spt.sct.service.SptComptReportFileVO">
+		<![CDATA[
+		DELETE
+		FROM
+			TN_FEIS_PCS_COMPTREPRT
+		WHERE 1=1
+		AND GID = CAST(#{gid} AS INT)
+		]]>
+	</delete>
+</mapper>

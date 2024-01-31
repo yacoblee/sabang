@@ -1,0 +1,998 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sptRptManageDAO">
+
+	<resultMap id="SptRptBscSvyComptVO" type="or.sabang.sys.spt.rpt.service.SptRptBscReportSvyComptVO">
+		<result property="gid" column="GID"/>
+        <result property="mstId" column="MSTID"/>
+        <result property="id" column="ID"/>
+        <result property="type" column="TYPE"/>
+        <result property="year" column="YEAR"/>
+        <result property="region1" column="REGION1"/>
+        <result property="region2" column="REGION2"/>
+        <result property="writer" column="WRITER"/>
+        <result property="createDt" column="CREATEDT"/>
+        <result property="cnt" column="CNT"/>
+    </resultMap>
+    
+    <resultMap id="SptRptAprSvyComptVO" type="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO">
+        <result property="gid" column="GID"/>
+        <result property="mstId" column="MSTID"/>
+        <result property="id" column="ID"/>
+        <result property="type" column="TYPE"/>
+        <result property="year" column="YEAR"/>
+        <result property="region1" column="REGION1"/>
+        <result property="region2" column="REGION2"/>
+        <result property="writer" column="WRITER"/>
+        <result property="createDt" column="CREATEDT"/>
+        <result property="cnt" column="CNT"/>
+    </resultMap>
+    
+    <resultMap id="SptRptLcpSvyComptVO" type="or.sabang.sys.spt.rpt.service.SptRptLcpReportSvyComptVO">
+		<result property="gid" column="GID"/>
+        <result property="mstId" column="MSTID"/>
+        <result property="id" column="ID"/>
+        <result property="type" column="TYPE"/>
+        <result property="lastGrd" column="LASTGRD"/>
+        <result property="year" column="YEAR"/>
+        <result property="writer" column="WRITER"/>
+        <result property="createDt" column="CREATEDT"/>
+    </resultMap>
+    
+    <resultMap id="SptRptWkaSvyComptVO" type="or.sabang.sys.spt.rpt.service.SptRptWkaReportSvyComptVO">
+		<result property="gid" column="GID"/>
+        <result property="mstId" column="MSTID"/>
+        <result property="id" column="ID"/>
+        <result property="type" column="TYPE"/>
+        <result property="year" column="YEAR"/>
+        <result property="region1" column="REGION1"/>
+        <result property="region2" column="REGION2"/>
+        <result property="writer" column="WRITER"/>
+        <result property="createDt" column="CREATEDT"/>
+        <result property="cnt" column="CNT"/>
+    </resultMap>
+    
+    <resultMap id="SptRptCnlSvyComptVO" type="or.sabang.sys.spt.rpt.service.SptRptCnlReportSvyComptVO">
+		<result property="gid" column="GID"/>
+        <result property="mstId" column="MSTID"/>
+        <result property="id" column="ID"/>
+        <result property="type" column="TYPE"/>
+        <result property="year" column="YEAR"/>
+        <result property="region1" column="REGION1"/>
+        <result property="region2" column="REGION2"/>
+        <result property="writer" column="WRITER"/>
+        <result property="createDt" column="CREATEDT"/>
+        <result property="cnt" column="CNT"/>
+    </resultMap>
+
+	<resultMap id="SptRptPcsSvyComptVO" type="or.sabang.sys.spt.rpt.service.SptRptPcsReportSvyComptVO">
+		<result property="gid" column="GID"/>
+        <result property="mstId" column="MSTID"/>
+        <result property="id" column="ID"/>
+        <result property="type" column="TYPE"/>
+        <result property="year" column="YEAR"/>
+        <result property="writer" column="WRITER"/>
+        <result property="createDt" column="CREATEDT"/>
+        <result property="cnt" column="CNT"/>
+    </resultMap>
+
+	<!-- 기초조사 보고서 상세조회 조사완료지 목록 -->
+	<select id="selectBscReportSvyComptList" parameterType="or.sabang.sys.spt.rpt.service.SptRptBscReportSvyComptVO" resultMap="SptRptBscSvyComptVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID 
+				 , A.MST_ID AS MSTID
+				 , B.SVYID AS ID
+			     , B.SVYTYPE AS TYPE
+			     , TO_CHAR(B.CREAT_DT,'YYYY') AS YEAR
+			     , B.REGION1 AS REGION1
+			     , B.REGION2 AS REGION2
+			     , COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) AS WRITER
+			     , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			     , TO_CHAR(A.CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS CREATEDT
+			 FROM  TN_FEIS_BSC_SVYCOMPT A, TN_FEIS_BSC_SVYMEMO B, TN_FEIS_BSC_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_BSC_SVYMEMO)]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="ncssty != null and ncssty != ''">	<![CDATA[ AND
+				B.NCSSTY = #{ncssty}	]]>
+			</if>
+			<if test="ncsstyPassAt != null and ncsstyPassAt != ''">	<![CDATA[ AND
+				B.NCSSTY != #{ncsstyPassAt}	]]>
+			</if>
+			 ORDER BY A.CREAT_DT DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 기초조사 보고서 상세조회 조사완료지 목록 갯수조회 -->
+	<select id="selectBscReportSvyComptListTotCnt" parameterType="or.sabang.sys.spt.rpt.service.SptRptBscReportSvyComptVO" resultType="int">
+		<![CDATA[
+		 SELECT COUNT(*) totcnt
+		 FROM  TN_FEIS_BSC_SVYCOMPT A, TN_FEIS_BSC_SVYMEMO B, TN_FEIS_BSC_CNRSSPCE C
+		 WHERE  A.GID = B.GID
+		 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_BSC_SVYMEMO)]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="ncssty != null and ncssty != ''">	<![CDATA[ AND
+				B.NCSSTY = #{ncssty}	]]>
+			</if>
+			<if test="ncsstyPassAt != null and ncsstyPassAt != ''">	<![CDATA[ AND
+				B.NCSSTY != #{ncsstyPassAt}	]]>
+			</if>
+	</select>
+	
+	<!-- 외관점검 보고서 상세조회 조사완료지 목록 -->
+	<select id="selectAprReportSvyComptList" parameterType="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO" resultMap="SptRptAprSvyComptVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID 
+				 , A.MST_ID AS MSTID
+				 , B.SVYID AS ID
+			     , B.SVYTYPE AS TYPE
+			     , COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) AS WRITER
+			     , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			     , TO_CHAR(B.CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS CREATEDT
+			 FROM  TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_FCK_APRMEMO)]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+				B.REGION1 = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="fckRslt != null and fckRslt != ''">	<![CDATA[ AND
+				B.FCKRSLT = #{fckRslt}	]]>
+			</if>
+			ORDER BY A.CREAT_DT DESC
+			LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 외관점검 보고서 상세조회 조사완료지 목록 갯수조회 -->
+	<select id="selectAprReportSvyComptListTotCnt" parameterType="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO" resultType="int">
+		<![CDATA[
+		 SELECT COUNT(*) totcnt
+		 FROM  TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+		 WHERE  A.GID = B.GID
+		 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_FCK_APRMEMO)]]>
+			</if>			
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+				B.REGION1 = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="fckRslt != null and fckRslt != ''">	<![CDATA[ AND
+				B.FCKRSLT = #{fckRslt}	]]>
+			</if>
+	</select>
+	
+	<!-- 땅밀림실태조사 보고서 상세조회 조사완료지 목록 -->
+	<select id="selectLcpReportSvyComptList" parameterType="or.sabang.sys.spt.rpt.service.SptRptLcpReportSvyComptVO" resultMap="SptRptLcpSvyComptVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID 
+				 , A.MST_ID AS MSTID
+				 , B.SVYID AS ID
+			     , B.LASTGRD AS LASTGRD
+			     , TO_CHAR(B.CREAT_DT,'YYYY') AS YEAR
+			     , COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = B.SVYUSER),COALESCE(NULLIF(TRIM(B.SVYUSER),''),COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID)),A.LOGIN_ID)) AS WRITER
+			     , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			     , TO_CHAR(A.CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS CREATEDT
+			 FROM  TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="lastGrd != null and lastGrd != ''">	<![CDATA[ AND
+				B.LASTGRD = #{lastGrd} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_SVYMEMO)]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			 ORDER BY A.CREAT_DT DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 땅밀림실태조사 보고서 상세조회 조사완료지 목록 갯수조회 -->
+	<select id="selectLcpReportSvyComptListTotCnt" parameterType="or.sabang.sys.spt.rpt.service.SptRptLcpReportSvyComptVO" resultType="int">
+		<![CDATA[
+		 SELECT COUNT(*) totcnt
+		 FROM  TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+		 WHERE  A.GID = B.GID
+		 AND A.MST_ID = C.ID
+		]]>
+			<if test="lastGrd != null and lastGrd != ''">	<![CDATA[ AND
+				B.LASTGRD = #{lastGrd} ]]>
+			</if>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_SVYMEMO)]]>
+			</if>				
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+<!-- 			<if test="region1 != null and region1 != ''">	<![CDATA[ AND -->
+<!-- 				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="region2 != null and region2 != ''">	<![CDATA[ AND -->
+<!-- 				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]> -->
+<!-- 			</if> -->
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+	
+	<!-- 기초조사 조사아이디 목록 -->
+	<select id="selectBscSvyIdList" parameterType="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO" resultMap="SptRptAprSvyComptVO">
+	<![CDATA[
+			SELECT
+				B.SVYID AS ID
+				, B.GID
+			    , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			 FROM  TN_FEIS_BSC_SVYCOMPT A, TN_FEIS_BSC_SVYMEMO B, TN_FEIS_BSC_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_BSC_SVYMEMO)]]>
+			</if>				
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="ncssty != null and ncssty != ''">	<![CDATA[ AND
+				B.NCSSTY = #{ncssty}	]]>
+			</if>
+			<if test="ncsstyPassAt != null and ncsstyPassAt != ''">	<![CDATA[ AND
+				B.NCSSTY != #{ncsstyPassAt}	]]>
+			</if>
+	</select>
+	
+	<!-- 외관점검 조사 공유아이디 목록 -->
+	<select id="selectAprSvyIdList" parameterType="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO" resultMap="SptRptAprSvyComptVO">
+	<![CDATA[
+			SELECT
+				B.SVYID AS ID
+				, B.GID
+			    , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			 FROM  TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'땅밀림 실태조사|\(|\)','','g') = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_FCK_APRMEMO)]]>
+			</if>				
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+				B.REGION1 = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="fckRslt != null and fckRslt != ''">	<![CDATA[ AND
+				B.FCKRSLT = #{fckRslt}	]]>
+			</if>
+	</select>
+	
+	<!-- 땅밀림실태조사 조사아이디 목록 -->
+	<select id="selectLcpSvyIdList" parameterType="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO" resultMap="SptRptAprSvyComptVO">
+	<![CDATA[
+			SELECT
+				B.SVYID AS ID
+				, B.GID
+			    , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			 FROM  TN_FEIS_LCP_SVYCOMPT A, TN_FEIS_LCP_SVYMEMO B, TN_FEIS_LCP_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="lastgrd != null and lastgrd != ''">	<![CDATA[ AND
+				B.LASTGRD = #{lastgrd} ]]>
+			</if>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'땅밀림 실태조사|\(|\)','','g') = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="year == null"> <![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_SVYMEMO)]]>
+			</if>				
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="ncssty != null and ncssty != ''">	<![CDATA[ AND
+				B.NCSSTY = #{ncssty}	]]>
+			</if>
+			<if test="ncsstyPassAt != null and ncsstyPassAt != ''">	<![CDATA[ AND
+				B.NCSSTY != #{ncsstyPassAt}	]]>
+			</if>
+	</select>
+	
+	<!-- 취약지역 실태조사 조사아이디 목록 -->
+	<select id="selectWkaSvyIdList" parameterType="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO" resultMap="SptRptAprSvyComptVO">
+	<![CDATA[
+			SELECT
+				B.SVYID AS ID
+				, B.GID
+			    , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			 FROM  TN_FEIS_WKA_SVYCOMPT A, TN_FEIS_WKA_SVYMEMO01 B, TN_FEIS_WKA_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+		<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'취약지역 실태조사|\(|\)','','g') = #{type} ]]>
+		</if>
+		<if test="year != null and year != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+		</if>
+		<if test="month != null and month != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+		</if>
+		<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+			REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+		</if>
+		<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+			B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+		</if>
+		<if test="sd != null and sd != ''">	<![CDATA[ AND
+			B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+		</if>
+		<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+			B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+		</if>
+		<if test="emd != null and emd != ''">	<![CDATA[ AND
+			B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+		</if>
+		<if test="ri != null and ri != ''">	<![CDATA[ AND
+			B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+		</if>
+		<if test="id != null and id != ''">	<![CDATA[ AND
+			B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+		</if>
+		<if test="writer != null and writer != ''">	<![CDATA[ AND
+			COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+		</if>
+		<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+			C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+		</if>
+	</select>
+	
+	<!-- 취약지역 해제조사 조사아이디 목록 -->
+	<select id="selectCnlSvyIdList" parameterType="or.sabang.sys.spt.rpt.service.SptRptAprReportSvyComptVO" resultMap="SptRptAprSvyComptVO">
+	<![CDATA[
+			SELECT
+				B.SVYID AS ID
+				, B.GID
+			    , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			 FROM  TN_FEIS_CNL_SVYCOMPT A, TN_FEIS_CNL_SVYMEMO B, TN_FEIS_CNL_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+		<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'취약지역 해제조사|\(|\)','','g') = #{type} ]]>
+		</if>
+		<if test="year != null and year != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+		</if>
+		<if test="month != null and month != ''">	<![CDATA[ AND
+			TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+		</if>
+		<if test="region1 != null and region1 != ''">	<![CDATA[ AND
+			REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]>
+		</if>
+		<if test="region2 != null and region2 != ''">	<![CDATA[ AND
+			B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]>
+		</if>
+		<if test="sd != null and sd != ''">	<![CDATA[ AND
+			B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+		</if>
+		<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+			B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+		</if>
+		<if test="emd != null and emd != ''">	<![CDATA[ AND
+			B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+		</if>
+		<if test="ri != null and ri != ''">	<![CDATA[ AND
+			B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+		</if>
+		<if test="id != null and id != ''">	<![CDATA[ AND
+			B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+		</if>
+		<if test="writer != null and writer != ''">	<![CDATA[ AND
+			COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+		</if>
+		<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+			C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+		</if>
+	</select>
+	
+	<!-- 취약지역 실태조사 보고서 상세조회 조사완료지 목록 -->
+	<select id="selectWkaReportSvyComptList" parameterType="or.sabang.sys.spt.rpt.service.SptRptWkaReportSvyComptVO" resultMap="SptRptWkaSvyComptVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID 
+				 , A.MST_ID AS MSTID
+				 , B.SVYID AS ID
+			     , B.SVYTYPE AS TYPE
+			     , TO_CHAR(B.CREAT_DT,'YYYY') AS YEAR
+			     , COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) AS WRITER
+			     , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			     , TO_CHAR(A.CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS CREATEDT
+			 FROM TN_FEIS_WKA_SVYCOMPT A, TN_FEIS_WKA_SVYMEMO01 B, TN_FEIS_WKA_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'취약지역 실태조사|\(|\)','','g') = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+<!-- 			<if test="region1 != null and region1 != ''">	<![CDATA[ AND -->
+<!-- 				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="region2 != null and region2 != ''">	<![CDATA[ AND -->
+<!-- 				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]> -->
+<!-- 			</if> -->
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="jdgmntGrad != null and jdgmntGrad !=''"> <![CDATA[AND 
+    			B.JDGMNTGRAD IN    ]]>
+		        <foreach item="item" index="index" collection="jdgmntGrad.split(',')"  open="(" separator="," close=")">
+		            #{item}
+		        </foreach>
+			</if>
+			
+			 ORDER BY A.CREAT_DT DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 취약지역 실태조사 보고서 상세조회 조사완료지 목록 갯수조회 -->
+	<select id="selectWkaReportSvyComptListTotCnt" parameterType="or.sabang.sys.spt.rpt.service.SptRptWkaReportSvyComptVO" resultType="int">
+		<![CDATA[
+		 SELECT COUNT(*) totcnt
+		 FROM  TN_FEIS_WKA_SVYCOMPT A, TN_FEIS_WKA_SVYMEMO01 B, TN_FEIS_WKA_CNRSSPCE C
+		 WHERE  A.GID = B.GID
+		 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'취약지역 실태조사|\(|\)','','g') = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+<!-- 			<if test="region1 != null and region1 != ''">	<![CDATA[ AND -->
+<!-- 				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="region2 != null and region2 != ''">	<![CDATA[ AND -->
+<!-- 				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]> -->
+<!-- 			</if> -->
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="jdgmntGrad != null and jdgmntGrad !=''"> <![CDATA[AND 
+    			B.JDGMNTGRAD IN    ]]>
+		        <foreach item="item" index="index" collection="jdgmntGrad.split(',')"  open="(" separator="," close=")">
+		            #{item}
+		        </foreach>
+			</if>
+	</select>
+
+	<!-- 취약지역 해제조사 보고서 상세조회 조사완료지 목록 -->
+	<select id="selectCnlReportSvyComptList" parameterType="or.sabang.sys.spt.rpt.service.SptRptCnlReportSvyComptVO" resultMap="SptRptCnlSvyComptVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID 
+				 , A.MST_ID AS MSTID
+				 , B.SVYID AS ID
+			     , B.SVYTYPE AS TYPE
+			     , TO_CHAR(B.CREAT_DT,'YYYY') AS YEAR
+			     , COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) AS WRITER
+			     , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			     , TO_CHAR(A.CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS CREATEDT
+			 FROM  TN_FEIS_CNL_SVYCOMPT A, TN_FEIS_CNL_SVYMEMO B, TN_FEIS_CNL_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'취약지역 해제조사|\(|\)','','g') = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+<!-- 			<if test="region1 != null and region1 != ''">	<![CDATA[ AND -->
+<!-- 				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="region2 != null and region2 != ''">	<![CDATA[ AND -->
+<!-- 				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]> -->
+<!-- 			</if> -->
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			 ORDER BY A.CREAT_DT DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 취약지역 해제조사 보고서 상세조회 조사완료지 목록 갯수조회 -->
+	<select id="selectCnlReportSvyComptListTotCnt" parameterType="or.sabang.sys.spt.rpt.service.SptRptCnlReportSvyComptVO" resultType="int">
+		<![CDATA[
+		 SELECT COUNT(*) totcnt
+		 FROM  TN_FEIS_CNL_SVYCOMPT A, TN_FEIS_CNL_SVYMEMO B, TN_FEIS_CNL_CNRSSPCE C
+		 WHERE  A.GID = B.GID
+		 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(B.SVYTYPE,'취약지역 해제조사|\(|\)','','g') = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+<!-- 			<if test="region1 != null and region1 != ''">	<![CDATA[ AND -->
+<!-- 				REPLACE((B.REGION1),' ','') = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{region1} and CODE_ID = 'FEI001') ]]> -->
+<!-- 			</if> -->
+<!-- 			<if test="region2 != null and region2 != ''">	<![CDATA[ AND -->
+<!-- 				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{region2}) ]]> -->
+<!-- 			</if> -->
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+	
+	<!-- 정밀점검 보고서 상세조회 조사완료지 목록 -->
+	<select id="selectPcsReportSvyComptList" parameterType="or.sabang.sys.spt.rpt.service.SptRptPcsReportSvyComptVO" resultMap="SptRptPcsSvyComptVO">
+		<![CDATA[
+			SELECT
+				A.GID AS GID 
+				 , A.MST_ID AS MSTID
+				 , B.SVYID AS ID
+			     , B.SVYTYPE AS TYPE
+			     , TO_CHAR(B.CREAT_DT,'YYYY') AS YEAR
+			     , COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) AS WRITER
+			     , C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			     , TO_CHAR(A.CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS CREATEDT
+			 FROM  TN_FEIS_PCS_SVYCOMPT A, TN_FEIS_PCS_SVYMEMO B, TN_FEIS_PCS_CNRSSPCE C
+			 WHERE  A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			 ORDER BY A.CREAT_DT DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 정밀점검 보고서 상세조회 조사완료지 목록 갯수조회 -->
+	<select id="selectPcsReportSvyComptListTotCnt" parameterType="or.sabang.sys.spt.rpt.service.SptRptPcsReportSvyComptVO" resultType="int">
+		<![CDATA[
+		 SELECT COUNT(*) totcnt
+		 FROM  TN_FEIS_PCS_SVYCOMPT A, TN_FEIS_PCS_SVYMEMO B, TN_FEIS_PCS_CNRSSPCE C
+		 WHERE  A.GID = B.GID
+		 AND A.MST_ID = C.ID
+		]]>
+			<if test="type != null and type != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{type} ]]>
+			</if>
+			<if test="year != null and year != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{year}	]]>
+			</if>
+			<if test="month != null and month != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{month} ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd}) ]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{id},'%')	]]>
+			</if>
+			<if test="writer != null and writer != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{writer},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+</mapper>

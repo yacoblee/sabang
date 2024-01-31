@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="menuManageDAO">
+	
+	<select id="selectMenuCreatManageList_D" parameterType="comDefaultVO" resultType="egovMap">
+		
+			SELECT  AUTHOR_CODE   AS "authorCode",
+					AUTHOR_NM     AS "authorNm",
+					AUTHOR_DC     AS "authorDc",
+					AUTHOR_CREAT_DE AS "authorCreatDe",
+				   (SELECT COUNT(B.AUTHOR_CODE)
+					FROM   TN_FEIS_MENUCREATDTLS B
+					WHERE  B.AUTHOR_CODE = A.AUTHOR_CODE ) AS "chkYeoBu"
+			FROM    TN_FEIS_AUTHORINFO A
+			WHERE   A.AUTHOR_CODE like CONCAT('%', #{searchKeyword}, '%') 
+			LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+        
+	</select> 
+
+	<select id="selectMenuCreatManageTotCnt_S" parameterType="comDefaultVO" resultType="int">
+		
+			SELECT COUNT(AUTHOR_CODE) AS "totcnt"
+			  FROM TN_FEIS_AUTHORINFO
+			 WHERE AUTHOR_CODE like CONCAT('%', #{searchKeyword}, '%')
+		
+	</select>
+
+	<select id="selectMenuCreatList_D" parameterType="or.sabang.mng.mnu.mcm.service.MenuCreatVO" resultType="egovMap">
+		
+			SELECT
+				  A.MENU_NO AS "menuNo"
+				, A.MENU_ORDR AS "menuOrdr"
+				, A.MENU_NM AS "menuNm"
+				, A.UPPER_MENU_NO AS "upperMenuId"
+			    , (SELECT COUNT(B.MENU_NO) 
+			         FROM TN_FEIS_MENUCREATDTLS B   
+			        WHERE B.MENU_NO  = A.MENU_NO 
+			          AND B.AUTHOR_CODE = #{authorCode}) AS "chkYeoBu"
+			FROM TN_FEIS_MENUINFO A
+			WHERE A.MENU_NO > 0
+			ORDER BY A.MENU_ORDR
+		 
+	</select> 
+
+	<insert id="insertMenuCreat_S">
+		
+			INSERT INTO TN_FEIS_MENUCREATDTLS ( AUTHOR_CODE ,MENU_NO )
+			VALUES (  #{authorCode}, #{menuNo} )
+		
+	</insert>
+
+	<select id="selectMenuCreatCnt_S" parameterType="or.sabang.mng.mnu.mcm.service.MenuCreatVO" resultType="int">
+		
+			SELECT COUNT(AUTHOR_CODE) AS "totcnt"
+			  FROM TN_FEIS_AUTHORINFO
+			 WHERE AUTHOR_CODE = #{authorCode}
+		
+	</select>
+
+	<delete id="updateMenuCreat_S">
+		 
+		    UPDATE TN_FEIS_MENUCREATDTLS  
+		       SET MAPNG_CREAT_ID=#{mapCreatId} 
+		     WHERE AUTHOR_CODE=#{authorCode}
+		                                
+	</delete> 
+
+	<delete id="deleteMenuCreat_S">
+		                          
+			DELETE FROM TN_FEIS_MENUCREATDTLS              
+			 WHERE AUTHOR_CODE=#{authorCode}                
+		                                
+	</delete> 
+
+	<select id="selectAuthorByUsr" parameterType="comDefaultVO" resultType="or.sabang.mng.mnu.mcm.service.MenuCreatVO">
+		
+		SELECT AUTHOR_CODE AS "authorCode" FROM TN_FEIS_EMPLYRSCRTYESTBS
+		WHERE SCRTY_DTRMN_TRGET_ID =
+			(SELECT ESNTL_ID FROM TN_FEIS_GNRLMBER
+			WHERE MBER_ID = #{searchKeyword} )
+		
+	</select>
+
+	<select id="selectUsrByPk" parameterType="comDefaultVO" resultType="int">
+		
+		SELECT COUNT(AUTHOR_CODE) FROM TN_FEIS_EMPLYRSCRTYESTBS
+		WHERE SCRTY_DTRMN_TRGET_ID =
+			(SELECT ESNTL_ID FROM TN_FEIS_GNRLMBER
+			WHERE MBER_ID = #{searchKeyword} )
+		
+	</select>
+
+</mapper>

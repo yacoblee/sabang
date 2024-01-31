@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LssLcpRank">
+	<resultMap id="svyRankListVO" type="or.sabang.sys.lss.lcp.service.LssLcpRankVO">
+		<result property="svyRank" column="RANK" /><!-- 랭크 -->
+		<result property="svyYear" column="SVY_YEAR" /><!-- 조사년도 -->
+		<result property="svyAddr" column="STDG_NM" /><!-- 주소 -->
+		<result property="svyDate" column="CREAT_DT" /><!-- 등록일 -->
+	</resultMap>
+	
+	<select id="selectLcpRankList" parameterType="or.sabang.sys.lss.lcp.service.LssLcpRankVO" resultType="or.sabang.sys.lss.lcp.service.LssLcpRankVO">
+		SELECT
+			RANK AS svyRank
+			,SVY_YEAR AS svyYear
+			,STDG_NM AS svyAddr
+			,TO_CHAR(CREAT_DT,'YYYY-MM-DD') AS svyDate
+		FROM TF_FEIS_LCP_RANK
+		WHERE 1=1
+		<if test="svyRank != null and svyRank != ''">	<![CDATA[ AND
+			RANK = CAST(#{svyRank} AS INTEGER) ]]>
+		</if>
+		<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+			SVY_YEAR = #{svyYear} ]]>
+		</if>
+		<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT (#{svySd},'%')  ]]>
+		</if>
+		<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT ('%', #{svySgg},'%')  ]]>
+		</if>
+		<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT ('%', #{svyEmd},'%')  ]]>
+		</if>
+		<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT ('%', #{svyRi},'%')  ]]>
+		</if>
+		ORDER BY RANK DESC
+		LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectLcpRankListTotCnt" parameterType="or.sabang.sys.lss.lcp.service.LssLcpRankVO" resultType="int">
+		SELECT  COUNT(*) totcnt
+		FROM TF_FEIS_LCP_RANK
+		WHERE 1=1
+		<if test="svyRank != null and svyRank != ''">	<![CDATA[ AND
+			RANK = CAST(#{svyRank} AS INTEGER) ]]>
+		</if>
+		<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+			SVY_YEAR = #{svyYear} ]]>
+		</if>
+		<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT (#{svySd},'%')  ]]>
+		</if>
+		<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT ('%', #{svySgg},'%')  ]]>
+		</if>
+		<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT ('%', #{svyEmd},'%')  ]]>
+		</if>
+		<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+			STDG_CD LIKE CONCAT ('%', #{svyRi},'%')  ]]>
+		</if>
+	</select>
+	
+	<!-- 랭크 등록일자 업데이트 -->
+	<update id="updateLcpRankDate">
+		UPDATE  TF_FEIS_LCP_RANK
+		SET CREAT_DT = NOW()
+   		WHERE 1=1
+	</update>
+</mapper>

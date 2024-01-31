@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LssLcpSvySttus">
+	<!-- 땅밀림실태조사 전체현황 파이차트 -->
+	<select id="selectLcpSvySttusTotCnt" resultType="egovMap" parameterType="egovMap">
+		<![CDATA[
+			SELECT
+				'조사대기' AS NM,
+				COALESCE(COUNT(*),0) AS CNT 
+			FROM TN_FEIS_LCP_FIELDINFO A
+			LEFT OUTER JOIN TN_FEIS_LCP_SVYMEMO B
+			ON A.SVY_LABEL = B.SVYID AND A.MST_ID =B.MSTID
+			WHERE TO_CHAR(A.CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_FIELDINFO)
+			AND B.SVYID IS NULL
+			UNION ALL
+			SELECT 
+				'조사완료' AS NM,
+				COUNT(*) AS CNT
+			FROM TN_FEIS_LCP_SVYMEMO
+			WHERE 1=1
+			AND TO_CHAR(CREAT_DT,'YYYY') = (SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') FROM TN_FEIS_LCP_FIELDINFO)
+		]]>	 
+	</select>
+
+	<!-- 땅밀림실태조사 지역별현황 막대차트-->
+	<select id="selectLcpSvySttusRegion" resultType="egovMap">
+		<![CDATA[			
+			SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM,
+				COALESCE(B.CNT,0) AS STRP,
+				COALESCE(C.CNT,0) AS COMP
+			FROM (
+				SELECT CTPRVN_NM AS NM
+				FROM TF_FEIS_CTPRVN 
+				ORDER BY CTPRVN_NM
+			) A 
+			LEFT OUTER JOIN (
+				 SELECT REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE',' ','','g') AS NM,COUNT(*) AS CNT 
+			 	 FROM TN_FEIS_LCP_FIELDINFO
+			 	 WHERE TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_LCP_FIELDINFO)
+			     GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (	
+				SELECT 
+				SD AS NM,
+					COUNT(*) AS CNT
+			 	FROM TN_FEIS_LCP_SVYMEMO
+			 	WHERE SVYDT IS NOT NULL
+			 	AND TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_LCP_FIELDINFO)
+			 	GROUP BY SD
+			) C ON A.NM = C.NM
+		]]>
+	</select>
+	
+	<select id="selectLcpSvySttusMonth" resultType="egovMap">
+		<![CDATA[
+			SELECT A.MON AS MON, COALESCE(B.CNT,0) AS CNT
+			FROM (
+				SELECT SERIES AS MON 
+				FROM GENERATE_SERIES(1,12) AS SERIES
+			) A 
+			LEFT OUTER JOIN (	
+				SELECT 
+					TO_CHAR(CREAT_DT,'MM')::INT AS MON,
+					COUNT(*) AS CNT
+			 	FROM TN_FEIS_LCP_SVYMEMO
+			 	WHERE TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_LCP_FIELDINFO)
+			 	GROUP BY TO_CHAR(CREAT_DT,'MM')
+			) B ON A.MON::TEXT = B.MON::TEXT
+			ORDER BY MON
+		]]>
+	</select>
+</mapper>

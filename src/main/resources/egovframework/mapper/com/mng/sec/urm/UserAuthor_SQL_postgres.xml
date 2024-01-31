@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="userAuthorDAO">
+
+    <resultMap id="userAuthor" type="or.sabang.mng.sec.urm.service.UserAuthorVO">
+        <result property="userId" column="USER_ID"/>
+        <result property="userNm" column="USER_NM"/>
+        <result property="authorCode" column="AUTHOR_CODE"/>
+        <result property="authorNm" column="AUTHOR_NM"/>
+        <result property="uniqId" column="ESNTL_ID"/>
+        <result property="regYn" column="REG_YN"/>
+    </resultMap>
+
+    <select id="selectUserAuthorList" parameterType="or.sabang.mng.sec.urm.service.UserAuthorVO" resultMap="userAuthor">
+            SELECT C.USER_ID,
+                   C.USER_NM,
+                   C.AUTHOR_CODE,
+                   D.AUTHOR_NM,
+                   C.ESNTL_ID,
+                   (CASE WHEN C.SCRTY_DTRMN_TRGET_ID IS NULL THEN 'N'
+                         ELSE 'Y' 
+                     END) AS REG_YN
+              FROM (SELECT A.MBER_ID USER_ID,
+                           A.MBER_NM USER_NM,
+                           A.ESNTL_ID,
+                           B.AUTHOR_CODE,
+                           B.SCRTY_DTRMN_TRGET_ID
+                      FROM TN_FEIS_GNRLMBER A,
+                           TN_FEIS_EMPLYRSCRTYESTBS B
+                      WHERE A.ESNTL_ID = B.SCRTY_DTRMN_TRGET_ID
+                      <if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">		
+						<if test="searchCondition == 0">
+							<![CDATA[
+								AND (A.MBER_ID LIKE CONCAT('%', #{searchKeyword}, '%')
+									OR A.MBER_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+								)
+							]]>
+						</if>
+						<if test="searchCondition == 1">
+				 			<![CDATA[
+								AND A.MBER_ID LIKE CONCAT('%', #{searchKeyword}, '%')
+							]]>
+						</if>
+						<if test="searchCondition == 2">
+				 			<![CDATA[
+								AND A.MBER_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+							]]>
+						</if>
+					  </if>
+                     ) C LEFT OUTER JOIN TN_FEIS_AUTHORINFO D
+                ON C.AUTHOR_CODE = D.AUTHOR_CODE 
+             WHERE 1 = 1
+             LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<select id="selectUserAuthor" resultType="or.sabang.mng.sec.urm.service.UserAuthor">
+			SELECT C.USER_ID,
+                   C.USER_NM,
+                   C.AUTHOR_CODE,
+                   D.AUTHOR_NM,
+                   C.ESNTL_ID,
+                   (CASE WHEN C.SCRTY_DTRMN_TRGET_ID IS NULL THEN 'N'
+                         ELSE 'Y' 
+                     END) AS REG_YN
+              FROM (SELECT A.MBER_ID USER_ID,
+                           A.MBER_NM USER_NM,
+                           A.ESNTL_ID,
+                           B.AUTHOR_CODE,
+                           B.SCRTY_DTRMN_TRGET_ID
+                      FROM TN_FEIS_GNRLMBER A,
+                           TN_FEIS_EMPLYRSCRTYESTBS B
+                      WHERE A.ESNTL_ID = B.SCRTY_DTRMN_TRGET_ID
+                      AND ESNTL_ID = #{uniqId}
+                     ) C LEFT OUTER JOIN TN_FEIS_AUTHORINFO D
+                ON C.AUTHOR_CODE = D.AUTHOR_CODE  
+	</select>
+	
+	<insert id="insertUserAuthor" parameterType="or.sabang.mng.sec.urm.service.UserAuthor">
+		
+			INSERT INTO TN_FEIS_EMPLYRSCRTYESTBS 
+				  ( SCRTY_DTRMN_TRGET_ID                  
+				  , AUTHOR_CODE)
+		   VALUES ( #{uniqId}                  
+                  , #{authorCode})
+		
+	</insert>
+
+	<update id="updateUserAuthor" parameterType="or.sabang.mng.sec.urm.service.UserAuthor">
+		
+			UPDATE TN_FEIS_EMPLYRSCRTYESTBS 
+			   SET AUTHOR_CODE=#{authorCode}
+		  	 WHERE SCRTY_DTRMN_TRGET_ID=#{uniqId}
+		
+	</update>
+
+	<delete id="deleteUserAuthor">
+		
+			DELETE FROM TN_FEIS_EMPLYRSCRTYESTBS 
+			 WHERE SCRTY_DTRMN_TRGET_ID=#{uniqId}
+		
+	</delete>
+
+	<select id="selectUserAuthorListTotCnt" parameterType="or.sabang.mng.sec.urm.service.UserAuthorVO" resultType="int">
+            SELECT COUNT(*) AS totcnt
+              FROM (SELECT A.MBER_ID USER_ID,
+                           A.MBER_NM USER_NM,
+                           A.ESNTL_ID,
+                           B.AUTHOR_CODE,
+                           B.SCRTY_DTRMN_TRGET_ID
+                      FROM TN_FEIS_GNRLMBER A,
+                           TN_FEIS_EMPLYRSCRTYESTBS B
+                      WHERE A.ESNTL_ID = B.SCRTY_DTRMN_TRGET_ID
+                      <if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">		
+						<if test="searchCondition == 0">
+							<![CDATA[
+								AND (A.MBER_ID LIKE CONCAT('%', #{searchKeyword}, '%')
+									OR A.MBER_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+								)
+							]]>
+						</if>
+						<if test="searchCondition == 1">
+				 			<![CDATA[
+								AND A.MBER_ID LIKE CONCAT('%', #{searchKeyword}, '%')
+							]]>
+						</if>
+						<if test="searchCondition == 2">
+				 			<![CDATA[
+								AND A.MBER_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+							]]>
+						</if>
+					  </if>
+                     ) C LEFT OUTER JOIN TN_FEIS_AUTHORINFO D
+                ON C.AUTHOR_CODE = D.AUTHOR_CODE 
+	</select>
+
+</mapper>

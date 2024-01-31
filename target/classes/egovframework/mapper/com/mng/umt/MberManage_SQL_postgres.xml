@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mberManageDAO">
+
+	<select id="selectMberList" resultType="egovMap">
+	    SELECT 
+	        ESNTL_ID "uniqId",
+	        MBER_ID "userId",
+	        MBER_NM "userNm",
+	        MBTLNUM "userTelno",
+	        GROUP_ID "groupId",
+	        MBER_STTUS "sttus",
+	        SBSCRB_DE "sbscrbDe"
+	    FROM TN_FEIS_GNRLMBER
+        WHERE 1=1
+        <if test='sbscrbSttus != null and sbscrbSttus != "0" and sbscrbSttus != ""'>
+            AND MBER_STTUS LIKE  #{sbscrbSttus}
+        </if>
+        <if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+        <if test="searchCondition == 0">AND
+             (MBER_ID LIKE '%' || #{searchKeyword} || '%'
+             OR
+             MBER_NM LIKE '%' || #{searchKeyword} || '%'
+             OR
+             MBTLNUM LIKE '%' || #{searchKeyword} || '%')
+        </if>
+        <if test="searchCondition == 1">AND
+             MBER_ID LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        <if test="searchCondition == 2">AND
+             MBER_NM LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        <if test="searchCondition == 3">AND
+             MBTLNUM LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        </if>
+        ORDER BY SBSCRB_DE DESC
+        LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+    
+    
+    <select id="selectMberListTotCnt" resultType="int">
+        SELECT COUNT(1) totcnt
+        FROM(
+	        SELECT 
+	            ESNTL_ID "uniqId",
+	            MBER_ID "userId",
+	            MBER_NM "userNm",
+	            MBTLNUM "mberTelno",
+	            GROUP_ID "groupId",
+	            MBER_STTUS "sttus",
+	            SBSCRB_DE "sbscrbDe"
+	        FROM TN_FEIS_GNRLMBER
+        ) A
+    	WHERE 1=1
+        <if test='sbscrbSttus != null and sbscrbSttus != "0" and sbscrbSttus != ""'>
+            AND "sttus" LIKE  #{sbscrbSttus}
+        </if>
+        <if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+        <if test="searchCondition == 0">AND
+             ("userId" LIKE '%' || #{searchKeyword} || '%'
+             OR
+             "userNm" LIKE '%' || #{searchKeyword} || '%'
+             OR
+             "mberTelno" LIKE '%' || #{searchKeyword} || '%')
+        </if>
+        <if test="searchCondition == 1">AND
+             "userId" LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        <if test="searchCondition == 2">AND
+             "userNm" LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        <if test="searchCondition == 3">AND
+             "mberTelno" LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        </if>
+    </select>
+    
+    <insert id="insertMber_S">
+		INSERT INTO TN_FEIS_GNRLMBER 
+		(   
+	        ESNTL_ID,
+	        MBER_ID,
+	        MBER_NM,
+	        PASSWORD,
+	        MBER_STTUS,
+	        GROUP_ID,
+	        MBTLNUM,
+	        SBSCRB_DE,
+	        CHG_PWD_LAST_PNTTM,
+	        INSTT_ID,
+	        DEPT_ID,
+	        OFCPS_NM
+		)
+		VALUES
+		(
+	        #{uniqId},
+	        #{mberId},
+	        #{mberNm},
+	        #{password},
+	        #{mberSttus},
+	        #{groupId},
+	        #{mberTelno},
+	        NOW(),
+	        NOW(),
+	        #{insttId},
+	        #{deptId},
+	        #{ofcpsNm} 
+		)
+    </insert>
+    
+    <delete id="deleteMber_S">
+		DELETE FROM TN_FEIS_GNRLMBER 
+		WHERE ESNTL_ID=#{delId}
+    </delete>
+    
+    <select id="selectMber_S" resultType="or.sabang.mng.umt.service.MberManageVO">
+		SELECT
+			A.ESNTL_ID uniqId,
+			A.MBER_ID mberId,
+			A.MBER_NM mberNm,
+			A.PASSWORD "password",
+			A.MBER_STTUS mberSttus,
+			A.MBTLNUM mberTelno,
+			A.GROUP_ID groupId,
+			A.SBSCRB_DE sbscrbDe,
+			A.LOCK_AT lockAt,
+			A.INSTT_ID insttId,
+			A.DEPT_ID deptId,
+			B.DEPT_NM deptNm,                
+			A.OFCPS_NM ofcpsNm                
+		FROM TN_FEIS_GNRLMBER A 
+		LEFT OUTER JOIN TN_FEIS_DEPTINFO B
+		ON A.DEPT_ID = B.DEPT_ID
+		WHERE A.ESNTL_ID=#{uniqId}
+    </select>
+    
+    <update id="updateMber_S">
+		UPDATE TN_FEIS_GNRLMBER 
+		SET 
+			MBER_NM = #{mberNm},
+			MBER_STTUS = #{mberSttus},
+			MBTLNUM = #{mberTelno},
+			INSTT_ID = #{insttId},
+			DEPT_ID = #{deptId},
+			OFCPS_NM = #{ofcpsNm}
+		WHERE ESNTL_ID = #{uniqId}
+    </update>
+    
+    <update id="updatePassword_S">
+		UPDATE TN_FEIS_GNRLMBER 
+		SET
+			PASSWORD = #{password},
+			CHG_PWD_LAST_PNTTM = NOW()
+		WHERE  ESNTL_ID = #{uniqId}
+    </update>
+    
+    <select id="selectPassword_S" resultType="or.sabang.mng.umt.service.MberManageVO">
+		SELECT
+			MBER_ID  mberId,
+			PASSWORD "password"         
+		FROM TN_FEIS_GNRLMBER
+		WHERE ESNTL_ID=#{uniqId}
+    </select>
+
+	<update id="updateAccept_S">
+    	UPDATE TN_FEIS_GNRLMBER 
+		SET MBER_STTUS = 'P'
+		WHERE ESNTL_ID = #{uniqId}
+    </update>
+    
+    <update id="updateLockIncorrect">
+     	UPDATE TN_FEIS_GNRLMBER 
+		SET 
+			LOCK_AT = NULL,
+			LOCK_CNT = NULL,
+			LOCK_LAST_PNTTM = NULL 
+     	WHERE ESNTL_ID = #{uniqId}
+    </update>
+	
+	<select id="selectMberListExcel" resultType="egovMap">
+		SELECT 
+			A.MBER_ID AS MBER_ID
+			, A.MBER_NM AS MBER_NM
+			, A.MBTLNUM AS MBTLNUM
+			, (SELECT ORGNZT_NM FROM TN_FEIS_ORGNZTINFO WHERE ORGNZT_ID = A.INSTT_ID) AS ORGNZT_NM
+			, (SELECT DEPT_NM FROM TN_FEIS_DEPTINFO WHERE ORGNZT_ID = A.INSTT_ID AND DEPT_ID = A.DEPT_ID) AS DEPT_NM
+			, A.OFCPS_NM AS OFCPS_NM
+			, TO_CHAR(A.SBSCRB_DE,'YYYY-MM-DD') AS SBSCRB_DE
+			, (SELECT C.AUTHOR_NM FROM TN_FEIS_EMPLYRSCRTYESTBS B, TN_FEIS_AUTHORINFO C WHERE B.AUTHOR_CODE = C.AUTHOR_CODE AND B.SCRTY_DTRMN_TRGET_ID = A.ESNTL_ID)
+		FROM TN_FEIS_GNRLMBER A
+		WHERE A.MBER_STTUS = 'P'
+        <if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+        <if test="searchCondition == 0">AND
+             A.MBER_ID LIKE '%' || #{searchKeyword} || '%'
+             OR
+             A.MBER_NM LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        <if test="searchCondition == 1">AND
+             A.MBER_ID LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        <if test="searchCondition == 2">AND
+             A.MBER_NM LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        </if>
+        ORDER BY ORGNZT_NM,DEPT_NM,OFCPS_NM,A.MBER_NM
+	</select>
+</mapper>

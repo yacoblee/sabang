@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lssCnlFieldBookDAO">
+
+	<resultMap id="lssCnlfieldBook" type="or.sabang.sys.lss.cnl.service.LssCnlFieldBookVO">
+		<result property="id" column="id" />
+		<result property="mst_corpname" column="mst_corpname" />
+		<result property="mst_partname" column="mst_partname" />
+		<result property="mst_deptname" column="mst_deptname" />
+		<result property="mst_admin_user" column="mst_admin_user" />
+		<result property="mst_create_user" column="mst_create_user" />
+		<result property="mst_registered" column="mst_registered" />
+		<result property="mst_status" column="mst_status" />
+		<result property="mst_password" column="mst_password" />
+		<result property="mst_adminpwd" column="mst_adminpwd" />
+		<result property="mst_readpwd" column="mst_readpwd" />
+		<result property="mst_access" column="mst_access" />
+		<result property="totcnt" column="totcnt" />
+		<result property="dept_id" column="DEPT_ID" />
+		<result property="dept_nm" column="DEPT_NM" />
+		<result property="mber_nm" column="MBER_NM" />
+		<result property="esntl_id" column="ESNTL_ID" />
+		<result property="user_grade" column="USER_GRADE" />
+	</resultMap>
+	
+	<resultMap id="lssCnlfieldBookItem" type="or.sabang.sys.lss.cnl.service.LssCnlFieldBookItemVO">
+		<result property="mst_id" column="mstId" />
+		<result property="login_id" column="loginId" />
+		<result property="svy_fid" column="svyFid" />
+		<result property="svyLon" column="svyLon" />
+		<result property="svyLat" column="svyLat" />
+		<result property="svy_data" column="svyData" />
+		<result property="svy_keyword" column="svyKeyword" />
+		<result property="svy_label" column="svyLabel" />
+		<result property="svy_style" column="svyStyle" />
+		<result property="svy_memo" column="svyMemo" />
+		<result property="svy_tag1" column="svyTag1" />
+		<result property="svy_tag2" column="svyTag2" />
+		<result property="creat_dt" column="creatDt" />
+		<result property="last_updt_pnttm" column="lastUpdtPnttm" />
+		<result property="svy_attr" column="svyAttr" />
+	</resultMap>
+
+	<!-- 공유방 목록조회 -->
+	<select id="selectLssCnlFieldBookList" resultMap="lssCnlfieldBook" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookVO">
+		<![CDATA[
+			SELECT T1.ID AS ID
+			     , T1.MST_CORPNAME AS MST_CORPNAME
+			     , T1.MST_PARTNAME AS MST_PARTNAME
+			     , T1.MST_CREATE_USER AS MST_CREATE_USER
+			     , T1.MST_ADMIN_USER AS MST_ADMIN_USER
+			     , REPLACE(SPLIT_PART(T1.MST_REGISTERED, ' ',1),'/','-')  AS MST_REGISTERED
+			     , (SELECT COUNT(*) FROM TN_FEIS_CNL_FIELDINFO T2 WHERE T2.MST_ID = T1.ID) TOTCNT
+			FROM  TN_FEIS_CNL_CNRSSPCE T1
+			WHERE  1=1
+		]]>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				T1.ID = CAST(#{id} AS INT) ]]>
+			</if>
+			<if test="svy_year != null and svy_year != ''">	<![CDATA[ AND
+				SPLIT_PART((SPLIT_PART(T1.MST_REGISTERED, ' ',1)),'/',1) = #{svy_year} ]]>
+			</if>
+			<if test="mst_corpname != null and mst_corpname != ''">	<![CDATA[ AND
+				T1.MST_CORPNAME = #{mst_corpname} ]]>
+			</if>
+			<if test="mst_partname != null and mst_partname != ''">	<![CDATA[ AND
+				T1.MST_PARTNAME like CONCAT ('%', #{mst_partname},'%') ]]>
+			</if>
+			<if test="mst_create_user != null and mst_create_user != ''">	<![CDATA[ AND
+				T1.MST_CREATE_USER like CONCAT ('%', #{mst_create_user},'%') ]]>
+			</if>
+  		ORDER BY T1.MST_REGISTERED DESC, T1.ID DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 공유방 갯수조회 -->
+	<select id="selectLssCnlFieldBookListTotCnt" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookVO" resultType="int">
+		<![CDATA[
+			SELECT  COUNT(*) TOTCNT
+			FROM  TN_FEIS_CNL_CNRSSPCE T1
+			WHERE  1=1
+		]]>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				T1.ID = CAST(#{id} AS INT) ]]>
+			</if>
+			<if test="svy_year != null and svy_year != ''">	<![CDATA[ AND
+				SPLIT_PART((SPLIT_PART(T1.MST_REGISTERED, ' ',1)),'/',1) = #{svy_year} ]]>
+			</if>
+			<if test="mst_corpname != null and mst_corpname != ''">	<![CDATA[ AND
+				T1.MST_CORPNAME = #{mst_corpname} ]]>
+			</if>
+			<if test="mst_partname != null and mst_partname != ''">	<![CDATA[ AND
+				T1.MST_PARTNAME like CONCAT ('%', #{mst_partname},'%') ]]>
+			</if>
+			<if test="mst_create_user != null and mst_create_user != ''">	<![CDATA[ AND
+				T1.MST_CREATE_USER like CONCAT ('%', #{mst_create_user},'%') ]]>
+			</if>
+	</select>
+	
+	<!-- 공유방 상세조회 -->
+	<select id="selectLssCnlFieldBookDetail" parameterType="java.util.Map" resultMap="lssCnlfieldBook">
+		<![CDATA[
+			SELECT  T1.ID AS ID
+			     ,  T1.MST_CORPNAME AS MST_CORPNAME
+			     ,  T1.MST_PARTNAME AS MST_PARTNAME
+			     ,  T1.MST_CREATE_USER AS MST_CREATE_USER
+			     ,  T1.MST_ADMIN_USER AS MST_ADMIN_USER
+			     ,  T1.MST_REGISTERED AS MST_REGISTERED
+			     ,  T1.MST_STATUS AS MST_STATUS
+			     ,  T1.MST_PASSWORD AS MST_PASSWORD
+			     ,  T1.MST_ADMINPWD AS MST_ADMINPWD
+			     ,  T1.MST_READPWD AS MST_READPWD
+			     ,  T1.MST_ACCESS AS MST_ACCESS
+			     ,  (SELECT COUNT(SVY_FID) FROM TN_FEIS_CNL_FIELDINFO T2 WHERE T2.MST_ID = T1.ID) AS TOTCNT
+			FROM  TN_FEIS_CNL_CNRSSPCE T1
+			WHERE  1=1
+			AND T1.ID = #{id}
+		]]>
+	</select>
+	
+	<!-- 공유방 등록 -->	
+	<insert id="insertCnrsSpce" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO TN_FEIS_CNL_CNRSSPCE
+		(
+			MST_CORPNAME
+			, MST_PARTNAME
+			, MST_CREATE_USER
+			, MST_ADMIN_USER		
+			, MST_REGISTERED
+			, MST_PASSWORD
+			, MST_ADMINPWD
+			, MST_READPWD
+		) VALUES (
+			#{mst_corpname}
+			, #{mst_partname}
+			, #{mst_create_user}
+			, #{mst_admin_user}
+			, to_char(now(),'YYYY/MM/DD HH24:MI:SS')
+			, #{mst_password}
+			, #{mst_password}
+			, #{mst_password}
+	    )
+	</insert>
+	
+	<!-- 공유방 사용자 권한등록 -->
+	<insert id="insertCnrsSpceAuthorMgt" parameterType="java.util.List">
+		INSERT INTO TN_FEIS_CNRSSPCE_AUTHORMGT
+		( MST_ID,SVYTYPE,ESNTL_ID,USER_GRADE)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+		( 
+			CAST(#{item.id} AS INT)
+			, #{item.svytype}
+			, #{item.esntl_id}
+			, #{item.user_grade}
+		)
+		</foreach>
+	</insert>
+	
+	<insert id="insertStripLand" parameterType="java.util.List">
+		INSERT INTO TN_FEIS_CNL_FIELDINFO
+		( MST_ID,LOGIN_ID,SVY_KEYWORD,SVY_LABEL,SVY_LON,SVY_LAT,SVY_DATA,SVY_ATTR,CREAT_DT,SVY_MEMO )
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+		( 
+			CAST(#{item.mst_id} AS INT)
+			, #{item.login_id}
+			, #{item.svy_keyword}
+			, #{item.svy_label}
+			, CAST(ST_X(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{item.londd},#{item.latdd}),4326),5186)) AS FLOAT)
+			, CAST(ST_Y(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{item.londd},#{item.latdd}),4326),5186)) AS FLOAT)
+			, ST_ASTEXT(ST_Transform(ST_SetSRID(ST_MakePoint(#{item.londd},#{item.latdd}),4326),5186))
+			, #{item.svy_attr}
+			, now()
+			, #{item.svy_memo}
+		)
+		ON CONFLICT ON CONSTRAINT TN_FEIS_CNL_FIELDINFO_UN
+		DO UPDATE
+		SET SVY_KEYWORD = #{item.svy_keyword}
+			, SVY_LON = CAST(ST_X(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{item.londd},#{item.latdd}),4326),5186)) AS FLOAT)
+			, SVY_LAT = CAST(ST_Y(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{item.londd},#{item.latdd}),4326),5186)) AS FLOAT)
+			, SVY_DATA = ST_ASTEXT(ST_Transform(ST_SetSRID(ST_MakePoint(#{item.londd},#{item.latdd}),4326),5186))
+			, SVY_ATTR = #{item.svy_attr}
+			, LAST_UPDT_PNTTM = now()
+			, SVY_MEMO = #{item.svy_memo}
+		</foreach>
+	</insert>
+	
+	<insert id="insertStripLandVO" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookItemVO">
+		INSERT INTO TN_FEIS_CNL_FIELDINFO
+		( MST_ID,LOGIN_ID,SVY_KEYWORD,SVY_LABEL,SVY_LON,SVY_LAT,SVY_ATTR,CREAT_DT,LAST_UPDT_PNTTM,SVY_MEMO,SVY_DATA )
+		VALUES
+		(
+			CAST(#{mst_id} AS INT)
+			, #{login_id}
+			, #{svy_keyword}
+			, #{svy_label}
+			, CAST(ST_X(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{londd},#{latdd}),4326),5186)) AS FLOAT)
+			, CAST(ST_Y(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{londd},#{latdd}),4326),5186)) AS FLOAT)
+			, #{svy_attr}
+			, now()
+			, now()
+			, #{svy_memo}
+			, ST_ASTEXT(ST_Transform(ST_SetSRID(ST_MakePoint(#{londd},#{latdd}),4326),5186))
+		)
+		ON CONFLICT ON CONSTRAINT TN_FEIS_CNL_FIELDINFO_UN
+		DO UPDATE
+		SET SVY_KEYWORD = #{svy_keyword}
+			, LOGIN_ID = #{login_id}
+			, SVY_LON = CAST(ST_X(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{londd},#{latdd}),4326),5186)) AS FLOAT)
+			, SVY_LAT = CAST(ST_Y(ST_TRANSFORM(ST_SetSRID(ST_MakePoint(#{londd},#{latdd}),4326),5186)) AS FLOAT)
+			, SVY_DATA = ST_ASTEXT(ST_Transform(ST_SetSRID(ST_MakePoint(#{londd},#{latdd}),4326),5186))
+			, SVY_ATTR = #{svy_attr}
+			, LAST_UPDT_PNTTM = now()
+			, SVY_MEMO = #{svy_memo}
+	</insert>
+	
+	<!-- 공유방 조사데이터 조회 -->
+	<select id="selectLssCnlFieldBookItemList" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookItemVO" resultType="or.sabang.sys.lss.cnl.service.LssCnlStripLandVO">
+		<![CDATA[
+			SELECT
+				 SVY_LABEL AS ID
+				 , SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(ST_GEOMFROMTEXT(SVY_DATA,5186),4326), 'D°M''SS.SS"C'),' ',2) AS LON
+			     , SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(ST_GEOMFROMTEXT(SVY_DATA,5186),4326), 'D°M''SS.SS"C'),' ',1) AS LAT
+				 , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->0->>'VALUE' AS SN
+				 , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->2->>'VALUE' AS SD
+				 , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->3->>'VALUE' AS SGG
+				 , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->4->>'VALUE' AS EMD
+				 , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->5->>'VALUE' AS RI
+				 , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->6->>'VALUE' AS JIBUN
+				 , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->7->>'VALUE' AS REGION1
+			     , REGEXP_REPLACE(REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->8->>'VALUE','취약지역 해제조사|\(|\)','','g') AS TYPE
+				 , GID AS SMID
+				 FROM  TN_FEIS_CNL_FIELDINFO
+			WHERE  1=1
+		]]>
+		<if test="mst_id != null and mst_id != ''">	<![CDATA[
+			AND MST_ID = CAST(#{mst_id} AS INT) ]]>
+		</if>
+		<if test="smid != null and smid != ''">	<![CDATA[ 
+			AND GID = CAST(#{smid} AS INT) ]]>
+		</if>
+		<if test="svyid != null and svyid != ''">	<![CDATA[ AND
+			REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->0->>'VALUE' LIKE CONCAT ('%', #{svyid},'%') ]]>
+		</if>
+		<if test="sd != null and sd != ''">	<![CDATA[ AND
+			REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->2->>'VALUE' = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+		</if>
+		<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+			REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->3->>'VALUE' = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+		</if>
+		<if test="emd != null and emd != ''">	<![CDATA[ AND
+			REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->4->>'VALUE' = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd})]]>
+		</if>
+		<if test="ri != null and ri != ''">	<![CDATA[ AND
+			 REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->5->>'VALUE' =  (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+		</if>
+			ORDER BY GID ASC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	
+	<!-- 공유방 조사데이터 갯수조회 -->
+	<select id="selectLssCnlFieldBookItemListTotCnt" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookItemVO" resultType="int">
+		<![CDATA[
+			SELECT  COUNT(*) TOTCNT
+			FROM  TN_FEIS_CNL_FIELDINFO
+			WHERE  1=1
+			AND MST_ID = CAST(#{mst_id} AS INT)
+		]]>
+			<if test="svyid != null and svyid != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->0->>'VALUE' LIKE CONCAT ('%', #{svyid},'%') ]]>
+			</if>
+			<if test="sd != null and sd != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->4->>'VALUE' = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{sd}) ]]>
+			</if>
+			<if test="sgg != null and sgg != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->5->>'VALUE' = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{sgg}) ]]>
+			</if>
+			<if test="emd != null and emd != ''">	<![CDATA[ AND
+				REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->6->>'VALUE' = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{emd})]]>
+			</if>
+			<if test="ri != null and ri != ''">	<![CDATA[ AND
+				 REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->7->>'VALUE' =  (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{ri}) ]]>
+			</if>
+
+	</select>
+   
+   <!-- 공유방 삭제 -->
+   <delete id="deleteCnrsSpce" parameterType="java.util.Map">
+      	<![CDATA[
+      	    DELETE FROM TN_FEIS_CNL_CNRSSPCE
+      	    WHERE ID = CAST(#{id} as INT)
+      	]]>
+   </delete>
+   
+   <!-- 공유방 조사데이터 삭제 -->
+   <delete id="deleteCnrsSpceItem" parameterType="java.util.Map">
+  		<![CDATA[
+            DELETE FROM TN_FEIS_CNL_FIELDINFO
+            WHERE MST_ID = CAST(#{mst_id} as INT)
+            AND SVY_LABEL = #{label}
+        ]]>
+   </delete>
+   
+   <!-- 공유방 조사데이터 일괄삭제 -->
+   <delete id="deleteCnrsSpceAllItem" parameterType="java.util.Map">
+      	<![CDATA[
+      	    DELETE FROM TN_FEIS_CNL_FIELDINFO
+      	    WHERE MST_ID = CAST(#{id} as INT)
+      	]]>
+   </delete>
+   
+   <!-- 공유방 조사 완료데이터 삭제 -->
+   <delete id="deleteCnrsSpceComptItem" parameterType="java.util.Map">
+        <![CDATA[
+            DELETE FROM TN_FEIS_CNL_SVYCOMPT
+            WHERE MST_ID = CAST(#{id} as INT)
+        ]]>
+   </delete>
+   
+   <!-- 공유방 조사데이터 수정조회 완료여부 추가 -->
+	<select id="selectLssCnlFieldBookItemView" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookItemVO" resultType="or.sabang.sys.lss.cnl.service.LssCnlStripLandVO">
+		<![CDATA[
+			SELECT
+				 T1.SVY_LABEL AS ID
+			     , REGEXP_REPLACE(REGEXP_REPLACE(T1.SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->8->>'VALUE','취약지역 해제조사|\(|\)','','g') AS TYPE
+				 , SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(ST_GEOMFROMTEXT(T1.SVY_DATA,5186),4326), 'D°M''SS.SS"C'),' ',2) AS LON
+			     , SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(ST_GEOMFROMTEXT(T1.SVY_DATA,5186),4326), 'D°M''SS.SS"C'),' ',1) AS LAT
+				 , REGEXP_REPLACE(T1.SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->2->>'VALUE' AS SD
+				 , REGEXP_REPLACE(T1.SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->3->>'VALUE' AS SGG
+				 , REGEXP_REPLACE(T1.SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->4->>'VALUE' AS EMD
+				 , REGEXP_REPLACE(T1.SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->5->>'VALUE' AS RI
+				 , REGEXP_REPLACE(T1.SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->6->>'VALUE' AS JIBUN
+				 , (COALESCE(NULLIF(REPLACE(T2.SVY_MEMO ,'\\','\'),''),'{}'))::JSON->>'완료' AS AT
+		    FROM  TN_FEIS_CNL_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_CNL_SVYCOMPT T2
+				ON T1.MST_ID = T2.MST_ID
+				AND T1.SVY_LABEL = T2.SVY_LABEL
+			WHERE  1=1
+			AND T1.MST_ID = CAST(#{mst_id} AS INT)
+		]]>
+	</select>
+	
+	<!-- 공유방 최대연도 조회 -->
+	<select id ="selectLssCnlFieldBookMaxYear" resultType="String">
+		SELECT MAX(SPLIT_PART((SPLIT_PART(MST_REGISTERED, ' ',1)),'/',1)) AS svyYear FROM TN_FEIS_CNL_CNRSSPCE
+	</select>
+
+	<!-- 공유방 연도목록 조회 -->	
+	<select id ="selectLssCnlFieldBookYear" resultType="egovMap">
+		SELECT DISTINCT SPLIT_PART((SPLIT_PART(MST_REGISTERED, ' ',1)),'/',1) AS svyYear FROM TN_FEIS_CNL_CNRSSPCE
+		ORDER BY svyYear DESC
+	</select>
+	
+		<!-- 사업지구명 중복체크 -->
+	<select id="selectLssCnlFieldBookCheckMstName" resultType="int" parameterType="String">
+		SELECT COUNT(MST_PARTNAME) FROM TN_FEIS_CNL_CNRSSPCE WHERE MST_PARTNAME=#{MST_PARTNAME}
+	</select>
+	
+	<!-- 공유방 단건 상세정보 조회 -->
+	<select id="selectFieldBookDetailOne" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookItemVO" resultType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookItemVO">
+		<![CDATA[
+			SELECT
+				SVY_LABEL AS SVY_ID
+			    , GID AS SMID
+			    , MST_ID AS MST_ID
+			    , SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(ST_GEOMFROMTEXT(SVY_DATA,5186),4326) ,'D°M''SS.SS"C'),' ',2) AS SVY_LON
+			    , SPLIT_PART(ST_ASLATLONTEXT(ST_TRANSFORM(ST_GEOMFROMTEXT(SVY_DATA,5186),4326) ,'D°M''SS.SS"C'),' ',1) AS SVY_LAT
+			    , COALESCE(TO_CHAR(CREAT_DT, 'YYYY-MM-DD'),'') AS CREATEDT
+			    , COALESCE(SVY_MEMO::JSON->>'지정사유', '') AS APPNRESN
+			    , COALESCE(SVY_MEMO::JSON->>'사업종가능', '') AS WEAKAPPNBSTYPE
+			    , COALESCE(SVY_MEMO::JSON->>'구역설정', '') AS WEAKAPPNAREASET
+			    , COALESCE(SVY_MEMO::JSON->>'선정사유', '') AS WEAKAPPNSLTNHY
+			    , COALESCE(SVY_MEMO::JSON->>'지정번호', '') AS APPNNO
+			    , COALESCE(SVY_MEMO::JSON->>'당시현황', '') AS WEAKAPPNSTTUS
+			    , COALESCE(SVY_MEMO::JSON->>'당시종합의견', '') AS WEAKAPPNMSTOPN
+			    , COALESCE(SVY_MEMO::JSON->>'지정년도', '') AS APPNYEAR
+			    , COALESCE(SVY_MEMO::JSON->>'지정면적', '') AS APPNAREA
+			    , COALESCE(SVY_MEMO::JSON->>'가능여부', '') AS WEAKAPPNPOSYN
+			    , REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->0->>'VALUE' AS SN
+				, REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->2->>'VALUE' AS SVY_SD
+				, REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->3->>'VALUE' AS SVY_SGG
+				, REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->4->>'VALUE' AS SVY_EMD
+				, REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->5->>'VALUE' AS SVY_RI
+				, REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->6->>'VALUE' AS SVY_JIBUN
+				, REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->7->>'VALUE' AS REGION1
+			    , REGEXP_REPLACE(REGEXP_REPLACE(SVY_ATTR,'\\\\"\\\\" N"|\\\\"\\\\" E"|\d""','\""','g')::JSON->8->>'VALUE','취약지역 해제조사|\(|\)','','g') AS SVY_TYPE
+			FROM TN_FEIS_CNL_FIELDINFO
+			WHERE  1=1
+			AND GID = CAST(#{smid} AS INT)
+		]]>
+	</select>
+	
+	<select id ="selectLssCnlProjBessel" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+				ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),4326),5186)) AS BPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),4326),5186)) AS BPY
+			</if>
+			<if test="epx != null and epx != '' and epy != null and epy != ''">
+				<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+					,
+				</if>
+				ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),4326),5186)) AS EPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),4326),5186)) AS EPY
+			</if>
+	</select>
+	
+	<!-- 공유방 권한 확인 -->
+	<select id="selectAuthorCheck" resultType="String">
+		SELECT USER_GRADE FROM TN_FEIS_CNRSSPCE_AUTHORMGT
+		WHERE MST_ID = #{id}
+			AND ESNTL_ID = #{esntlId}
+	</select>
+	
+	<!-- 공유방 단건 수정 -->
+	<update id="updateFieldBookDetailOne">
+		<![CDATA[
+            UPDATE TN_FEIS_CNL_FIELDINFO
+               SET LAST_UPDT_PNTTM = NOW()  
+               , SVY_MEMO = (COALESCE(NULLIF(REPLACE(SVY_MEMO,'\\','\'),''),'{}'))::JSONB || CONCAT('{'
+          ]]>
+        <if test="appnResn != null">
+		<![CDATA[ ,CONCAT('"지정사유" : "',#{appnResn},'",')]]>
+        </if>
+        <if test="weakAppnBsType != null">
+		<![CDATA[ ,CONCAT('"사업종가능" : "',#{weakAppnBsType},'",')]]>
+        </if>
+        <if test="weakAppnAreaSet != null">
+		<![CDATA[ ,CONCAT('"구역설정" : "',#{weakAppnAreaSet},'",')]]>
+        </if>
+        <if test="weakAppnSltnHy != null">
+		<![CDATA[ ,CONCAT('"선정사유" : "',#{weakAppnSltnHy},'",')]]>
+        </if>
+        <if test="appnNo != null">
+		<![CDATA[ ,CONCAT('"지정번호" : "',#{appnNo},'",')]]>
+        </if>
+        <if test="weakAppnSttus != null">
+		<![CDATA[ ,CONCAT('"당시현황" : "',#{weakAppnSttus},'",')]]>
+        </if>
+        <if test="weakAppnMstOpn != null">
+		<![CDATA[ ,CONCAT('"당시종합의견" : "',#{weakAppnMstOpn},'",')]]>
+        </if>
+        <if test="appnYear != null">
+		<![CDATA[ ,CONCAT('"지정년도" : "',#{appnYear},'",')]]>
+        </if>
+        <if test="appnArea != null">
+		<![CDATA[ ,CONCAT('"지정면적" : "',#{appnArea},'",')]]>
+        </if>
+        <if test="weakAppnPosYn != null">
+   		<![CDATA[ ,CONCAT('"가능여부" : "',#{weakAppnPosYn},'"')]]>
+        </if>
+		<![CDATA[
+		,'}')::JSONB
+          ]]> 
+        <if test="svyId != null">
+		<![CDATA[ 
+			, SVY_KEYWORD = #{svyId}
+			, SVY_LABEL = #{svyId}
+		]]>
+        </if>
+        <if test="svyLon != null">
+		<![CDATA[ 
+			, SVY_LON = #{svyLon}::FLOAT
+		]]>
+        </if>
+        <if test="svyLat != null">
+		<![CDATA[ 
+			, SVY_LAT = #{svyLat}::FLOAT
+		]]>
+        </if>
+        <if test="svyLon != null and svyLat != null">
+		<![CDATA[ 
+			, SVY_DATA = ST_ASTEXT(ST_SetSRID(ST_MAKEPOINT(#{svyLon}::FLOAT, #{svyLat}::FLOAT), 5186))
+		]]>
+        </if>
+        <if test="svy_attr != null">
+        <![CDATA[ , SVY_ATTR = #{svy_attr}]]>
+        </if>
+        WHERE GID = CAST(#{smid} AS INTEGER)
+	</update>
+	
+	<!-- 공유방 단건 삭제  -->
+	<delete id="deleteFieldBookDetailOne" parameterType="java.util.Map">
+      	<![CDATA[
+      	    DELETE FROM TN_FEIS_CNL_FIELDINFO
+      	    WHERE GID = CAST(#{smid} AS INTEGER)
+      	]]>
+   </delete>
+   
+   <!-- 조직도 조회 -->	
+	<select id ="selectOrgchtList" resultMap="lssCnlfieldBook">
+		SELECT DEPT_ID 
+			, DEPT_NM
+		FROM TN_FEIS_DEPTINFO
+		WHERE ORGNZT_ID = 'ORGNZT_0000000000000'
+		ORDER BY DEPT_ID ASC
+	</select>
+	
+	<!-- 조직도 조회 -->	
+	<select id ="selectMberList" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookVO" resultType="egovMap">
+		SELECT A.DEPT_ID 
+			, A.DEPT_NM
+			, B.MBER_NM
+			, B.ESNTL_ID
+		FROM TN_FEIS_DEPTINFO A, TN_FEIS_GNRLMBER B
+		WHERE A.DEPT_ID = B.DEPT_ID
+		AND A.ORGNZT_ID = 'ORGNZT_0000000000000'
+		AND B.MBER_STTUS = 'P'
+		<if test="@egovframework.com.cmm.util.EgovMybaitsUtil@isNotEmpty(searchKeyword)">
+        <if test="searchCondition == 0">AND
+             (A.DEPT_NM LIKE '%' || #{searchKeyword} || '%'
+             OR
+             B.MBER_NM LIKE '%' || #{searchKeyword} || '%')
+        </if>
+        <if test="searchCondition == 1">AND
+             A.DEPT_NM LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        <if test="searchCondition == 2">AND
+             B.MBER_NM LIKE '%' || #{searchKeyword} || '%'
+        </if>
+        </if>
+		ORDER BY A.DEPT_ID ASC
+	</select>
+	
+	<select id="selectCnrsAuthorList" resultMap="lssCnlfieldBook" parameterType="java.util.Map">
+		<![CDATA[
+			SELECT A.ESNTL_ID AS ESNTL_ID
+				, A.MST_ID AS ID 
+				, A.USER_GRADE AS USER_GRADE
+				, C.DEPT_NM AS DEPT_NM
+				, B.MBER_NM AS MBER_NM 
+			FROM TN_FEIS_CNRSSPCE_AUTHORMGT A, TN_FEIS_GNRLMBER B, TN_FEIS_DEPTINFO C
+			WHERE A.ESNTL_ID = B.ESNTL_ID 
+				AND B.DEPT_ID = C.DEPT_ID 
+				AND B.MBER_STTUS = 'P'
+		]]>
+			<if test="id != null and id != ''">	<![CDATA[ AND
+				A.MST_ID = CAST(#{id} AS INT) ]]>
+			</if>
+  		ORDER BY C.DEPT_ID ASC, B.MBER_NM ASC
+	</select>
+	
+	<!-- 부서목록 -->
+	<select id="selectDeptInfoList" resultType="egovMap">
+		SELECT
+			REGEXP_REPLACE(DEPT_ID,'[^[:digit:]]','','g') AS DEPT_ID
+			, DEPT_NM
+		FROM TN_FEIS_DEPTINFO
+		WHERE ORGNZT_ID = 'ORGNZT_0000000000000'
+		AND DEPT_ID != 'DEPT_0000009000000'
+		ORDER BY DEPT_ID
+	</select>
+	
+	<!-- 부서별 회원목록 -->
+	<select id="selectDeptCreatList" resultType="egovMap">
+		SELECT 
+			A.MBER_ID AS MBER_ID
+			, A.ESNTL_ID AS ESNTL_ID
+			, A.MBER_NM AS MBER_NM
+			, A.OFCPS_NM AS OFCPS_NM
+			, REGEXP_REPLACE(A.DEPT_ID,'[^[:digit:]]','','g') AS DEPT_ID
+			, (SELECT B.DEPT_NM FROM TN_FEIS_DEPTINFO B WHERE B.DEPT_ID = A.DEPT_ID) DEPT_NM
+		FROM TN_FEIS_GNRLMBER A
+		WHERE A.INSTT_ID = 'ORGNZT_0000000000000'
+		AND A.MBER_STTUS = 'P'
+		ORDER BY A.DEPT_ID, ARRAY_POSITION(ARRAY['사무처장','연구조사처장','지부장','부장','차장','과장','대리','사원','계약직'],A.OFCPS_NM::TEXT)
+	</select>
+	
+	<!-- 공유방 사용자 권한 삭제 -->
+   <delete id="deleteCnrsSpceAuthorMgt" parameterType="or.sabang.sys.lss.cnl.service.LssCnlFieldBookVO">
+      	<![CDATA[
+      	    DELETE FROM TN_FEIS_CNRSSPCE_AUTHORMGT
+      	    WHERE USER_GRADE != 'ADMIN'
+      	    	AND MST_ID = CAST(#{id} as INT)
+      	]]>
+   </delete>
+</mapper>

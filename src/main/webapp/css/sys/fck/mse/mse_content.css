@@ -1,0 +1,6 @@
+@charset "UTF-8";
+
+/* 계측장비 대상지관리 스타일 */
+#mseLicMeterXY tr td{min-height:50px; line-height:50px; overflow-x:auto; display: flex;}
+#mseLicMeterXY tr td input{width: 50px; margin-right: 5px;}
+

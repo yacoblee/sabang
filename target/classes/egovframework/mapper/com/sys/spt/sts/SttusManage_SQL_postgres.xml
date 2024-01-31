@@ -1,0 +1,3113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sttusManageDAO">
+
+	<select id="selectBscYearSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.bsc.service.LssBscSvyComptVO">
+		SELECT A.MON AS MON, COALESCE(B.CNT,0) AS CNT
+			FROM (
+				SELECT 
+				SERIES AS MON 
+				FROM GENERATE_SERIES(1,12) AS SERIES
+			) A 
+			LEFT OUTER JOIN (	
+				SELECT 
+				EXTRACT('MONTH' FROM CREAT_DT) AS MON,
+				COUNT(*) AS CNT
+				FROM TN_FEIS_BSC_SVYMEMO
+				WHERE 1=1
+				<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+					EXTRACT('YEAR' FROM CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+				</if>
+				<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+					EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}]]>
+				</if>
+				<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+					SVYTYPE = #{svyType} ]]>
+				</if>
+				<if test="svyRegion1 != null and svyRegion1 != ''">	<![CDATA[ AND
+					REGION1 = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{svyRegion1} and CODE_ID = 'FEI001') ]]>
+				</if>
+				<if test="svyRegion2 != null and svyRegion2 != ''">	<![CDATA[ AND
+					REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{svyRegion2}) ]]>
+				</if>
+				<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+					SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+				</if>
+				<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+					SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+				</if>
+				GROUP BY EXTRACT('MONTH' FROM CREAT_DT)
+			) B ON A.MON::TEXT = B.MON::TEXT
+			ORDER BY MON
+	</select>
+	
+	<select id="selectBscNcsstySttus" resultType="egovMap" parameterType="or.sabang.sys.lss.bsc.service.LssBscSvyComptVO">
+		WITH A AS (
+			SELECT * FROM TN_FEIS_BSC_SVYMEMO B
+			WHERE 1=1
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				EXTRACT('YEAR' FROM B.CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				EXTRACT('YEAR' FROM B.CREAT_DT)::TEXT = #{svyYear}	]]>
+			</if>
+			<if test="svyRegion1 != null and svyRegion1 != ''">	<![CDATA[ AND
+				B.REGION1 = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{svyRegion1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="svyRegion2 != null and svyRegion2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{svyRegion2}) ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+		)
+		SELECT DISTINCT
+			(SELECT COUNT(NCSSTY) FROM A WHERE NCSSTY = '필요') AS NCSSTY,
+			(SELECT COUNT(NCSSTY) FROM A WHERE NCSSTY = '불필요') AS UNNCSSTY
+	</select>
+
+	<select id="selectBscRegionSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.bsc.service.LssBscSvyComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM,
+			COALESCE(B.CNT1,0) AS NCSSTY,
+			COALESCE(B.CNT2,0) AS UNNCSSTY
+		<if test="svyRegion1 == null or svyRegion1 == ''">
+		FROM (
+			SELECT CODE_NM AS NM
+			FROM TN_FEIS_DETAILCODE
+			WHERE 1=1
+			AND CODE_ID = 'FEI001'
+		) A
+		LEFT OUTER JOIN (
+			SELECT 
+				REGION1 AS NM
+				,SUM(CNT1) AS CNT1
+				,SUM(CNT2) AS CNT2
+			FROM
+			(
+				SELECT 
+					REGION1,
+					CASE WHEN NCSSTY = '필요' THEN CNT ELSE 0 END AS CNT1,
+					CASE WHEN NCSSTY = '불필요' THEN CNT ELSE 0 END AS CNT2
+				FROM
+				(
+					SELECT REGEXP_REPLACE(REGION1,' ','','g') AS REGION1,NCSSTY,COUNT(*) AS CNT
+					FROM TN_FEIS_BSC_SVYMEMO
+					WHERE 1=1
+					<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+					</if>
+					<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}	]]>
+					</if>
+					AND REGION1 IS NOT NULL 
+					AND REGION1 != ''
+					GROUP BY REGEXP_REPLACE(REGION1,' ','','g'),NCSSTY
+					ORDER BY REGEXP_REPLACE(REGION1,' ','','g')
+				) P
+			) P1
+			GROUP BY REGION1
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyRegion1 != null and svyRegion1 != ''">
+		FROM (
+			SELECT DISTINCT CODE_NM AS NM
+			FROM TN_FEIS_REGIONINFO
+			WHERE 1=1 
+			AND GROUP_ID = #{svyRegion1}
+		) A
+		LEFT OUTER JOIN (
+			SELECT 
+				REGION2 AS NM
+				,SUM(CNT1) AS CNT1
+				,SUM(CNT2) AS CNT2
+			FROM
+			(
+				SELECT 
+					REGION2,
+					CASE WHEN NCSSTY = '필요' THEN CNT ELSE 0 END AS CNT1,
+					CASE WHEN NCSSTY = '불필요' THEN CNT ELSE 0 END AS CNT2
+				FROM
+				(
+					SELECT REGEXP_REPLACE(REGION2,' ','','g') AS REGION2,NCSSTY,COUNT(*) AS CNT
+					FROM TN_FEIS_BSC_SVYMEMO
+					WHERE 1=1
+					<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+					</if>
+					<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}	]]>
+					</if>
+					AND REGION2 IS NOT NULL 
+					AND REGION2 != ''
+					GROUP BY REGEXP_REPLACE(REGION2,' ','','g'),NCSSTY
+					ORDER BY REGEXP_REPLACE(REGION2,' ','','g')
+				) P
+			) P1
+			GROUP BY REGION2
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+
+  		<select id="selectBscAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.bsc.service.LssBscSvyComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM,
+			COALESCE(B.CNT1,0) AS NCSSTY,
+			COALESCE(B.CNT2,0) AS UNNCSSTY
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT 
+				SD AS NM
+				,SUM(CNT1) AS CNT1
+				,SUM(CNT2) AS CNT2
+			FROM
+			(
+				SELECT 
+					SD,
+					CASE WHEN NCSSTY = '필요' THEN CNT ELSE 0 END AS CNT1,
+					CASE WHEN NCSSTY = '불필요' THEN CNT ELSE 0 END AS CNT2
+				FROM
+				(
+					SELECT SD,NCSSTY,COUNT(*) AS CNT
+					FROM TN_FEIS_BSC_SVYMEMO
+					WHERE 1=1
+					<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+					</if>
+					<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}	]]>
+					</if>
+					AND SD IS NOT NULL 
+					AND SD != ''
+					GROUP BY SD,NCSSTY
+					
+				) P
+			) P1
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT 
+				DISTINCT SIGNGU_NM AS NM
+				, CTPRVN_NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT 
+				SD
+				,SGG AS NM
+				,SUM(CNT1) AS CNT1
+				,SUM(CNT2) AS CNT2
+			FROM
+			(
+				SELECT 
+					SD,
+					SGG,
+					CASE WHEN NCSSTY = '필요' THEN CNT ELSE 0 END AS CNT1,
+					CASE WHEN NCSSTY = '불필요' THEN CNT ELSE 0 END AS CNT2
+				FROM
+				(
+					SELECT SD,SGG,NCSSTY,COUNT(*) AS CNT
+					FROM TN_FEIS_BSC_SVYMEMO
+					WHERE 1=1
+					<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+					</if>
+					<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}	]]>
+					</if>
+					AND SGG IS NOT NULL 
+					AND SGG != ''
+					GROUP BY SD,SGG,NCSSTY
+					
+				) P
+			) P1
+			GROUP BY SD,SGG
+		) B ON A.CTPRVN_NM = B.SD AND A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT 
+				DISTINCT EMD_NM AS NM
+				, CTPRVN_NM
+				, SIGNGU_NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT 
+				SD
+				,SGG
+				,EMD AS NM
+				,SUM(CNT1) AS CNT1
+				,SUM(CNT2) AS CNT2
+			FROM
+			(
+				SELECT 
+					SD,SGG,EMD,
+					CASE WHEN NCSSTY = '필요' THEN CNT ELSE 0 END AS CNT1,
+					CASE WHEN NCSSTY = '불필요' THEN CNT ELSE 0 END AS CNT2
+				FROM
+				(
+					SELECT SD,SGG,EMD,NCSSTY,COUNT(*) AS CNT
+					FROM TN_FEIS_BSC_SVYMEMO
+					WHERE 1=1
+					<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+					</if>
+					<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}	]]>
+					</if>
+					AND EMD IS NOT NULL 
+					AND EMD != ''
+					GROUP BY SD,SGG,EMD,NCSSTY
+					
+				) P
+			) P1
+			GROUP BY SD,SGG,EMD
+		) B ON A.CTPRVN_NM = B.SD AND A.SIGNGU_NM = B.SGG AND A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM, CTPRVN_NM,SIGNGU_NM,EMD_NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT 
+				SD
+				,SGG
+				,EMD 
+				,RI AS NM
+				,SUM(CNT1) AS CNT1
+				,SUM(CNT2) AS CNT2
+			FROM
+			(
+				SELECT 
+					SD,SGG,EMD,RI,
+					CASE WHEN NCSSTY = '필요' THEN CNT ELSE 0 END AS CNT1,
+					CASE WHEN NCSSTY = '불필요' THEN CNT ELSE 0 END AS CNT2
+				FROM
+				(
+					SELECT SD,SGG,EMD,RI,NCSSTY,COUNT(*) AS CNT
+					FROM TN_FEIS_BSC_SVYMEMO
+					WHERE 1=1
+					<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+					</if>
+					<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+						EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}	]]>
+					</if>
+					AND RI IS NOT NULL 
+					AND RI != ''
+					GROUP BY SD,SGG,EMD,RI,NCSSTY
+					
+				) P
+			) P1
+			GROUP BY SD,SGG,EMD,RI
+		) B ON A.CTPRVN_NM = B.SD AND A.SIGNGU_NM = B.SGG AND A.EMD_NM = B.EMD AND A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 조사유형별 조사인자 조회 -->
+	<select id="selectBscFactorSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.bsc.service.LssBscSvyComptVO">
+		WITH A AS (
+			SELECT * FROM TN_FEIS_BSC_SVYMEMO B
+			WHERE 1=1
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				EXTRACT('YEAR' FROM B.CREAT_DT) = (SELECT MAX(EXTRACT('YEAR' FROM CREAT_DT)) FROM TN_FEIS_BSC_FIELDINFO)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				EXTRACT('YEAR' FROM B.CREAT_DT)::TEXT = #{svyYear}	]]>
+			</if>
+			<if test="svyRegion1 != null and svyRegion1 != ''">	<![CDATA[ AND
+				B.REGION1 = (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = #{svyRegion1} and CODE_ID = 'FEI001') ]]>
+			</if>
+			<if test="svyRegion2 != null and svyRegion2 != ''">	<![CDATA[ AND
+				B.REGION2 = (SELECT CODE_NM FROM TN_FEIS_REGIONINFO WHERE CODE = #{svyRegion2}) ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+		)
+		SELECT DISTINCT				
+			(SELECT COUNT(SAFTYSCORE) FROM A WHERE SAFTYSCORE = '0') AS SAFTYSCORE0,
+			(SELECT COUNT(SAFTYSCORE) FROM A WHERE SAFTYSCORE = '5') AS SAFTYSCORE5,
+			(SELECT COUNT(SAFTYSCORE) FROM A WHERE SAFTYSCORE = '10') AS SAFTYSCORE10,
+			(SELECT COUNT(SAFTYSCORE) FROM A WHERE SAFTYSCORE = '15') AS SAFTYSCORE15,
+			(SELECT COUNT(SAFTYSCORE) FROM A WHERE SAFTYSCORE = '20') AS SAFTYSCORE20,
+			(SELECT COUNT(SLENSCORE) FROM A WHERE SLENSCORE = '3') AS SLENSCORE3,
+			(SELECT COUNT(SLENSCORE) FROM A WHERE SLENSCORE = '8') AS SLENSCORE8,
+			(SELECT COUNT(SLENSCORE) FROM A WHERE SLENSCORE = '15') AS SLENSCORE15,
+			(SELECT COUNT(SLENSCORE) FROM A WHERE SLENSCORE = '17') AS SLENSCORE17,
+			(SELECT COUNT(SLENSCORE) FROM A WHERE SLENSCORE = '20') AS SLENSCORE20,
+			(SELECT COUNT(SLOPESCORE) FROM A WHERE SLOPESCORE = '5') AS SLOPESCORE3,
+			(SELECT COUNT(SLOPESCORE) FROM A WHERE SLOPESCORE = '8') AS SLOPESCORE8,
+			(SELECT COUNT(SLOPESCORE) FROM A WHERE SLOPESCORE = '15') AS SLOPESCORE15,
+			(SELECT COUNT(SLOPESCORE) FROM A WHERE SLOPESCORE = '17') AS SLOPESCORE17,
+			(SELECT COUNT(SLOPESCORE) FROM A WHERE SLOPESCORE = '20') AS SLOPESCORE20,
+			(SELECT COUNT(SFORMSCORE) FROM A WHERE SFORMSCORE = '3') AS SFORMSCORE3,
+			(SELECT COUNT(SFORMSCORE) FROM A WHERE SFORMSCORE = '5') AS SFORMSCORE5,
+			(SELECT COUNT(SFORMSCORE) FROM A WHERE SFORMSCORE = '8') AS SFORMSCORE8,
+			(SELECT COUNT(SFORMSCORE) FROM A WHERE SFORMSCORE = '10') AS SFORMSCORE10,
+			(SELECT COUNT(FRSTFRSCORE) FROM A WHERE FRSTFRSCORE = '3') AS FRSTFRSCORE3,
+			(SELECT COUNT(FRSTFRSCORE) FROM A WHERE FRSTFRSCORE = '8') AS FRSTFRSCORE8,
+			(SELECT COUNT(FRSTFRSCORE) FROM A WHERE FRSTFRSCORE = '15') AS FRSTFRSCORE15,
+			(SELECT COUNT(FRSTFRSCORE) FROM A WHERE FRSTFRSCORE = '17') AS FRSTFRSCORE17,
+			(SELECT COUNT(FRSTFRSCORE) FROM A WHERE FRSTFRSCORE = '20') AS FRSTFRSCORE20,
+			(SELECT COUNT(PRNTRCKSCORE) FROM A WHERE PRNTRCKSCORE = '2') AS PRNTRCKSCORE2,
+			(SELECT COUNT(PRNTRCKSCORE) FROM A WHERE PRNTRCKSCORE = '4') AS PRNTRCKSCORE4,
+			(SELECT COUNT(PRNTRCKSCORE) FROM A WHERE PRNTRCKSCORE = '6') AS PRNTRCKSCORE6,
+			(SELECT COUNT(PRNTRCKSCORE) FROM A WHERE PRNTRCKSCORE = '8') AS PRNTRCKSCORE8,
+			(SELECT COUNT(PRNTRCKSCORE) FROM A WHERE PRNTRCKSCORE = '10') AS PRNTRCKSCORE10,
+			(SELECT COUNT(DEVOCCAUSESCORE) FROM A WHERE DEVOCCAUSESCORE = '0') AS DEVOCCAUSESCORE0,
+			(SELECT COUNT(DEVOCCAUSESCORE) FROM A WHERE DEVOCCAUSESCORE = '3') AS DEVOCCAUSESCORE3,
+			(SELECT COUNT(DEVOCCAUSESCORE) FROM A WHERE DEVOCCAUSESCORE = '5') AS DEVOCCAUSESCORE5,
+			(SELECT COUNT(DEVOCCAUSESCORE) FROM A WHERE DEVOCCAUSESCORE = '7') AS DEVOCCAUSESCORE7,
+			(SELECT COUNT(DEVOCCAUSESCORE) FROM A WHERE DEVOCCAUSESCORE = '10') AS DEVOCCAUSESCORE10,
+			(SELECT COUNT(TRNTAVGSLPSCORE) FROM A WHERE TRNTAVGSLPSCORE = '3') AS TRNTAVGSLPSCORE3,
+			(SELECT COUNT(TRNTAVGSLPSCORE) FROM A WHERE TRNTAVGSLPSCORE = '9') AS TRNTAVGSLPSCORE9,
+			(SELECT COUNT(TRNTAVGSLPSCORE) FROM A WHERE TRNTAVGSLPSCORE = '12') AS TRNTAVGSLPSCORE12,
+			(SELECT COUNT(TRNTAVGSLPSCORE) FROM A WHERE TRNTAVGSLPSCORE = '17') AS TRNTAVGSLPSCORE17,
+			(SELECT COUNT(TRNTAVGSLPSCORE) FROM A WHERE TRNTAVGSLPSCORE = '20') AS TRNTAVGSLPSCORE20,
+			(SELECT COUNT(WCLCTAREASCORE) FROM A WHERE WCLCTAREASCORE = '3') AS WCLCTAREASCORE3,
+			(SELECT COUNT(WCLCTAREASCORE) FROM A WHERE WCLCTAREASCORE = '5') AS WCLCTAREASCORE5,
+			(SELECT COUNT(WCLCTAREASCORE) FROM A WHERE WCLCTAREASCORE = '10') AS WCLCTAREASCORE10,
+			(SELECT COUNT(WCLCTAREASCORE) FROM A WHERE WCLCTAREASCORE = '15') AS WCLCTAREASCORE15,
+			(SELECT COUNT(WCLCTAREASCORE) FROM A WHERE WCLCTAREASCORE = '20') AS WCLCTAREASCORE20,
+			(SELECT COUNT(TLTRNTLTSCORE) FROM A WHERE TLTRNTLTSCORE = '3') AS TLTRNTLTSCORE3,
+			(SELECT COUNT(TLTRNTLTSCORE) FROM A WHERE TLTRNTLTSCORE = '5') AS TLTRNTLTSCORE5,
+			(SELECT COUNT(TLTRNTLTSCORE) FROM A WHERE TLTRNTLTSCORE = '10') AS TLTRNTLTSCORE10,
+			(SELECT COUNT(TLTRNTLTSCORE) FROM A WHERE TLTRNTLTSCORE = '15') AS TLTRNTLTSCORE15,
+			(SELECT COUNT(TLTRNTLTSCORE) FROM A WHERE TLTRNTLTSCORE = '20') AS TLTRNTLTSCORE20,	
+			(SELECT COUNT(DISTBMDSBRATEVAL) FROM A WHERE DISTBMDSBRATESCORE = '2') AS DISTBMDSBRATESCORE2,
+			(SELECT COUNT(DISTBMDSBRATEVAL) FROM A WHERE DISTBMDSBRATESCORE = '4') AS DISTBMDSBRATESCORE4,
+			(SELECT COUNT(DISTBMDSBRATEVAL) FROM A WHERE DISTBMDSBRATESCORE = '6') AS DISTBMDSBRATESCORE6,
+			(SELECT COUNT(DISTBMDSBRATEVAL) FROM A WHERE DISTBMDSBRATESCORE = '8') AS DISTBMDSBRATESCORE8,
+			(SELECT COUNT(DISTBMDSBRATEVAL) FROM A WHERE DISTBMDSBRATESCORE = '10') AS DISTBMDSBRATESCORE10
+		FROM A
+	</select>
+	
+	<select id="selectAprYearSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO">
+		SELECT A.MON AS MON, COALESCE(B.CNT,0) AS CNT
+			FROM (
+				SELECT 
+				SERIES AS MON 
+				FROM GENERATE_SERIES(1,12) AS SERIES
+			) A 
+			LEFT OUTER JOIN (	
+				SELECT 
+				TO_CHAR(CREAT_DT,'MM')::INT AS MON,
+				COUNT(*) AS CNT
+				FROM TN_FEIS_FCK_APRMEMO
+				WHERE 1=1
+				<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+					TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_APR_FIELDINFO)]]>
+				</if>
+				<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+					EXTRACT('YEAR' FROM CREAT_DT)::TEXT = #{svyYear}]]>
+				</if>
+				<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+					SVYTYPE = #{svyType} ]]>
+				</if>
+				<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+					SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+				</if>
+				<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+					SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+				</if>
+				GROUP BY TO_CHAR(CREAT_DT,'MM')
+			) B ON A.MON::TEXT = B.MON::TEXT
+		ORDER BY MON
+	</select>
+	
+	<select id="selectAprRsltSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO">
+		WITH A AS (
+			SELECT * FROM TN_FEIS_FCK_APRMEMO B
+			WHERE 1=1
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+		)
+		SELECT DISTINCT
+			(SELECT COUNT(FCKRSLT) FROM A WHERE FCKRSLT = '양호') AS FCKRSLT_GOOD,
+			(SELECT COUNT(FCKRSLT) FROM A WHERE FCKRSLT = '관찰필요') AS FCKRSLT_NEED,
+			(SELECT COUNT(FCKRSLT) FROM A WHERE FCKRSLT = '불량') AS FCKRSLT_BADN,
+			(SELECT COUNT(FCKRSLT) FROM A WHERE FCKRSLT = '없음') AS FCKRSLT_NONE,
+			(SELECT COUNT(MNGMTR) FROM A WHERE MNGMTR = '보수') AS MNGMTR_MEND,
+			(SELECT COUNT(MNGMTR) FROM A WHERE MNGMTR = '정밀점검') AS MNGMTR_CHCK,
+			(SELECT COUNT(MNGMTR) FROM A WHERE MNGMTR = '없음') AS MNGMTR_NONE,
+			(SELECT COUNT(APPNRELIS) FROM A WHERE APPNRELIS = '해제가능') AS APPNRELIS_RELIS,
+			(SELECT COUNT(APPNRELIS) FROM A WHERE APPNRELIS = '유지') AS APPNRELIS_MNTNC
+	</select>
+	
+	<select id="selectAprAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM,
+			COALESCE(B.CNT1,0) AS FCKRSLT_GOOD,
+			COALESCE(B.CNT2,0) AS FCKRSLT_NEED,
+			COALESCE(B.CNT3,0) AS FCKRSLT_BADN,
+			COALESCE(B.CNT4,0) AS FCKRSLT_NONE,
+			COALESCE(B.CNT5,0) AS MNGMTR_MEND,
+			COALESCE(B.CNT6,0) AS MNGMTR_CHCK,
+			COALESCE(B.CNT7,0) AS MNGMTR_NONE,
+			COALESCE(B.CNT8,0) AS APPNRELIS_RELIS,
+			COALESCE(B.CNT9,0) AS APPNRELIS_MNTNC
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '양호' AND  C.SD = D.SD) AS CNT1
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '관찰필요' AND C.SD = D.SD) AS CNT2
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '불량' AND C.SD = D.SD) AS CNT3
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '없음' AND C.SD = D.SD) AS CNT4
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '보수' AND C.SD = D.SD) AS CNT5
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '정밀점검' AND C.SD = D.SD) AS CNT6
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '없음' AND C.SD = D.SD) AS CNT7
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '해제가능' AND C.SD = D.SD) AS CNT8
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '유지' AND C.SD = D.SD) AS CNT9
+			FROM TN_FEIS_BSC_SVYMEMO D
+			WHERE 1=1
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '양호' AND  C.SGG = D.SGG) AS CNT1
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '관찰필요' AND C.SGG = D.SGG) AS CNT2
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '불량' AND C.SGG = D.SGG) AS CNT3
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '없음' AND C.SGG = D.SGG) AS CNT4
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '보수' AND C.SGG = D.SGG) AS CNT5
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '정밀점검' AND C.SGG = D.SGG) AS CNT6
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '없음' AND C.SGG = D.SGG) AS CNT7
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '해제가능' AND C.SGG = D.SGG) AS CNT8
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '유지' AND C.SGG = D.SGG) AS CNT9
+			FROM TN_FEIS_BSC_SVYMEMO D
+			WHERE 1=1
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '양호' AND  C.EMD = D.EMD) AS CNT1
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '관찰필요' AND C.EMD = D.EMD) AS CNT2
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '불량' AND C.EMD = D.EMD) AS CNT3
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '없음' AND C.EMD = D.EMD) AS CNT4
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '보수' AND C.EMD = D.EMD) AS CNT5
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '정밀점검' AND C.EMD = D.EMD) AS CNT6
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '없음' AND C.EMD = D.EMD) AS CNT7
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '해제가능' AND C.EMD = D.EMD) AS CNT8
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '유지' AND C.EMD = D.EMD) AS CNT9
+			FROM TN_FEIS_BSC_SVYMEMO D
+			WHERE 1=1
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '양호' AND  C.RI = D.RI) AS CNT1
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '관찰필요' AND C.RI = D.RI) AS CNT2
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '불량' AND C.RI = D.RI) AS CNT3
+			, (SELECT COUNT(FCKRSLT) FROM TN_FEIS_FCK_APRMEMO C WHERE FCKRSLT = '없음' AND C.RI = D.RI) AS CNT4
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '보수' AND C.RI = D.RI) AS CNT5
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '정밀점검' AND C.RI = D.RI) AS CNT6
+			, (SELECT COUNT(MNGMTR) FROM TN_FEIS_FCK_APRMEMO C WHERE MNGMTR = '없음' AND C.RI = D.RI) AS CNT7
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '해제가능' AND C.RI = D.RI) AS CNT8
+			, (SELECT COUNT(APPNRELIS) FROM TN_FEIS_FCK_APRMEMO C WHERE APPNRELIS = '유지' AND C.RI = D.RI) AS CNT9
+			FROM TN_FEIS_BSC_SVYMEMO D
+			WHERE 1=1
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 조사유형별 조사인자 조회 -->
+	<select id="selectAprFactorSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO">
+		WITH A AS (
+			SELECT * FROM TN_FEIS_FCK_APRMEMO B
+			WHERE 1=1
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+		)
+		SELECT DISTINCT
+			<!-- 부대시설 > 수문 -->				
+			(SELECT COUNT(FLUGTJDGVAL) FROM A WHERE FLUGTJDGVAL = '양호') AS FLUGTJDGVAL_GOOD,
+			(SELECT COUNT(FLUGTJDGVAL) FROM A WHERE FLUGTJDGVAL = '관찰필요') AS FLUGTJDGVAL_NEED,
+			(SELECT COUNT(FLUGTJDGVAL) FROM A WHERE FLUGTJDGVAL = '불필요') AS FLUGTJDGVAL_NDLS,
+			(SELECT COUNT(FLUGTJDGVAL) FROM A WHERE FLUGTJDGVAL = '없음') AS FLUGTJDGVAL_NONE,
+			<!-- 부대시설 > 식생상태 -->
+			(SELECT COUNT(VTNSTTUSJDGVAL) FROM A WHERE VTNSTTUSJDGVAL = '양호') AS VTNSTTUSJDGVAL_GOOD,
+			(SELECT COUNT(VTNSTTUSJDGVAL) FROM A WHERE VTNSTTUSJDGVAL = '관찰필요') AS VTNSTTUSJDGVAL_NEED,
+			(SELECT COUNT(VTNSTTUSJDGVAL) FROM A WHERE VTNSTTUSJDGVAL = '불필요') AS VTNSTTUSJDGVAL_NDLS,
+			(SELECT COUNT(VTNSTTUSJDGVAL) FROM A WHERE VTNSTTUSJDGVAL = '없음') AS VTNSTTUSJDGVAL_NONE,
+			<!-- 부대시설 > 안전시설 -->
+			(SELECT COUNT(SFFCJDGVAL) FROM A WHERE SFFCJDGVAL = '양호') AS SFFCJDGVAL_GOOD,
+			(SELECT COUNT(SFFCJDGVAL) FROM A WHERE SFFCJDGVAL = '관찰필요') AS SFFCJDGVAL_NEED,
+			(SELECT COUNT(SFFCJDGVAL) FROM A WHERE SFFCJDGVAL = '불필요') AS SFFCJDGVAL_NDLS,
+			(SELECT COUNT(SFFCJDGVAL) FROM A WHERE SFFCJDGVAL = '없음') AS SFFCJDGVAL_NONE,
+			<!-- 부대시설 > 접근도로 -->
+			(SELECT COUNT(ACCSSRDJDGVAL) FROM A WHERE ACCSSRDJDGVAL = '양호') AS ACCSSRDJDGVAL_GOOD,
+			(SELECT COUNT(ACCSSRDJDGVAL) FROM A WHERE ACCSSRDJDGVAL = '관찰필요') AS ACCSSRDJDGVAL_NEED,
+			(SELECT COUNT(ACCSSRDJDGVAL) FROM A WHERE ACCSSRDJDGVAL = '불필요') AS ACCSSRDJDGVAL_NDLS,
+			(SELECT COUNT(ACCSSRDJDGVAL) FROM A WHERE ACCSSRDJDGVAL = '없음') AS ACCSSRDJDGVAL_NONE,
+			<!-- 부대시설 > 기타 -->
+			(SELECT COUNT(ETCJDGVAL) FROM A WHERE ETCJDGVAL = '양호') AS ETCJDGVAL_GOOD,
+			(SELECT COUNT(ETCJDGVAL) FROM A WHERE ETCJDGVAL = '관찰필요') AS ETCJDGVAL_NEED,
+			(SELECT COUNT(ETCJDGVAL) FROM A WHERE ETCJDGVAL = '불필요') AS ETCJDGVAL_NDLS,
+			(SELECT COUNT(ETCJDGVAL) FROM A WHERE ETCJDGVAL = '없음') AS ETCJDGVAL_NONE,
+			<!-- 사방댐 외관점검 > 본댐-->
+			(SELECT COUNT(ORGINLDAMJDGVAL) FROM A WHERE ORGINLDAMJDGVAL = '양호') AS ORGINLDAMJDGVAL_GOOD,
+			(SELECT COUNT(ORGINLDAMJDGVAL) FROM A WHERE ORGINLDAMJDGVAL = '관찰필요') AS ORGINLDAMJDGVAL_NEED,
+			(SELECT COUNT(ORGINLDAMJDGVAL) FROM A WHERE ORGINLDAMJDGVAL = '불필요') AS ORGINLDAMJDGVAL_NDLS,
+			(SELECT COUNT(ORGINLDAMJDGVAL) FROM A WHERE ORGINLDAMJDGVAL = '없음') AS ORGINLDAMJDGVAL_NONE,
+			<!-- 사방댐 외관점검 > 측벽-->
+			(SELECT COUNT(SIDEWALLVAL) FROM A WHERE SIDEWALLVAL = '양호') AS SIDEWALLJDGVAL_GOOD,
+			(SELECT COUNT(SIDEWALLVAL) FROM A WHERE SIDEWALLVAL = '관찰필요') AS SIDEWALLJDGVAL_NEED,
+			(SELECT COUNT(SIDEWALLVAL) FROM A WHERE SIDEWALLVAL = '불필요') AS SIDEWALLJDGVAL_NDLS,
+			(SELECT COUNT(SIDEWALLVAL) FROM A WHERE SIDEWALLVAL = '없음') AS SIDEWALLJDGVAL_NONE,
+			<!-- 사방댐 외관점검 > 물받이-->
+			(SELECT COUNT(DWNSPTJDGVAL) FROM A WHERE DWNSPTJDGVAL = '양호') AS DWNSPTJDGVAL_GOOD,
+			(SELECT COUNT(DWNSPTJDGVAL) FROM A WHERE DWNSPTJDGVAL = '관찰필요') AS DWNSPTJDGVAL_NEED,
+			(SELECT COUNT(DWNSPTJDGVAL) FROM A WHERE DWNSPTJDGVAL = '불필요') AS DWNSPTJDGVAL_NDLS,
+			(SELECT COUNT(DWNSPTJDGVAL) FROM A WHERE DWNSPTJDGVAL = '없음') AS DWNSPTJDGVAL_NONE,
+			<!-- 사방댐 외관점검 > 저사상태-->
+			(SELECT COUNT(SNDDPSITJDGVAL) FROM A WHERE SNDDPSITJDGVAL = '저(50% 미만)') AS SNDDPSITJDGVAL_LOW,
+			(SELECT COUNT(SNDDPSITJDGVAL) FROM A WHERE SNDDPSITJDGVAL = '중(50%~80% 미만)') AS SNDDPSITJDGVAL_MID,
+			(SELECT COUNT(SNDDPSITJDGVAL) FROM A WHERE SNDDPSITJDGVAL = '고(80% 이상)') AS SNDDPSITJDGVAL_HIGH,
+			<!-- 산지사방 외관점검 > 보강시설-->
+			(SELECT COUNT(REINFCJDGVAL) FROM A WHERE REINFCJDGVAL = '양호') AS REINFCJDGVAL_GOOD,
+			(SELECT COUNT(REINFCJDGVAL) FROM A WHERE REINFCJDGVAL = '관찰필요') AS REINFCJDGVAL_NEED,
+			(SELECT COUNT(REINFCJDGVAL) FROM A WHERE REINFCJDGVAL = '불필요') AS REINFCJDGVAL_NDLS,
+			(SELECT COUNT(REINFCJDGVAL) FROM A WHERE REINFCJDGVAL = '없음') AS REINFCJDGVAL_NONE,
+			<!-- 산지사방 외관점검 > 보호시설-->
+			(SELECT COUNT(PRTCJDGVAL) FROM A WHERE PRTCJDGVAL = '양호') AS PRTCJDGVAL_GOOD,
+			(SELECT COUNT(PRTCJDGVAL) FROM A WHERE PRTCJDGVAL = '관찰필요') AS PRTCJDGVAL_NEED,
+			(SELECT COUNT(PRTCJDGVAL) FROM A WHERE PRTCJDGVAL = '불필요') AS PRTCJDGVAL_NDLS,
+			(SELECT COUNT(PRTCJDGVAL) FROM A WHERE PRTCJDGVAL = '없음') AS PRTCJDGVAL_NONE,
+			<!-- 산지사방 외관점검 > 배수시설-->
+			(SELECT COUNT(DRNGJDGVAL) FROM A WHERE DRNGJDGVAL = '양호') AS DRNGJDGVAL_GOOD,
+			(SELECT COUNT(DRNGJDGVAL) FROM A WHERE DRNGJDGVAL = '관찰필요') AS DRNGJDGVAL_NEED,
+			(SELECT COUNT(DRNGJDGVAL) FROM A WHERE DRNGJDGVAL = '불필요') AS DRNGJDGVAL_NDLS,
+			(SELECT COUNT(DRNGJDGVAL) FROM A WHERE DRNGJDGVAL = '없음') AS DRNGJDGVAL_NONE,
+			<!-- 산지사방 외관점검 > 사면상태-->
+			(SELECT COUNT(SLOPEJDGVAL) FROM A WHERE SLOPEJDGVAL = '양호') AS SLOPEJDGVAL_GOOD,
+			(SELECT COUNT(SLOPEJDGVAL) FROM A WHERE SLOPEJDGVAL = '관찰필요') AS SLOPEJDGVAL_NEED,
+			(SELECT COUNT(SLOPEJDGVAL) FROM A WHERE SLOPEJDGVAL = '불필요') AS SLOPEJDGVAL_NDLS,
+			(SELECT COUNT(SLOPEJDGVAL) FROM A WHERE SLOPEJDGVAL = '없음') AS SLOPEJDGVAL_NONE,
+			<!-- 계류보전 외관점검 > 골막이 -->
+			(SELECT COUNT(CHKDAMJDGVAL) FROM A WHERE CHKDAMJDGVAL = '양호') AS CHKDAMJDGVAL_GOOD,
+			(SELECT COUNT(CHKDAMJDGVAL) FROM A WHERE CHKDAMJDGVAL = '관찰필요') AS CHKDAMJDGVAL_NEED,
+			(SELECT COUNT(CHKDAMJDGVAL) FROM A WHERE CHKDAMJDGVAL = '불필요') AS CHKDAMJDGVAL_NDLS,
+			(SELECT COUNT(CHKDAMJDGVAL) FROM A WHERE CHKDAMJDGVAL = '없음') AS CHKDAMJDGVAL_NONE,
+			<!-- 계류보전 외관점검 > 기슭막이 -->
+			(SELECT COUNT(RVTMNTJDGVAL) FROM A WHERE RVTMNTJDGVAL = '양호') AS RVTMNTJDGVAL_GOOD,
+			(SELECT COUNT(RVTMNTJDGVAL) FROM A WHERE RVTMNTJDGVAL = '관찰필요') AS RVTMNTJDGVAL_NEED,
+			(SELECT COUNT(RVTMNTJDGVAL) FROM A WHERE RVTMNTJDGVAL = '불필요') AS RVTMNTJDGVAL_NDLS,
+			(SELECT COUNT(RVTMNTJDGVAL) FROM A WHERE RVTMNTJDGVAL = '없음') AS RVTMNTJDGVAL_NONE,
+			<!-- 계류보전 외관점검 > 바닥막이 -->
+			(SELECT COUNT(GRDSTABLJDGVAL) FROM A WHERE GRDSTABLJDGVAL = '양호') AS GRDSTABLJDGVAL_GOOD,
+			(SELECT COUNT(GRDSTABLJDGVAL) FROM A WHERE GRDSTABLJDGVAL = '관찰필요') AS GRDSTABLJDGVAL_NEED,
+			(SELECT COUNT(GRDSTABLJDGVAL) FROM A WHERE GRDSTABLJDGVAL = '불필요') AS GRDSTABLJDGVAL_NDLS,
+			(SELECT COUNT(GRDSTABLJDGVAL) FROM A WHERE GRDSTABLJDGVAL = '없음') AS GRDSTABLJDGVAL_NONE,
+			<!-- 계류보전 외관점검 > 계류상태 -->
+			(SELECT COUNT(MOORINGJDGVAL) FROM A WHERE MOORINGJDGVAL = '양호') AS MOORINGJDGVAL_GOOD,
+			(SELECT COUNT(MOORINGJDGVAL) FROM A WHERE MOORINGJDGVAL = '관찰필요') AS MOORINGJDGVAL_NEED,
+			(SELECT COUNT(MOORINGJDGVAL) FROM A WHERE MOORINGJDGVAL = '불필요') AS MOORINGJDGVAL_NDLS,
+			(SELECT COUNT(MOORINGJDGVAL) FROM A WHERE MOORINGJDGVAL = '없음') AS MOORINGJDGVAL_NONE
+		FROM A
+	</select>
+	
+	<!-- 임시  start -->
+	
+	<!-- 
+	@name selectLcpAdministSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 시도별
+	 -->
+	<select id="selectLcpAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT SD, COUNT(SD) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 1=1
+		AND	SD != ''
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY SD 
+	</select>
+	
+	<!-- 
+	@name selectLcpLastgrdSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 판정등급별
+	 -->
+	<select id="selectLcpLastgrdSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT LASTGRD, COUNT(LASTGRD) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY LASTGRD
+	</select>			
+	
+	<!-- 
+	@name selectLcpCmprokvalSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 주 구성암석별
+	 -->
+	<select id="selectLcpCmprokvalSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT CMPROKVAL, COUNT(CMPROKVAL) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND CMPROKVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY CMPROKVAL 
+	</select>					
+
+	<!-- 
+	@name selectLcpInstrokatSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 타 지층 및 관입암
+	 -->
+	<select id="selectLcpInstrokatSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT INSTROKAT, COUNT(INSTROKAT) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND INSTROKAT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY INSTROKAT 
+	</select>					
+
+	<!-- 
+	@name selectLcpRokwthrvalSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 암석 풍화
+	 -->
+	<select id="selectLcpRokwthrvalSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT ROKWTHRVAL, COUNT(ROKWTHRVAL) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND ROKWTHRVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY ROKWTHRVAL 
+	</select>					
+
+	<!-- 
+	@name selectLcpGeologyfltSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 지질구조
+	 -->
+	<select id="selectLcpGeologySttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT '지질구조 단층' AS TITLE, GEOLOGYFLT AS VAL, COUNT(GEOLOGYFLT ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND GEOLOGYFLT  != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY GEOLOGYFLT 
+		UNION ALL
+		SELECT '지질구조 습곡' AS TITLE, GEOLOGYFLD AS VAL, COUNT(GEOLOGYFLD ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND GEOLOGYFLD  != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY GEOLOGYFLD 			
+	</select>					
+				
+	<!-- 
+	@name selectLcpSoiltySttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 토양형
+	 -->
+	<select id="selectLcpSoiltySttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT SOILTY , COUNT(SOILTY) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND SOILTY  != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY SOILTY 
+	</select>					
+
+	<!-- 
+	@name selectLcpSoildeptbvalSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 토심(cm) B층 까지 깊이
+	 -->
+	<select id="selectLcpSoildeptbvalSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT SOILDEPTBVAL , COUNT(SOILDEPTBVAL) AS CNT, SOILDEPTBSCORE
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND SOILDEPTBVAL  != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY SOILDEPTBVAL, SOILDEPTBSCORE
+		ORDER BY SOILDEPTBSCORE
+	</select>
+						
+	<!-- 
+	@name selectLcpSoilclassbvalSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 토성 B층 기준 (약 30cm 부근)
+	 -->
+	<select id="selectLcpSoilclassbvalSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT SOILCLASSBVAL  , COUNT(SOILCLASSBVAL) AS CNT, SOILCLASSBSCORE 
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND SOILCLASSBVAL  != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY SOILCLASSBVAL, SOILCLASSBSCORE
+		ORDER BY SOILCLASSBSCORE 
+	</select>					
+
+	<!-- 
+	@name selectLcpSoilstrctSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 토양 구조 B층 기준
+	 -->
+	<select id="selectLcpSoilstrctSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT SOILSTRCT  , COUNT(SOILSTRCT) AS CNT 
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND SOILSTRCT  != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY SOILSTRCT 
+	</select>					
+
+	<!-- 
+	@name selectLcpSoilstrctSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 토양 수분 상태
+	 -->
+	<select id="selectLcpSoilwtrvalSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT  SOILWTRVAL , COUNT(SOILWTRVAL ) AS CNT 
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND SOILWTRVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY SOILWTRVAL  
+	</select>					
+
+	<!-- 
+	@name selectLcpSoilstrctSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 암석 노출도
+	 -->
+	<select id="selectLcpRokexpsrSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT  ROKEXPSR, COUNT(ROKEXPSR ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND ROKEXPSR != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY ROKEXPSR  
+	</select>					
+
+	<!-- 
+	@name selectLcpTalusatSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 너덜유무
+	 -->
+	<select id="selectLcpTalusatSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT  TALUSAT, COUNT(TALUSAT ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND TALUSAT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY TALUSAT  
+	</select>					
+	
+	<!-- 
+	@name selectLcpTalusatSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 지형구분
+	 -->
+	<select id="selectLcpTpgrphvalSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT  TPGRPHVAL, COUNT(TPGRPHVAL ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND TPGRPHVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY TPGRPHVAL  
+	</select>					
+
+	<!-- 
+	@name selectLcpLnformSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 지형특성(평면형,종단면형)
+	 -->
+	<select id="selectLcpLnformSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT  '평면형' AS TITLE, PLNFORMVAL AS VAL, COUNT(PLNFORMVAL ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND PLNFORMVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY PLNFORMVAL  
+		UNION ALL
+		SELECT  '종단면형' AS TITLE, LNGFORMVAL AS VAL, COUNT(LNGFORMVAL ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND LNGFORMVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY LNGFORMVAL 
+	</select>				
+		
+	<!-- 
+	@name selectLcpWtrSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 수리특성
+	 -->
+	<select id="selectLcpWtrSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT  '상류로부터 지하수 유입가능성' AS TITLE, UGRWTR_POSBLTY AS VAL, COUNT(UGRWTR_POSBLTY ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND UGRWTR_POSBLTY != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY UGRWTR_POSBLTY  
+		UNION ALL
+		--하류계류의 유무
+		SELECT  '하류계류의 유무' AS TITLE, DWSTRM_AT AS VAL, COUNT(DWSTRM_AT ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND DWSTRM_AT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY DWSTRM_AT  
+		UNION ALL
+		--땅밀림 샘,소,저수지 유무
+		SELECT  '샘,소,저수지 유무' AS TITLE, SPRG_AT AS VAL, COUNT(SPRG_AT ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND SPRG_AT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if> 
+		GROUP BY SPRG_AT  
+	</select>		
+	
+	<!-- 
+	@name selectLcpFrstfrvalSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 임상
+	 -->
+	<select id="selectLcpFrstfrvalSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT  FRSTFRVAL, COUNT(FRSTFRVAL ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND FRSTFRVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY FRSTFRVAL  
+	</select>									
+
+	<!-- 
+	@name selectLcpDirsymptmSttus
+	@param LssLcpSvyComptVO
+	@return egovMap
+	@description 땅밀림 실태조사 징후여부
+	 -->
+	<select id="selectLcpDirsymptmSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.lcp.service.LssLcpSvyComptVO">
+		SELECT '직접징후여부' AS TITLE, DIRSYMPTMVAL AS VAL, COUNT(DIRSYMPTMVAL ) AS CNT 
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND DIRSYMPTMVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY DIRSYMPTMVAL 
+		UNION ALL
+		--땅밀림 간접징후여부
+		SELECT  '간접징후여부' AS TITLE, INDIRSYMPTMVAL AS VAL, COUNT(INDIRSYMPTMVAL ) AS CNT
+		FROM TN_FEIS_LCP_SVYMEMO
+		WHERE 
+			1=1
+		AND	LASTGRD != '' AND LASTGRD != '-'
+		AND INDIRSYMPTMVAL != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		GROUP BY INDIRSYMPTMVAL    
+	</select>									
+	
+	<!-- 취약지역 실태조사 -->
+	<select id="selectWkaFactorSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<!-- 임시 -->
+		SELECT * FROM TN_FEIS_WKA_SVYMEMO
+	</select>
+	
+	<!-- 취약지역 실태조사 -->
+	<select id="selectWkaRsltSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<!-- 임시 -->
+		SELECT * FROM TN_FEIS_WKA_SVYMEMO
+	</select>
+	
+	<!-- 
+	@name selectWkaAdministSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 시도별 현황
+	 -->
+	<select id="selectWkaAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		SELECT SD, COUNT(SD) AS CNT
+		FROM TN_FEIS_WKA_SVYMEMO01
+		WHERE 
+			1=1
+		AND SD != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		GROUP BY SD
+		ORDER BY SD
+	</select>		
+
+	<!-- 
+	@name selectWkaJdgmntgradSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 판정등급 현황
+	 -->
+	<select id="selectWkaJdgmntgradSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT REGEXP_REPLACE(JDGMNTGRAD, '\"', '', 'g') AS JDGMNTGRAD, COUNT(JDGMNTGRAD) AS CNT
+		FROM TN_FEIS_WKA_SVYMEMO01
+		]]>
+		WHERE 
+			1=1
+		AND JDGMNTGRAD != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		<![CDATA[
+		GROUP BY REGEXP_REPLACE(JDGMNTGRAD, '\"', '', 'g')
+		ORDER BY REGEXP_REPLACE(JDGMNTGRAD, '\"', '', 'g')
+		]]>
+	</select>		
+
+	<!-- 
+	@name selectWkaSafefctSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 보호시설 현황
+	 -->
+	<select id="selectWkaSafefctSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT SAFEFCT, COUNT(SAFEFCT) AS CNT
+		FROM TN_FEIS_WKA_SVYMEMO01
+		]]>
+		WHERE 
+			1=1
+		AND SAFEFCT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		<![CDATA[
+		GROUP BY SAFEFCT
+		]]>
+	</select>		
+
+	<!-- 
+	@name selectWkaHouseLakeSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 인가/호수 현황
+	 -->
+	<select id="selectWkaHouseLakeSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT '인가' AS TITLE, HOUSE AS VAL, COUNT(HOUSE) AS CNT
+		FROM TN_FEIS_WKA_SVYMEMO01
+		]]>
+		WHERE 
+			1=1
+		AND HOUSE != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		GROUP BY HOUSE
+		UNION ALL 
+		SELECT '호수' AS TITLE, LAKE AS VAL, COUNT(HOUSE) AS CNT
+		FROM TN_FEIS_WKA_SVYMEMO01
+		WHERE 
+			1=1
+		AND LAKE != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		GROUP BY LAKE
+	</select>		
+
+	<!-- 
+	@name selectWkaHighmainfctSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 상부주요시설
+	 -->
+	<select id="selectWkaHighmainfctSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT HIGHMAINFCT, COUNT(HIGHMAINFCT) AS CNT
+		FROM TN_FEIS_WKA_SVYMEMO01
+		]]>
+		WHERE 
+			1=1
+		AND HIGHMAINFCT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		GROUP BY HIGHMAINFCT
+	</select>		
+
+	<!-- 
+	@name selectWkaLowmainfctSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 하부주요시설
+	 -->
+	<select id="selectWkaLowmainfctSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT LOWMAINFCT, COUNT(LOWMAINFCT) AS CNT
+		FROM TN_FEIS_WKA_SVYMEMO01
+		]]>
+		WHERE 
+			1=1
+		AND LOWMAINFCT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		GROUP BY LOWMAINFCT
+	</select>		
+
+	<!-- 
+	@name selectWkaFrtpSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 임상
+	 -->
+	<select id="selectWkaFrtpSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT REGEXP_REPLACE(B.FRTP, '혼\(|\)|침\(|\)|\"','','g') as FRTP, COUNT(REGEXP_REPLACE(B.FRTP, '혼\(|\)|침\(|\)|\"','','g')) AS CNT
+		]]>
+		FROM
+			TN_FEIS_WKA_SVYMEMO01 AS A,
+			TN_FEIS_WKA_SVYMEMO03 AS B
+		WHERE 
+			1=1
+		AND B.FRTP != ''
+		AND A.GID = B.GID 
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		<![CDATA[
+		GROUP BY REGEXP_REPLACE(B.FRTP, '혼\(|\)|침\(|\)|\"','','g')
+		]]>
+	</select>		
+	
+	<!-- 
+	@name selectWkaStddnstSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 임분밀도
+	 -->
+	<select id="selectWkaStddnstSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT REGEXP_REPLACE(B.STDDNST, '\"','','g') AS STDDNST, COUNT(REGEXP_REPLACE(B.STDDNST, '\"','','g')) AS CNT
+		]]>
+		FROM
+			TN_FEIS_WKA_SVYMEMO01 AS A,
+			TN_FEIS_WKA_SVYMEMO03 AS B
+		WHERE 
+			1=1
+		AND B.STDDNST != ''
+		AND A.GID = B.GID 
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		<![CDATA[
+		GROUP BY REGEXP_REPLACE(B.STDDNST, '\"','','g')
+		]]>
+	</select>		
+
+	<!-- 
+	@name selectWkaStddmclsSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 임분경급
+	 -->
+	<select id="selectWkaStddmclsSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT REGEXP_REPLACE(B.STDDMCLS, '치\(|\)|대\(|\)|중\(|\)|\"','','g') AS STDDMCLS, COUNT(REGEXP_REPLACE(B.STDDMCLS, '치\(|\)|대\(|\)|중\(|\)|\"','','g')) AS CNT
+		]]>
+		FROM
+			TN_FEIS_WKA_SVYMEMO01 AS A,
+			TN_FEIS_WKA_SVYMEMO03 AS B
+		WHERE 
+			1=1
+		AND B.STDDMCLS != ''
+		AND A.GID = B.GID 
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		<![CDATA[
+		GROUP BY REGEXP_REPLACE(B.STDDMCLS, '치\(|\)|대\(|\)|중\(|\)|\"','','g')
+		]]>
+	</select>		
+
+	<!-- 
+	@name selectWkaBsposblatSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 사업 가능여부
+	 -->
+	<select id="selectWkaBsposblatSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT REGEXP_REPLACE(BSPOSBLAT, '\"', '', 'g') AS BSPOSBLAT, COUNT(REGEXP_REPLACE(BSPOSBLAT, '\"', '', 'g')) AS CNT
+		]]>
+		FROM
+			TN_FEIS_WKA_SVYMEMO01
+		WHERE 
+			1=1
+		AND BSPOSBLAT != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		<![CDATA[
+		GROUP BY REGEXP_REPLACE(BSPOSBLAT, '\"', '', 'g')
+		]]>
+	</select>		
+
+	<!-- 
+	@name selectWkaCntrplnmethodSttus
+	@param LssWkaSvyComptVO
+	@return egovMap
+	@description 취약지역 실태조사 대책방안
+	 -->
+	<select id="selectWkaCntrplnmethodSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.wka.service.LssWkaSvyComptVO">
+		<![CDATA[
+		SELECT REGEXP_REPLACE(CNTRPLNMETHOD, '\"', '', 'g') AS CNTRPLNMETHOD, COUNT(REGEXP_REPLACE(CNTRPLNMETHOD, '\"', '', 'g')) AS CNT
+		]]>
+		FROM
+			TN_FEIS_WKA_SVYMEMO01
+		WHERE 
+			1=1
+		AND CNTRPLNMETHOD != ''
+		<if test="svyYear != null and svyYear != ''"> 
+		<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svyType != null and svyType != ''">
+		<![CDATA[
+		AND REGEXP_REPLACE(SVYTYPE ,'취약지역 실태조사|\(|\)','','g') = #{svyType}
+		]]>
+		</if>
+		<![CDATA[
+		GROUP BY REGEXP_REPLACE(CNTRPLNMETHOD, '\"', '', 'g')
+		]]>
+	</select>		
+	
+	
+	
+	<!-- 
+	@name selectCnlAdministSttus
+	@param LssCnlSvyComptVO
+	@return egovMap
+	@description 취약지역 해제조사 시도별
+	 -->		
+	<select id="selectCnlAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+	SELECT SD, COUNT(SD) AS CNT
+	FROM TN_FEIS_CNL_SVYMEMO
+	WHERE 
+		1=1
+	AND SD != ''
+	<if test="svyYear != null and svyYear != ''"> 
+	<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+	</if>
+	<if test="svyType != null and svyType != ''">
+	<![CDATA[
+	AND REGEXP_REPLACE(SVYTYPE ,'취약지역 해제조사|\(|\)','','g') = #{svyType}
+	]]>
+	</if>
+	GROUP BY SD
+	</select>
+
+	<!-- 
+	@name selectCnlDgrsttusSttus
+	@param LssCnlSvyComptVO
+	@return egovMap
+	@description 취약지역 해제조사 유역현황
+	 -->		
+	<select id="selectCnlDgrsttusSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+	SELECT DGRSTTUS, COUNT(DGRSTTUS) AS CNT
+	FROM TN_FEIS_CNL_SVYMEMO
+	WHERE 
+		1=1
+	AND DGRSTTUS != ''
+	<if test="svyYear != null and svyYear != ''"> 
+	<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+	</if>
+	<if test="svyType != null and svyType != ''">
+	<![CDATA[
+	AND REGEXP_REPLACE(SVYTYPE ,'취약지역 해제조사|\(|\)','','g') = #{svyType}
+	]]>
+	</if>
+	GROUP BY DGRSTTUS
+	</select>
+
+	<!-- 
+	@name selectCnlApplcegnermhdSttus
+	@param LssCnlSvyComptVO
+	@return egovMap
+	@description 취약지역 해제조사 적용공법
+	 -->		
+	<select id="selectCnlApplcegnermhdSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+	SELECT APPLCEGNERMHD, COUNT(APPLCEGNERMHD) AS CNT
+	FROM TN_FEIS_CNL_SVYMEMO
+	WHERE 
+		1=1
+	AND APPLCEGNERMHD != ''
+	<if test="svyYear != null and svyYear != ''"> 
+	<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+	</if>
+	<if test="svyType != null and svyType != ''">
+	<![CDATA[
+	AND REGEXP_REPLACE(SVYTYPE ,'취약지역 해제조사|\(|\)','','g') = #{svyType}
+	]]>
+	</if>
+	GROUP BY APPLCEGNERMHD
+	</select>
+
+	<!-- 
+	@name selectCnlLndsldgrdeSttus
+	@param LssCnlSvyComptVO
+	@return egovMap
+	@description 취약지역 해제조사 산사태등급
+	 -->		
+	<select id="selectCnlLndsldgrdeSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+	SELECT LNDSLDGRDE, COUNT(LNDSLDGRDE) AS CNT
+	FROM TN_FEIS_CNL_SVYMEMO
+	WHERE 
+		1=1
+	AND LNDSLDGRDE != ''
+	<if test="svyYear != null and svyYear != ''"> 
+	<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+	</if>
+	<if test="svyType != null and svyType != ''">
+	<![CDATA[
+	AND REGEXP_REPLACE(SVYTYPE ,'취약지역 해제조사|\(|\)','','g') = #{svyType}
+	]]>
+	</if>
+	GROUP BY LNDSLDGRDE
+	</select>
+
+	<!-- 
+	@name selectCnlSlopeavgSttus
+	@param LssCnlSvyComptVO
+	@return egovMap
+	@description 취약지역 해제조사 평균경사
+	 -->		
+	<select id="selectCnlSlopeavgSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+	SELECT SLOPEAVG, COUNT(SLOPEAVG) AS CNT
+	FROM TN_FEIS_CNL_SVYMEMO
+	WHERE 
+		1=1
+	AND SLOPEAVG != ''
+	<if test="svyYear != null and svyYear != ''"> 
+	<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+	</if>
+	<if test="svyType != null and svyType != ''">
+	<![CDATA[
+	AND REGEXP_REPLACE(SVYTYPE ,'취약지역 해제조사|\(|\)','','g') = #{svyType}
+	]]>
+	</if>
+	GROUP BY SLOPEAVG
+	</select>
+
+	<!-- 
+	@name selectCnlFrtptypeSttus
+	@param LssCnlSvyComptVO
+	@return egovMap
+	@description 취약지역 해제조사 임상도
+	 -->		
+	<select id="selectCnlFrtptypeSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+	SELECT FRTPTYPE, COUNT(FRTPTYPE) AS CNT
+	FROM TN_FEIS_CNL_SVYMEMO
+	WHERE 
+		1=1
+	AND FRTPTYPE != ''
+	<if test="svyYear != null and svyYear != ''"> 
+	<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+	</if>
+	<if test="svyType != null and svyType != ''">
+	<![CDATA[
+	AND REGEXP_REPLACE(SVYTYPE ,'취약지역 해제조사|\(|\)','','g') = #{svyType}
+	]]>
+	</if>
+	GROUP BY FRTPTYPE
+	</select>
+
+	<!-- 
+	@name selectCnlDmclstypeSttus
+	@param LssCnlSvyComptVO
+	@return egovMap
+	@description 취약지역 해제조사 경급도
+	 -->		
+	<select id="selectCnlDmclstypeSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+	SELECT DMCLSTYPE, COUNT(DMCLSTYPE) AS CNT
+	FROM TN_FEIS_CNL_SVYMEMO
+	WHERE 
+		1=1
+	AND DMCLSTYPE != ''
+	<if test="svyYear != null and svyYear != ''"> 
+	<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+	</if>
+	<if test="svyType != null and svyType != ''">
+	<![CDATA[
+	AND REGEXP_REPLACE(SVYTYPE ,'취약지역 해제조사|\(|\)','','g') = #{svyType}
+	]]>
+	</if>
+	GROUP BY DMCLSTYPE
+	</select>
+	
+	
+	<!-- 취약지역 해제조사 -->
+	<select id="selectCnlFactorSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+		<!-- 임시 -->
+		SELECT * FROM TN_FEIS_CNL_SVYMEMO
+	</select>
+	
+	<!-- 취약지역 해제조사 -->
+	<select id="selectCnlRsltSttus" resultType="egovMap" parameterType="or.sabang.sys.lss.cnl.service.LssCnlSvyComptVO">
+		<!-- 임시 -->
+		SELECT * FROM TN_FEIS_CNL_SVYMEMO
+	</select>
+	
+	<!-- 임시  end -->		
+	
+	<!-- 임도 타당성평가 START -->
+	<!-- 
+	@name selectFrdFrdTypeSttus
+	@param VytFrdSvyComptVO
+	@return egovMap
+	@description 임도 타당성평가 유형별 현황
+	-->	
+	<select id="selectFrdTypeSttus" resultType="egovMap" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO">
+	    SELECT 
+	    	FRDTYPE
+	    	, COUNT(FRDTYPE) AS CNT
+		FROM TN_FEIS_FRD_SVYMEMO
+		WHERE 1=1
+		AND	FRDTYPE != ''
+		AND FRDTYPE != '-'
+			<if test="frdType != null and frdType != ''"> 
+				<![CDATA[ AND FRDTYPE = #{frdType}]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> 
+				<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+			</if>
+			<if test="svySd != null and svySd != ''">
+				<![CDATA[ AND SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">
+				<![CDATA[ AND SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	
+				<![CDATA[ AND EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="compentauth != null and compentauth != ''">
+				<if test="compentAssort == '국유림'">
+					<![CDATA[ AND COMPENTAUTH = (SELECT REGEXP_REPLACE(CODE_NM,'([^가-힣])*','','g') FROM TN_FEIS_DETAILCODE WHERE CODE_ID ='FEI001' and CODE =#{compentauth}) ]]>
+				</if>
+				<if test="compentAssort == '민유림'">
+					<![CDATA[ AND COMPENTAUTH = #{compentauth} ]]>
+				</if>
+			</if>
+		GROUP BY FRDTYPE
+	</select>
+	
+	<!-- 
+	@name selectFrdSvyItems
+	@param VytFrdSvyComptVO
+	@return egovMap
+	@description 임도 타당성평가 조사 목록 조회
+	-->	
+	<select id="selectFrdSvyItems" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO" resultType="egovMap">
+		SELECT 
+			A.SAFEFCTLIST AS SAFEFCTLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.AFRSTLIST::JSON), 0) AS AFRSTLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.CUTTINGLIST::JSON), 0) AS CUTTINGLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.STMILIST::JSON), 0) AS STMILIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.WETLANDLIST::JSON), 0) AS WETLANDLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.CMTRYLIST::JSON), 0) AS CMTRYLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.ELTNWATERLIST::JSON), 0) AS ELTNWATERLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.SOFRTGRNDLIST::JSON), 0) AS SOFRTGRNDLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.WTRPLTNLIST::JSON), 0) AS WTRPLTNLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.DMGCNCRNLIST::JSON), 0) AS DMGCNCRNLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.FRSTDSSTRLIST::JSON), 0) AS FRSTDSSTRLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.WILDANMLLIST::JSON), 0) AS WILDANMLLIST
+			, A.MRNGKIND AS MRNGKIND
+			, A.CLPSCNRNLIST AS CLPSCNRNLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.ECNRFCLTYINSTLLIST::JSON), 0) AS ECNRFCLTYINSTLLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.ECNRFCLTYNCSTYLIST::JSON), 0) AS ECNRFCLTYNCSTYLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.MAINTREEKNDLIST::JSON), 0) AS MAINTREEKNDLIST
+			, COALESCE(JSON_ARRAY_LENGTH(A.MAINVEGLIST::JSON), 0) AS MAINVEGLIST
+		FROM TN_FEIS_FRD_SVYMEMO A
+		WHERE 1=1
+		<if test="frdType != null and frdType != ''"> 
+			<![CDATA[ AND FRDTYPE = #{frdType}]]>
+		</if>
+		<if test="svyYear != null and svyYear != ''"> 
+			<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svySd != null and svySd != ''">
+			<![CDATA[ AND SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+		</if>
+		<if test="svySgg != null and svySgg != ''">
+			<![CDATA[ AND SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+		</if>
+		<if test="svyEmd != null and svyEmd != ''">	
+			<![CDATA[ AND EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+		</if>
+		<if test="compentauth != null and compentauth != ''">
+			<if test="compentAssort == '국유림'">
+				<![CDATA[ AND COMPENTAUTH = (SELECT REGEXP_REPLACE(CODE_NM,'([^가-힣])*','','g') FROM TN_FEIS_DETAILCODE WHERE CODE_ID ='FEI001' and CODE =#{compentauth}) ]]>
+			</if>
+			<if test="compentAssort == '민유림'">
+				<![CDATA[ AND COMPENTAUTH = #{compentauth} ]]>
+			</if>
+		</if>
+	</select>
+	
+	<!-- 
+	@name selectFrdSvyItems
+	@param VytFrdSvyComptVO
+	@return egovMap
+	@description 임도 타당성평가 관할별 건수조회
+	-->	
+	<select id="selectFrdRegionSttus" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO" resultType="egovMap">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM,
+			COALESCE(B.CNT,0) AS STRP,
+			COALESCE(C.CNT,0) AS COMP
+		<if test="compentauth == null or compentauth == ''">
+			FROM (
+				SELECT 
+				REGEXP_REPLACE(CODE_NM,'([^가-힣])*','','g') AS NM
+				FROM TN_FEIS_DETAILCODE
+				WHERE CODE_ID ='FEI001'
+				ORDER BY CODE_NM
+			) A
+			LEFT OUTER JOIN (
+				SELECT
+					CASE
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '서울특별시' THEN '서울'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '부산광역시' THEN '부산'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '대구광역시' THEN '대구'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '인천광역시' THEN '인천'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '광주광역시' THEN '광주'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '대전광역시' THEN '대전'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '울산광역시' THEN '울산'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '세종특별자치시' THEN '세종'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '경기도' THEN '경기'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '강원특별자치도' THEN '강원'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '충청북도' THEN '충북'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '충청남도' THEN '충남'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '전라북도' THEN '전북'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '전라남도' THEN '전남'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '경상북도' THEN '경북'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '경상남도' THEN '경남'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '제주특별자치도' THEN '제주'
+					    ELSE REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g')
+					END AS NM
+					,COUNT(*) AS CNT 
+			 	FROM TN_FEIS_FRD_FIELDINFO
+			 	WHERE 1=1 
+			 	AND TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_FRD_FIELDINFO)
+			    GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (	
+				SELECT 
+					CASE
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '서울특별시' THEN '서울'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '부산광역시' THEN '부산'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '대구광역시' THEN '대구'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '인천광역시' THEN '인천'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '광주광역시' THEN '광주'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '대전광역시' THEN '대전'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '울산광역시' THEN '울산'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '세종특별자치시' THEN '세종'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '경기도' THEN '경기'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '강원특별자치도' THEN '강원'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '충청북도' THEN '충북'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '충청남도' THEN '충남'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '전라북도' THEN '전북'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '전라남도' THEN '전남'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '경상북도' THEN '경북'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '경상남도' THEN '경남'
+					    WHEN REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g') = '제주특별자치도' THEN '제주'
+					    ELSE REGEXP_REPLACE(COMPENTAUTH, ' ', '', 'g')
+					END AS NM
+					, COUNT(*) AS CNT
+			 	FROM TN_FEIS_FRD_SVYMEMO
+			 	WHERE 1=1 
+			 	AND SVYDT IS NOT NULL
+			 	AND TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_FRD_FIELDINFO)
+			 	GROUP BY COMPENTAUTH
+			) C ON A.NM = C.NM
+		</if>
+		<if test="compentauth != null and compentauth != ''">
+			FROM (
+				SELECT DISTINCT REPLACE(CODE_NM, '국유림관리소', '') AS NM
+				FROM TN_FEIS_REGIONINFO
+				WHERE 1=1 
+				AND GROUP_ID = #{compentauth}
+			) A
+			LEFT OUTER JOIN (
+				SELECT
+					REGEXP_REPLACE(SVY_ATTR::JSON->4->>'VALUE', ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT 
+			 	FROM TN_FEIS_FRD_FIELDINFO
+			 	WHERE TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_FRD_FIELDINFO)
+			    GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->4->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (	
+				SELECT
+					DISTINCT SUBCOMPENTAUTH AS NM
+					, COUNT(*) AS CNT
+			 	FROM TN_FEIS_FRD_SVYMEMO
+			 	WHERE 1=1 
+			 	AND SVYDT IS NOT NULL
+			 	AND TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_FRD_FIELDINFO)
+			 	GROUP BY SUBCOMPENTAUTH
+			) C ON A.NM = C.NM
+		</if>
+	</select>
+	
+	<!-- 
+	@name selectFrdSvyItems
+	@param VytFrdSvyComptVO
+	@return egovMap
+	@description 임도 타당성평가 지역별 건수조회
+	-->	
+	<select id="selectFrdAdministSttus" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO" resultType="egovMap">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM,
+			COALESCE(B.CNT,0) AS STRP,
+			COALESCE(C.CNT,0) AS COMP
+		<if test="svySd == null or svySd == ''">
+			FROM (
+				SELECT 
+					CTPRVN_NM AS SDNM
+					, CTPRVN_NM_ABRV AS NM
+				FROM TF_FEIS_CTPRVN 
+				WHERE 1=1
+			) A
+			LEFT OUTER JOIN (
+				SELECT 
+					CASE
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '서울특별시' THEN '서울'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '부산광역시' THEN '부산'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '대구광역시' THEN '대구'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '인천광역시' THEN '인천'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '광주광역시' THEN '광주'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '대전광역시' THEN '대전'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '울산광역시' THEN '울산'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '세종특별자치시' THEN '세종'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '경기도' THEN '경기'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '강원특별자치도' THEN '강원'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '충청북도' THEN '충북'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '충청남도' THEN '충남'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '전라북도' THEN '전북'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '전라남도' THEN '전남'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '경상북도' THEN '경북'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '경상남도' THEN '경남'
+					    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') = '제주특별자치도' THEN '제주'
+					    ELSE REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g')
+					END AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_FIELDINFO D
+				WHERE 1=1
+				AND REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE',' ','','g') IS NOT NULL	
+				GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (
+				SELECT 
+					CASE
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '서울특별시' THEN '서울'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '부산광역시' THEN '부산'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '대구광역시' THEN '대구'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '인천광역시' THEN '인천'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '광주광역시' THEN '광주'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '대전광역시' THEN '대전'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '울산광역시' THEN '울산'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '세종특별자치시' THEN '세종'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '경기도' THEN '경기'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '강원특별자치도' THEN '강원'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '충청북도' THEN '충북'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '충청남도' THEN '충남'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '전라북도' THEN '전북'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '전라남도' THEN '전남'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '경상북도' THEN '경북'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '경상남도' THEN '경남'
+					    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '제주특별자치도' THEN '제주'
+					    ELSE REGEXP_REPLACE(D.SD, ' ', '', 'g')
+					END AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_SVYMEMO D
+				WHERE 1=1
+				AND SD IS NOT NULL	
+				GROUP BY SD
+			) C ON A.NM = C.NM
+		</if>
+		<if test="svySd != '' and svySgg == ''">
+			FROM (
+				SELECT
+					DISTINCT SIGNGU_NM AS NM
+				FROM TF_FEIS_SIGNGU
+				WHERE 1=1 
+				AND CTPRVN_COD = #{svySd}
+			) A
+			LEFT OUTER JOIN (
+				SELECT 
+					REGEXP_REPLACE(SVY_ATTR::JSON->6->>'VALUE', ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_FIELDINFO D
+				WHERE 1=1
+				AND REGEXP_REPLACE(SVY_ATTR::JSON->6->>'VALUE',' ','','g') IS NOT NULL	
+				GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->6->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (
+				SELECT 
+				    REGEXP_REPLACE(D.SGG, ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_SVYMEMO D
+				WHERE 1=1
+				AND SGG IS NOT NULL	
+				GROUP BY SGG
+			) C ON A.NM = C.NM
+		</if>
+		<if test="svySgg != '' and svyEmd ==''" >
+			FROM (
+				SELECT
+					DISTINCT EMD_NM AS NM
+				FROM TF_FEIS_EMD
+				WHERE 1=1 
+				AND SIGNGU_COD = #{svySgg}
+			) A
+			LEFT OUTER JOIN (
+				SELECT 
+					REGEXP_REPLACE(SVY_ATTR::JSON->7->>'VALUE', ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_FIELDINFO D
+				WHERE 1=1
+				AND REGEXP_REPLACE(SVY_ATTR::JSON->7->>'VALUE',' ','','g') IS NOT NULL	
+				GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->7->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (
+				SELECT 
+				    REGEXP_REPLACE(D.EMD, ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_SVYMEMO D
+				WHERE 1=1
+				AND EMD IS NOT NULL	
+				GROUP BY EMD
+			) C ON A.NM = C.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+			FROM (
+				SELECT
+					DISTINCT LI_NM AS NM
+				FROM TF_FEIS_LI
+				WHERE 1=1 
+				AND EMD_CODE = #{svyEmd}
+			) A
+			LEFT OUTER JOIN (
+				SELECT 
+					REGEXP_REPLACE(SVY_ATTR::JSON->8->>'VALUE', ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_FIELDINFO D
+				WHERE 1=1
+				AND REGEXP_REPLACE(SVY_ATTR::JSON->8->>'VALUE',' ','','g') IS NOT NULL	
+				GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->8->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (
+				SELECT 
+				    REGEXP_REPLACE(D.EMD, ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_FRD_SVYMEMO D
+				WHERE 1=1
+				AND EMD IS NOT NULL	
+				GROUP BY EMD
+			) C ON A.NM = C.NM
+		</if>
+	</select>
+	<!-- 임도 타당성평가 END -->
+	
+	<!-- 계측장비 월별현황 -->
+	<select id="selectMseYearSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT A.MON AS MON, COALESCE(B.CNT,0) AS CNT
+			FROM (
+				SELECT 
+				SERIES AS MON 
+				FROM GENERATE_SERIES(1,12) AS SERIES
+			) A 
+			LEFT OUTER JOIN (	
+				SELECT 
+				TO_CHAR(CREAT_DT,'MM')::INT AS MON,
+				COUNT(*) AS CNT
+				FROM TN_FEIS_MSE_SVYMEMO
+				WHERE 1=1
+				<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+					TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+				</if>
+				<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+					TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+				</if>
+				<if test="eqpmntype != null and eqpmntype != ''">	<![CDATA[ AND
+					EQPMNTYPE = #{eqpmntype} ]]>
+				</if>
+				<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+					SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+				</if>
+				<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+					SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+				</if>
+				GROUP BY TO_CHAR(CREAT_DT,'MM')
+			) B ON A.MON::TEXT = B.MON::TEXT
+			ORDER BY MON
+	</select>
+	
+	<!-- 시도단위 와이어신축계 장비 수 -->
+	<select id="selectMseWireAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS ROCK
+			, COALESCE(B.CNT2,0) AS WIRE
+			, COALESCE(B.CNT3,0) AS CABLE
+			, COALESCE(B.CNT4,0) AS POWER
+			, COALESCE(B.CNT5,0) AS PROTECT
+			, COALESCE(B.CNT6,0) AS CENSOR
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'와이어' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT5
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'와이어' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT5
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'와이어' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT5
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'와이어' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT5
+			,SUM(CASE WHEN WIREEXT::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 시도단위 지중경사계 장비 수 -->
+	<select id="selectMseLicmeterAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS ROCK
+			, COALESCE(B.CNT2,0) AS CABLE
+			, COALESCE(B.CNT3,0) AS PROTECT
+			, COALESCE(B.CNT4,0) AS POWER
+			, COALESCE(B.CNT5,0) AS CENSOR
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN LICMETER::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 시도단위 지하수위계 장비 수 -->
+	<select id="selectMseGwGaugeAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS ROCK
+			, COALESCE(B.CNT2,0) AS CABLE
+			, COALESCE(B.CNT3,0) AS PROTECT
+			, COALESCE(B.CNT4,0) AS POWER
+			, COALESCE(B.CNT5,0) AS CENSOR
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT4
+			,SUM(CASE WHEN GWGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT5
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 시도단위 강우계 장비 수 -->
+	<select id="selectMseRainGaugeAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS CABLE
+			, COALESCE(B.CNT2,0) AS PROTECT
+			, COALESCE(B.CNT3,0) AS POWER
+			, COALESCE(B.CNT4,0) AS CENSOR
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT4
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT4
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT4
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'보호함체' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT3
+			,SUM(CASE WHEN RAINGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT4
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+		</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 시도단위 구조물변위계 장비 수 -->
+	
+	<!-- 시도단위 지표변위계 장비 수 -->
+	<select id="selectMseSurDpmAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS CABLE
+			, COALESCE(B.CNT2,0) AS POWER
+			, COALESCE(B.CNT3,0) AS CENSOR
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN SURDPM::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 시도단위 GPS변위계 장비 수 -->
+	<select id="selectMseGpsGaugeAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS CABLE
+			, COALESCE(B.CNT2,0) AS POWER
+			, COALESCE(B.CNT3,0) AS CENSOR
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'케이블' IS null THEN 0 ELSE 1 END) AS CNT1
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'전원' IS null THEN 0 ELSE 1 END) AS CNT2
+			,SUM(CASE WHEN GPSGAUGE::JSONB->'외관점검'->>'센서부' IS null THEN 0 ELSE 1 END) AS CNT3
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 시도단위 게이트웨이 장비 수 -->
+	<select id="selectMseGatewayAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS ROCK
+			, COALESCE(B.CNT2,0) AS SUNLIGHT
+			, COALESCE(B.CNT3,0) AS CONSOLE
+			, COALESCE(B.CNT4,0) AS BRANCHLINE
+			, COALESCE(B.CNT5,0) AS PROTECT
+			, COALESCE(B.CNT6,0) AS INFOBOARD
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+ 			<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+			<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN GATEWAY::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 시도단위 노드 장비 수 -->
+	<select id="selectMseNodeAdministSttus" resultType="egovMap" parameterType="or.sabang.sys.fck.mse.service.FckMseComptVO">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM
+			, COALESCE(B.CNT1,0) AS ROCK
+			, COALESCE(B.CNT2,0) AS SUNLIGHT
+			, COALESCE(B.CNT3,0) AS CONSOLE
+			, COALESCE(B.CNT4,0) AS BRANCHLINE
+			, COALESCE(B.CNT5,0) AS PROTECT
+			, COALESCE(B.CNT6,0) AS INFOBOARD
+		<if test="svySd == null or svySd == ''">
+		FROM (
+			SELECT CTPRVN_NM AS SDNM, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SD AS NM
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) B ON A.SDNM = B.NM
+		</if>
+		<if test="svySd != '' and svySgg == ''">
+		FROM (
+			SELECT DISTINCT SIGNGU_NM AS NM
+			FROM TF_FEIS_SIGNGU
+			WHERE 1=1 
+			AND CTPRVN_COD = #{svySd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT SGG AS NM
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND SGG IS NOT NULL	
+			GROUP BY SGG
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svySgg != '' and svyEmd ==''" >
+		FROM (
+			SELECT DISTINCT EMD_NM AS NM
+			FROM TF_FEIS_EMD
+			WHERE 1=1 
+			AND SIGNGU_COD = #{svySgg}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT EMD AS NM
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND EMD IS NOT NULL	
+			GROUP BY EMD
+		) B ON A.NM = B.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+		FROM (
+			SELECT DISTINCT LI_NM AS NM
+			FROM TF_FEIS_LI
+			WHERE 1=1 
+			AND EMD_CODE = #{svyEmd}
+		) A
+		LEFT OUTER JOIN (
+			SELECT DISTINCT RI AS NM
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'자물쇠' IS null THEN 0 ELSE 1 END) AS CNT1
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'태양광' IS null THEN 0 ELSE 1 END) AS CNT2
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'함체' IS null THEN 0 ELSE 1 END) AS CNT3
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'지선' IS null THEN 0 ELSE 1 END) AS CNT4
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'보호휀스' IS null THEN 0 ELSE 1 END) AS CNT5
+			, SUM(CASE WHEN NODE::JSONB->'외관점검'->>'안내판' IS null THEN 0 ELSE 1 END) AS CNT6
+			FROM TN_FEIS_MSE_SVYMEMO D
+			WHERE 1=1
+			<if test="svyYear == null and svyYear == ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = (SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) FROM TN_FEIS_MSE_SVYCOMPT)]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''"> <![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear}]]>
+			</if>
+			AND RI IS NOT NULL	
+			GROUP BY RI
+		) B ON A.NM = B.NM
+		</if>
+	</select>
+	
+	<!-- 정밀점검 통계 START -->
+	
+	<!-- 
+	@name selectPcsSvyItems
+	@param FckPcsComptVO
+	@return egovMap
+	@description 정밀점검  목록 조회
+	-->	
+	<select id="selectPcsAdministSttus" parameterType="or.sabang.sys.fck.pcs.service.FckPcsComptVO" resultType="egovMap">
+		SELECT 
+			REGEXP_REPLACE(A.NM,'([^가-힣])*','','g') AS NM,
+			COALESCE(B.CNT,0) AS STRP,
+			COALESCE(C.CNT,0) AS COMP
+		<if test="svySd == null or svySd == ''">
+			FROM (
+			SELECT 
+				CTPRVN_NM AS SDNM
+				, CTPRVN_NM_ABRV AS NM
+			FROM TF_FEIS_CTPRVN 
+			WHERE 1=1
+		) A
+		LEFT OUTER JOIN (
+			SELECT 
+				CASE
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '서울특별시' THEN '서울'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '부산광역시' THEN '부산'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '대구광역시' THEN '대구'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '인천광역시' THEN '인천'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '광주광역시' THEN '광주'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '대전광역시' THEN '대전'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '울산광역시' THEN '울산'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '세종특별자치시' THEN '세종'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '경기도' THEN '경기'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '강원특별자치도' THEN '강원'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '충청북도' THEN '충북'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '충청남도' THEN '충남'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '전라북도' THEN '전북'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '전라남도' THEN '전남'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '경상북도' THEN '경북'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '경상남도' THEN '경남'
+				    WHEN REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g') = '제주특별자치도' THEN '제주'
+				    ELSE REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE', ' ', '', 'g')
+				END AS NM
+				, COUNT(*) AS CNT
+			FROM TN_FEIS_PCS_FIELDINFO D
+			WHERE 1=1
+			AND REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE',' ','','g') IS NOT NULL	
+			GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->3->>'VALUE',' ','','g')
+		) B ON A.NM = B.NM
+		LEFT OUTER JOIN (
+			SELECT 
+				CASE
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '서울특별시' THEN '서울'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '부산광역시' THEN '부산'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '대구광역시' THEN '대구'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '인천광역시' THEN '인천'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '광주광역시' THEN '광주'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '대전광역시' THEN '대전'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '울산광역시' THEN '울산'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '세종특별자치시' THEN '세종'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '경기도' THEN '경기'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '강원특별자치도' THEN '강원'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '충청북도' THEN '충북'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '충청남도' THEN '충남'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '전라북도' THEN '전북'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '전라남도' THEN '전남'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '경상북도' THEN '경북'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '경상남도' THEN '경남'
+				    WHEN REGEXP_REPLACE(D.SD, ' ', '', 'g') = '제주특별자치도' THEN '제주'
+				    ELSE REGEXP_REPLACE(D.SD, ' ', '', 'g')
+				END AS NM
+				, COUNT(*) AS CNT
+			FROM TN_FEIS_PCS_SVYMEMO D
+			WHERE 1=1
+			AND SD IS NOT NULL	
+			GROUP BY SD
+		) C ON A.NM = C.NM	
+		</if>
+		<if test="svySd != '' and svySgg == ''">
+			FROM (
+				SELECT
+					DISTINCT SIGNGU_NM AS NM
+				FROM TF_FEIS_SIGNGU
+				WHERE 1=1 
+				AND CTPRVN_COD = #{svySd}
+			) A
+			LEFT OUTER JOIN (
+				SELECT 
+					REGEXP_REPLACE(SVY_ATTR::JSON->4->>'VALUE', ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_PCS_FIELDINFO D
+				WHERE 1=1
+				AND REGEXP_REPLACE(SVY_ATTR::JSON->4->>'VALUE',' ','','g') IS NOT NULL	
+				GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->4->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (
+				SELECT 
+				    REGEXP_REPLACE(D.SGG, ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_PCS_SVYMEMO D
+				WHERE 1=1
+				AND SGG IS NOT NULL	
+				GROUP BY SGG
+			) C ON A.NM = C.NM
+		</if>
+		<if test="svySgg != '' and svyEmd ==''" >
+			FROM (
+				SELECT
+					DISTINCT EMD_NM AS NM
+				FROM TF_FEIS_EMD
+				WHERE 1=1 
+				AND SIGNGU_COD = #{svySgg}
+			) A
+			LEFT OUTER JOIN (
+				SELECT 
+					REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE', ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_PCS_FIELDINFO D
+				WHERE 1=1
+				AND REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE',' ','','g') IS NOT NULL	
+				GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->5->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (
+				SELECT 
+				    REGEXP_REPLACE(D.EMD, ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_PCS_SVYMEMO D
+				WHERE 1=1
+				AND EMD IS NOT NULL	
+				GROUP BY EMD
+			) C ON A.NM = C.NM
+		</if>
+		<if test="svyEmd != '' and svyRi ==''" >
+			FROM (
+				SELECT
+					DISTINCT LI_NM AS NM
+				FROM TF_FEIS_LI
+				WHERE 1=1 
+				AND EMD_CODE = #{svyEmd}
+			) A
+			LEFT OUTER JOIN (
+				SELECT 
+					REGEXP_REPLACE(SVY_ATTR::JSON->6->>'VALUE', ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_PCS_FIELDINFO D
+				WHERE 1=1
+				AND REGEXP_REPLACE(SVY_ATTR::JSON->6->>'VALUE',' ','','g') IS NOT NULL	
+				GROUP BY REGEXP_REPLACE(SVY_ATTR::JSON->6->>'VALUE',' ','','g')
+			) B ON A.NM = B.NM
+			LEFT OUTER JOIN (
+				SELECT 
+				    REGEXP_REPLACE(D.EMD, ' ', '', 'g') AS NM
+					, COUNT(*) AS CNT
+				FROM TN_FEIS_PCS_SVYMEMO D
+				WHERE 1=1
+				AND EMD IS NOT NULL	
+				GROUP BY EMD
+			) C ON A.NM = C.NM
+		</if>
+	</select>
+	
+	
+	
+	
+	<!-- 
+	@name selectPcsSvyItems
+	@param FckPcsComptVO
+	@return egovMap
+	@description 정밀점검 조사 목록 조회
+	-->	
+	<select id="selectPcsSvyItems" parameterType="or.sabang.sys.fck.pcs.service.FckPcsComptVO" resultType="egovMap">
+		SELECT
+			REGEXP_REPLACE(SVYTYPE, ' ', '', 'g') AS SVYTYPE
+			, REGEXP_REPLACE(ORGINLDAMDMG, ' ', '', 'g') AS ORGINLDAMDMG
+			, REGEXP_REPLACE(ORGINLDAMCRK, ' ', '', 'g') AS ORGINLDAMCRK
+			, REGEXP_REPLACE(ORGINLDAMBASICSCOUR, ' ', '', 'g') AS ORGINLDAMBASICSCOUR
+			, REGEXP_REPLACE(ORGINLDAMCNCRT, ' ', '', 'g') AS ORGINLDAMCNCRT
+			, REGEXP_REPLACE(ORGINLDAMPLNG, ' ', '', 'g') AS ORGINLDAMPLNG
+			, REGEXP_REPLACE(ORGINLDAMWTGATE, ' ', '', 'g') AS ORGINLDAMWTGATE
+			, REGEXP_REPLACE(SIDEWALLDMG, ' ', '', 'g') AS SIDEWALLDMG
+			, REGEXP_REPLACE(SIDEWALLCRK, ' ', '', 'g') AS SIDEWALLCRK
+			, REGEXP_REPLACE(SIDEWALLBASICSCOUR, ' ', '', 'g') AS SIDEWALLBASICSCOUR
+			, REGEXP_REPLACE(DWNSPTDMG, ' ', '', 'g') AS DWNSPTDMG
+			, REGEXP_REPLACE(DWNSPTCRK, ' ', '', 'g') AS DWNSPTCRK
+			, REGEXP_REPLACE(DWNSPTBASICSCOUR, ' ', '', 'g') AS DWNSPTBASICSCOUR
+			, REGEXP_REPLACE(CNCRTCMPRSSTRN, ' ', '', 'g') AS CNCRTCMPRSSTRN
+			, REGEXP_REPLACE(CNCRTCRKDPT, ' ', '', 'g') AS CNCRTCRKDPT
+			, REGEXP_REPLACE(DRDGNATJDG, ' ', '', 'g') AS DRDGNATJDG
+			, REGEXP_REPLACE(COMPLT, ' ', '', 'g') AS COMPLT
+		FROM TN_FEIS_PCS_SVYMEMO
+		WHERE 1=1 
+		<if test="svyType != null and svyType != ''"> 
+			<![CDATA[ AND SVYTYPE LIKE CONCAT ('%', #{svyType},'%') ]]>
+		</if>
+		<if test="svyYear != null and svyYear != ''"> 
+			<![CDATA[ AND TO_CHAR(CREAT_DT, 'YYYY') = #{svyYear}]]>
+		</if>
+		<if test="svySd != null and svySd != ''">
+			<![CDATA[ AND SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+		</if>
+		<if test="svySgg != null and svySgg != ''">
+			<![CDATA[ AND SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+		</if>
+		<if test="svyEmd != null and svyEmd != ''">	
+			<![CDATA[ AND EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+		</if>
+	</select>
+	
+	<!-- 정밀점검 통계 END -->
+</mapper>

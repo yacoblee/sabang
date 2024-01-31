@@ -1,0 +1,113 @@
+@charset "UTF-8";
+
+.map-div {width: 100%;height: 600px;background-color: #fff;transition: margin-left 0.3s;border: solid 1px #d4d3de;}
+
+.map {border: 5px solid rgba(208,208,208,0);box-sizing: border-box;width: 100%;height: 100%;display: block;}
+
+.ol-zoom {top: 3.5em;right:.5em;left: unset;}
+
+.ol-zoom-extent {top: 7.643em;right:.5em;left: unset;}
+
+.ol-fullscreen {top: 9.5em;right: .5em;}
+
+/* 2020-10-14 스케일바 추가 */
+.ol-scale-line { transition: left 0.3s;}
+.ol-scale-line.on { left: 60px; }
+/* 2020-10-14 스케일바 추가 */
+
+.anal-btns{padding:5px 5px;}
+
+/*지도선택 버튼 위치 고정*/
+.ol-basemap-control {padding-top: 10px;right: 10px;z-index: 1001;position: absolute;}
+.ol-basemap-control > button{display: block;float: left;margin: 2px;font-size: 14px;font-weight: normal;text-decoration: none;text-align: center;width: 6.5em;background-color: rgba(255,255,255,1);color: #124428;border: none;border-radius: 2px;cursor: pointer;border: 1px solid #ddd;height: 32px;}
+.ol-basemap-control > button:last-child{margin-right: 10px;}
+.ol-basemap-control > label{display: block;float: left;margin: 2px;padding: 7px;font-size: 14px;font-weight: 700;text-decoration: none;text-align: center;height: auto;background-color: rgba(255,255,255,.7);color: rgba(0,60,136,.7);border: none;border-radius: 2px;cursor: pointer;}
+.ol-basemap-control > label:nth-child(4){margin-left: 20px;}
+.ol-basemap-control > label input[type=checkbox]+i {width:15px;height:15px;top: -2px}
+.ol-dividemap-control {top: 15px;right: 80px;z-index: 1001;position: absolute;}
+.ol-selectmap-control {top: 15px;right: 407px;z-index: 1001;position: absolute;}
+.ol-basemap-control button.selected, .ol-basemap-control button:hover,.ol-layer-control button.selected, .ol-layer-control button:hover,.ol-click-layer-control button.selected, .ol-click-layer-control button:hover,.ol-static-layer-control button.selected, .ol-static-layer-control button:hover{background-color: #124428;color: #fff;}
+button.btn-map-selector:focus {outline:none;box-shadow:none;}
+
+/* 하이브리드 선택 영역*/
+.hybrid-check { position:absolute; width:89px;left:834px; background-color:white;border:1px solid #ddd; z-index: 1010; height:27px; margin-top:45px; display: none;text-align: center;}
+/* .hybrid-check:nth-child(1) { right:680px; } */
+/* .hybrid-check:nth-child(2) {right:480px; }   */
+.hybrid-check > label { font-size: 9pt; cursor: pointer;}
+.hybrid-check > input {width:13px;height:13px;}
+
+/* .layers > div > input[type=checkbox]:nth-child(1)+label { */
+/* 	display: block; */
+/*     width: 24px; */
+/*     height: 24px; */
+/*     background: url('./images/check-off.png') no-repeat 0 0px / contain; */
+/* } */
+/* .layers > div > input[type=checkbox]:nth-child(1):checked+label { */
+/*     background: url('./images/check-on.png') no-repeat 0 1px / contain; */
+/* } */
+.layers > div > input[type=checkbox]:nth-child(3)+label {
+	display: inline-block;
+    width: 12px;
+    height: 12px;
+    background: url(/images/common/icon_menuP.png) no-repeat 0 0px / contain;
+    border: 1px solid #000;
+    cursor: pointer;
+}
+.layers > div > input[type=checkbox]:nth-child(3):checked+label {
+    background: url('/images/common/gositePlus.png') no-repeat 0 1px / contain;
+}
+.layers > div > input[type=checkbox]:nth-child(3){
+	display: none;
+}
+
+.ol-edit-control {padding-top: 4px;z-index: 1001;position: absolute;}
+.ol-edit-control > button{display: block;float: left;margin: 2px;font-size: 14px;font-weight: normal;text-decoration: none;text-align: center;background-color: rgba(255,255,255,1);color: #000;border: none;border-radius: 2px;cursor: pointer;border: 1px solid #ddd;height: 27px;padding-left: 22px;padding-right: 4px;}
+.ol-edit-control > button:last-child{margin-right: 10px;}
+.ol-edit-control > label{display: block;float: left;margin: 2px;padding: 7px;font-size: 14px;font-weight: 700;text-decoration: none;text-align: center;height: auto;background-color: rgba(255,255,255,.7);color: rgba(0,60,136,.7);border: none;border-radius: 2px;cursor: pointer;}
+.ol-edit-control > label:nth-child(4){margin-left: 20px;}
+.ol-edit-control > label input[type=checkbox]+i {width:15px;height:15px;top: -2px}
+/* .ol-edit-control button.selected, .ol-edit-control button:hover{background-color:rgb(239 239 239);color: #000;font-weight: bold;} */
+.ol-edit-control button.selected, .ol-edit-control button:hover{background-color:#124428;color: #FFFFFF;}
+button.btn-tools-selector:focus {outline:none;box-shadow:none;}
+
+.land01-btn-m{background: #000 url(/images/common/btn-land01-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land02-btn-m{background: #000 url(/images/common/btn-land02-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land03-btn-m{background: #000 url(/images/common/btn-land03-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land04-btn-m{background: #000 url(/images/common/btn-land04-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land05-btn-m{background: #000 url(/images/common/btn-land05-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land06-btn-m{background: #000 url(/images/common/btn-land06-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land07-btn-m{background: #000 url(/images/common/btn-land07-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land08-btn-m{background: #000 url(/images/common/btn-land08-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land09-btn-m{background: #000 url(/images/common/btn-land09-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.land10-btn-m{background: #000 url(/images/common/btn-land10-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.landDel-btn-m{background: #000 url(/images/common/btn-landDel-m.png) no-repeat 5px center; background-size: 15px 15px;}
+
+.legend-div{top:580px;position:absolute;width:150px;height:150px;z-index:1;}
+.legend-div > img{width:100%;height:100%; -webkit-user-drag: none;-khtml-user-drag: none;-moz-user-drag: none;-o-user-drag: none;user-drag: none;}
+
+/* 임도 범례 */
+.frd-legend-div{width:20%; border:2px dashed #000; position: absolute; z-index: 98; background-color: white;}
+.frdTitle{font-size:18px;text-align: center; font-weight: bold; color: black;margin-top: 5px; }
+.frdLine{display:none;}
+.frdLine > img{width:100%;padding-left:45px;}
+.frdLine > input{z-index:99;position:absolute;margin-left:15px;margin-top:-6px;}
+.frdLine.on{display:block;}
+
+.areaBtnGroup{margin-top: 20px; margin-bottom: 10px; text-align: right;}
+
+
+.landDel-btn-m{background: #000 url(/images/common/btn-landDel-m.png) no-repeat 5px center; background-size: 15px 15px;}
+.landDel-btn-m:hover {background-color: #2f932b; color: #FFFFFF;}
+.deletBtnArea{ z-index: 1001; position: absolute; top:133px;}
+.deletBtnArea > button{display: block;float: left;margin: 2px;font-size: 14px;font-weight: normal;text-decoration: none;text-align: center;background-color: rgba(255,255,255,1);color: #000;border: none;border-radius: 2px;cursor: pointer;border: 1px solid #ddd;height: 27px;padding-left: 22px;padding-right: 4px; transition: none;}
+
+
+
+.ol-edit-control-btns {z-index: 1001;position: absolute;margin-top: 105px;}
+.ol-edit-control-btns > button{display: block;float: left;margin: 2px;font-size: 14px;font-weight: normal;text-decoration: none;text-align: center;background-color: rgba(255,255,255,1);color: #000;border: none;border-radius: 2px;cursor: pointer;border: 1px solid #ddd;height: 27px;padding-left: 22px;padding-right: 4px;}
+.ol-edit-control-btns > button:last-child{margin-right: 10px;}
+.ol-edit-control-btns > label{display: block;float: left;margin: 2px;padding: 7px;font-size: 14px;font-weight: 700;text-decoration: none;text-align: center;height: auto;background-color: rgba(255,255,255,.7);color: rgba(0,60,136,.7);border: none;border-radius: 2px;cursor: pointer;}
+.ol-edit-control-btns > label:nth-child(4){margin-left: 20px;}
+.ol-edit-control-btns > label input[type=checkbox]+i {width:15px;height:15px;top: -2px}
+.ol-edit-control-btns button.selected, .ol-edit-control-btns button:hover{background-color:#124428;color: #FFFFFF;}
+

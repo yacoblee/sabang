@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vytEcbAlsManageDAO">
+
+	<resultMap id="analVO" type="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO">
+		<result property="mstId" column="mstId" />
+		<result property="sldId" column="sldId" />
+		<result property="lgstrCd" column="lgstrCd" />
+		<result property="workNm" column="workNm" />
+		<result property="workYear" column="workYear" />
+		<result property="workType" column="workType" />
+		<result property="sdNm" column="sdNm" />
+		<result property="sggNm" column="sggNm" />
+		<result property="emdNm" column="emdNm" />
+		<result property="riNm" column="riNm" />
+		<result property="jibun" column="jibun" />
+		<result property="creatDt" column="creatDt" />
+		<result property="analCnt" column="analCnt" />
+	</resultMap>
+	
+	<resultMap id="analFileVO" type="or.sabang.sys.gis.service.AnalFileVO">
+		<result property="gid" column="gid"/>
+		<result property="analType" column="analType"/>
+		<result property="fileExtsn" column="fileExtsn"/>
+	</resultMap>
+
+	<resultMap id="analDownAllVO" type="or.sabang.sys.gis.service.AnalFileVO">
+		<result property="analId" column="analId"/>
+		<result property="fileStreCours" column="fileStreCours"/>
+		<result property="streFileNm" column="streFileNm"/>
+		<result property="orignlFileNm" column="orignlFileNm"/>
+		<result property="fileExtsn" column="fileExtsn"/>
+		<result property="analType" column="analType"/>
+	</resultMap>
+
+	<!-- 사업 최대연도 조회 -->
+	<select id ="selectVytEcbWorkMaxYear" resultType="String">
+		SELECT MAX(TO_CHAR(CREAT_DT,'YYYY')) AS WORKYEAR FROM TN_FEIS_VYT_ECBWORKLIST
+	</select>
+
+	<!-- 사업 연도목록 조회 -->	
+	<select id ="selectVytEcbWorkYear" resultType="egovMap">
+		SELECT DISTINCT(TO_CHAR(CREAT_DT,'YYYY')) AS WORKYEAR FROM TN_FEIS_VYT_ECBWORKLIST
+		ORDER BY WORKYEAR DESC
+	</select>
+	
+	<!-- 사업 목록조회 -->
+	<select id="selectVytEcbWorkList" resultMap="analVO" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO">
+		<![CDATA[
+		SELECT 
+			mstId
+			, sldId
+			, lgstrCd
+			, analId
+			, workNm
+			, workType
+			, sdNm
+			, sggNm
+			, emdNm
+			, riNm
+			, jibun
+			, creatDt
+			, (SELECT COUNT(*) FROM TN_FEIS_ANALFILE T3 WHERE T3.MST_ID = mstId AND CAST(T3.SLD_ID AS INTEGER) = sldId AND T3.ANAL_ID = analId) as analCnt
+		FROM
+		(
+			SELECT 
+				T1.MST_ID AS mstId
+				, T1.SLD_ID AS sldId
+				, T1.LGSTR_CD AS lgstrCd
+				, (SELECT T3.ANAL_ID FROM TF_FEIS_WATERSHED T3 WHERE T3.MST_ID = T1.MST_ID AND T3.SLD_ID = T1.SLD_ID::TEXT ORDER BY T3.ANAL_ID DESC LIMIT 1) AS analId
+				, T2.WORK_NAME AS workNm
+				, (SELECT CODE_NM FROM TN_FEIS_DETAILCODE T3 WHERE CODE = T2.WORK_TYPE and T3.CODE_ID = 'FEI089') AS workType
+				, T1.SD_NM AS sdNm
+				, T1.SGG_NM AS sggNm
+				, T1.EMD_NM AS emdNm
+				, T1.RI_NM AS riNm
+				, T1.JIBUN AS jibun
+				, TO_CHAR(T1.CREAT_DT,'YYYY-MM-DD') AS creatDt
+			FROM TN_FEIS_VYT_ECBSLDLIST T1, TN_FEIS_VYT_ECBWORKLIST T2
+			WHERE T1.MST_ID = T2.ID
+			]]>
+			<if test="mstId != null and mstId != ''">	<![CDATA[ AND
+				T1.MST_ID = CAST(#{mstId} AS INT) ]]>
+			</if>
+			<if test="workYear != null and workYear != ''">	<![CDATA[ AND
+				TO_CHAR(T1.CREAT_DT ,'YYYY') = #{workYear} ]]>
+			</if>
+			<if test="workNm != null and workNm != ''">	<![CDATA[ AND
+				T2.WORK_NAME like CONCAT ('%', #{workNm},'%') ]]>
+			</if>
+			<if test="workType != null and workType != ''">	<![CDATA[ AND
+				T2.WORK_TYPE like CONCAT ('%', #{workType},'%') ]]>
+			</if>
+			<if test="workSd != null and workSd != ''">	<![CDATA[ AND
+				T1.SD_NM = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{workSd}) ]]>
+			</if>
+			<if test="workSgg != null and workSgg != ''">	<![CDATA[ AND
+				T1.SGG_NM = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{workSgg}) ]]>
+			</if>
+			<if test="workEmd != null and workEmd != ''">	<![CDATA[ AND
+				T1.EMD_NM = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{workEmd}) ]]>
+			</if>
+			<if test="workRi != null and workRi != ''">	<![CDATA[ AND
+				T1.RI_NM = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{workRi}) ]]>
+			</if>
+	  		ORDER BY T1.CREAT_DT DESC, T1.MST_ID DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+		) AS A
+	</select>
+	
+	<!-- 사업목록 갯수조회 -->
+	<select id="selectVytEcbWorkListTotCnt" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO" resultType="int">
+		<![CDATA[
+		SELECT  COUNT(*) TOTCNT
+		FROM TN_FEIS_VYT_ECBSLDLIST T1, TN_FEIS_VYT_ECBWORKLIST T2
+		WHERE T1.MST_ID = T2.ID
+		]]>
+		<if test="mstId != null and mstId != ''">	<![CDATA[ AND
+			T1.MST_ID = CAST(#{mstId} AS INT) ]]>
+		</if>
+		<if test="workYear != null and workYear != ''">	<![CDATA[ AND
+			TO_CHAR(T1.CREAT_DT ,'YYYY') = #{workYear} ]]>
+		</if>
+		<if test="workNm != null and workNm != ''">	<![CDATA[ AND
+			T2.WORK_NAME like CONCAT ('%', #{workNm},'%') ]]>
+		</if>
+		<if test="workType != null and workType != ''">	<![CDATA[ AND
+			T2.WORK_TYPE like CONCAT ('%', #{workType},'%') ]]>
+		</if>
+		<if test="workSd != null and workSd != ''">	<![CDATA[ AND
+			T1.SD_NM = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{workSd}) ]]>
+		</if>
+		<if test="workSgg != null and workSgg != ''">	<![CDATA[ AND
+			T1.SGG_NM = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{workSgg}) ]]>
+		</if>
+		<if test="workEmd != null and workEmd != ''">	<![CDATA[ AND
+			T1.EMD_NM = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{workEmd}) ]]>
+		</if>
+		<if test="workRi != null and workRi != ''">	<![CDATA[ AND
+			T1.RI_NM = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{workRi}) ]]>
+		</if>
+	</select>
+	
+	<select id="selectVytEcbWorkDetail" resultMap="analVO" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO">
+		<![CDATA[
+		SELECT 
+			T1.MST_ID AS mstId
+			, T1.SLD_ID AS sldId
+			, (SELECT ANAL_ID FROM TF_FEIS_WATERSHED WHERE MST_ID = CAST(#{mstId} AS INT) AND SLD_ID = #{sldId} ORDER BY ANAL_ID DESC LIMIT 1) AS analId
+			, T1.LGSTR_CD AS lgstrCd
+			, T2.WORK_NAME AS workNm
+			, (SELECT CODE_NM FROM TN_FEIS_DETAILCODE WHERE CODE = T2.WORK_TYPE and CODE_ID = 'FEI089') AS workType
+			, TO_CHAR(T1.CREAT_DT,'YYYY') AS workYear
+			, T1.SD_NM AS sdNm
+			, T1.SGG_NM AS sggNm
+			, T1.EMD_NM AS emdNm
+			, T1.RI_NM AS riNm
+			, T1.JIBUN AS jibun
+			, TO_CHAR(T1.CREAT_DT,'YYYY-MM-DD') AS creatDt
+		FROM TN_FEIS_VYT_ECBSLDLIST T1, TN_FEIS_VYT_ECBWORKLIST T2
+		WHERE T1.MST_ID = T2.ID
+		AND T1.MST_ID = CAST(#{mstId} AS INT)
+		AND T1.SLD_ID = CAST(#{sldId} AS INT)
+  		ORDER BY T1.CREAT_DT DESC
+  		]]>
+	</select>
+	
+	<select id="selectVytEcbAnalDetail" resultMap="analFileVO" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO">
+		SELECT
+			GID
+			, ANAL_TYPE AS analType
+			,FILE_EXTSN AS fileExtsn
+		FROM TN_FEIS_ANALFILE
+		WHERE MST_ID = CAST(#{mstId} AS INT)
+		AND SLD_ID = #{sldId}
+		AND ANAL_ID = #{analId}
+	</select>
+	
+	<select id="selectDownloadAnalAll" resultMap="analDownAllVO" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO">
+		SELECT 
+			ANAL_ID AS analId
+			, FILE_STRE_COURS AS fileStreCours
+			, STRE_FILE_NM AS streFileNm
+			, CASE 
+				WHEN ORIGNL_FILE_NM = 'river' THEN '수계망도'
+				WHEN ORIGNL_FILE_NM = 'slope' THEN '경사도'
+				WHEN ORIGNL_FILE_NM = 'aspect' THEN '향분포도'
+				WHEN ORIGNL_FILE_NM = 'dem' THEN '표고분포도'
+				WHEN ORIGNL_FILE_NM = 'koftr' THEN '임상분포도'
+				WHEN ORIGNL_FILE_NM = 'agcls' THEN '영급분포도'
+				WHEN ORIGNL_FILE_NM = 'dnst' THEN '소밀도분포도'
+				WHEN ORIGNL_FILE_NM = 'dmcls' THEN '경급분포도'
+				WHEN ORIGNL_FILE_NM = 'nature' THEN '생태자연도'
+				WHEN ORIGNL_FILE_NM = 'landslide' THEN '산사태위험등급도'
+				ELSE ORIGNL_FILE_NM
+			END AS orignlFileNm
+			, FILE_EXTSN AS fileExtsn
+			, ANAL_TYPE AS analType
+		FROM TN_FEIS_ANALFILE
+		WHERE MST_ID = CAST(#{mstId} AS INT)
+		AND SLD_ID = #{sldId}
+		AND ANAL_ID = #{analId}
+	</select>
+	
+	<select id="selectVytEcbAnalStatDataCnt" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TN_FEIS_ANALFILE
+		WHERE MST_ID = CAST(#{mstId} AS INT)
+		AND SLD_ID = #{sldId}
+		AND ANAL_ID = #{analId}
+		AND FILE_EXTSN in('png','jpg')
+		AND STAT_DATA IS NOT NULL
+	</select>
+	
+	<select id="selectVytEcbAnalStatDataExcel" parameterType="or.sabang.sys.vyt.ecb.service.VytEcbAnalVO" resultType="egovMap">
+		SELECT
+			ANAL_TYPE
+			,REGEXP_REPLACE(STAT_DATA,'ha|%','','g')::JSONB->>'비율' AS ANAL_RATIO
+			,REGEXP_REPLACE(STAT_DATA,'ha|%','','g')::JSONB->>'면적' AS ANAL_AREA
+			,STAT_DATA::JSONB->>'최소' AS ANAL_MIN
+			,STAT_DATA::JSONB->>'최고' AS ANAL_MAX
+			,STAT_DATA::JSONB->>'평균' AS ANAL_AVG
+			,STAT_DATA::JSONB->>'표준편차' AS ANAL_STD
+		FROM TN_FEIS_ANALFILE
+		WHERE MST_ID = CAST(#{mstId} AS INT)
+		AND SLD_ID = #{sldId}
+		AND ANAL_ID = #{analId}
+		AND FILE_EXTSN in('png','jpg')
+		AND STAT_DATA IS NOT NULL
+	</select>
+	
+	<select id="selectCadastralDetail" parameterType="String" resultType="egovMap">
+		SELECT
+    		A1 AS PNUCODE
+			, A3 AS ADDR
+			, A4 AS JIBUN
+    		,'' AS POSESNSE
+    		,'' AS JIMOK
+    	FROM TF_FEIS_LGSTR
+    	WHERE ST_INTERSECTS(SMGEOMETRY,ST_GEOMFROMTEXT(#{cadastralWkt}, 5186))
+	</select>
+</mapper>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LssLcpGvf">
+<!-- 	<resultMap id="svyGvfListVO" type="or.sabang.sys.lss.lcp.service.LssLcpGvfVO"> -->
+<!-- 		<result property="svyRank" column="RANK" />랭크 -->
+<!-- 		<result property="svyYear" column="SVY_YEAR" />조사년도 -->
+<!-- 		<result property="svyAddr" column="STDG_NM" />주소 -->
+<!-- 		<result property="svyDate" column="LGSTR_DT" />등록일 -->
+<!-- 	</resultMap> -->
+	
+	<select id="selectLcpGvfList" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO" resultType="egovMap">
+			SELECT UNIQ_ID
+				, SLD_ID
+				, SVY_LABEL
+				, STDG_NM
+				, TO_CHAR(CREAT_DT,'YYYY-MM-DD') AS CREAT_DT
+			 FROM TF_FEIS_LCP_GVF
+			 WHERE 1=1
+			<if test="svyRank != null and svyRank != ''">	<![CDATA[ AND
+				RANK = #{svyRank} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				SVY_YEAR = #{svyYear} ]]>
+			</if>
+			<if test="svyAddr != null and svyAddr != ''">	<![CDATA[ AND
+				STDG_NM LIKE CONCAT ('%', #{svyAddr},'%')  ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svySd},'%')  ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svySgg},'%')  ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svyEmd},'%')  ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svyRi},'%')  ]]>
+			</if>
+			 ORDER BY SMID DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectLcpGvfListTotCnt" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO" resultType="int">
+			 SELECT  COUNT(*) totcnt
+			 FROM TF_FEIS_LCP_GVF
+			 WHERE 1=1
+			<if test="svyRank != null and svyRank != ''">	<![CDATA[ AND
+				RANK = #{svyRank} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				SVY_YEAR = #{svyYear} ]]>
+			</if>
+			<if test="svyAddr != null and svyAddr != ''">	<![CDATA[ AND
+				STDG_NM LIKE CONCAT ('%', #{svyAddr},'%')  ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svySd},'%')  ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svySgg},'%')  ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svyEmd},'%')  ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				LGSTR_CD LIKE CONCAT (#{svyRi},'%')  ]]>
+			</if>
+	</select>
+	
+	<select id="selectLcpGvfAddList" resultType="egovMap">
+		SELECT *
+			, CASE WHEN SUBSTRING(STDG_CD,1,2) =  '11' OR SUBSTRING(STDG_CD,1,2) = '28' THEN '41'
+				WHEN SUBSTRING(STDG_CD,1,2) = '36' THEN '43'
+				WHEN SUBSTRING(STDG_CD,1,2) = '29' THEN '46'
+				WHEN SUBSTRING(STDG_CD,1,2) = '27' THEN '47'
+				WHEN SUBSTRING(STDG_CD,1,2) = '26' OR SUBSTRING(STDG_CD,1,2) = '31' THEN '48'
+				ELSE SUBSTRING(STDG_CD,1,2)
+				END AS CTRD_CD
+		 FROM TF_FEIS_LCP_GVF
+		 WHERE SLD_ID IS NULL
+		 	AND UNIQ_ID IS NULL
+	</select>
+	
+	<!-- 조사대상지 임상도 조회  -->
+	<select id="selectGvfImInfo" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO" resultType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<![CDATA[
+			SELECT *
+			FROM(
+				SELECT MAX(ST_AREA(ST_INTERSECTION(A.SMGEOMETRY,B.SMGEOMETRY))) FRTP_AREA
+					, A.SMID 
+					, B.FRTP_CD
+					, B.MAP_LABEL
+					, ST_AREA(A.SMGEOMETRY) LCP_AREA
+					, DENSE_RANK() OVER (ORDER BY ST_AREA(ST_INTERSECTION(A.SMGEOMETRY,B.SMGEOMETRY)) DESC) AS RNK
+				FROM TF_FEIS_LCP_GVF A, TF_FEIS_IM5000 B
+				WHERE A.SMID = #{smid}::NUMERIC
+					AND ST_INTERSECTS(A.SMGEOMETRY,B.SMGEOMETRY) 
+				GROUP BY A.SMGEOMETRY , B.SMGEOMETRY , A.SMID ,B.FRTP_CD ,B.MAP_LABEL
+			) T 
+			WHERE RNK = 1
+		]]>
+	</select>
+	
+	<!-- 조사대상지 입지도 조회  -->
+	<select id="selectGvfIjInfo" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO" resultType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<!-- , B.PRRCK_LARG 지질(대) --> 
+		<![CDATA[
+			SELECT * 
+			FROM(
+				SELECT A.SMID
+					, B.SLTP_CD 
+					, B.SIBFLR_SCS 
+					, B.SIBFLR_STR 
+					, B.ROCK_EXDGR 
+					, B.SIBFLR_CBS 
+					, B.WTEFF_DGR 
+					, ST_AREA(A.SMGEOMETRY) LCP_AREA
+					, MAX(ST_AREA(ST_INTERSECTION(A.SMGEOMETRY,B.SMGEOMETRY))) FRTP_AREA
+					, DENSE_RANK() OVER (ORDER BY ST_AREA(ST_INTERSECTION(A.SMGEOMETRY,B.SMGEOMETRY)) DESC) AS RNK
+				FROM TF_FEIS_LCP_GVF A, TF_FEIS_IJ100 B
+				WHERE A.SMID = #{smid}::NUMERIC
+					AND ST_INTERSECTS(A.SMGEOMETRY,B.SMGEOMETRY) 
+				GROUP BY A.SMGEOMETRY , B.SMGEOMETRY , A.SMID, B.PRRCK_LARG
+					, B.SLTP_CD , B.SIBFLR_SCS , B.SIAFLR_STR , B.SIBFLR_STR , B.ROCK_EXDGR , B.SIBFLR_CBS , B.WTEFF_DGR
+			) T 
+			WHERE RNK = 1
+		]]>
+	</select>
+	
+	<!-- 조사대상지 지질도 조회  -->
+	<select id="selectGvfGlInfo" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO" resultType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<![CDATA[
+			SELECT *
+			FROM(
+				SELECT MAX(ST_AREA(ST_INTERSECTION(A.SMGEOMETRY,B.SMGEOMETRY))) FRTP_AREA
+					, A.SMID 
+					, B.PRRCK_LARG
+					, B.PRRCK_MDDL
+					, ST_AREA(A.SMGEOMETRY) LCP_AREA
+					, DENSE_RANK() OVER (ORDER BY ST_AREA(ST_INTERSECTION(A.SMGEOMETRY,B.SMGEOMETRY)) DESC) AS RNK
+				FROM TF_FEIS_LCP_GVF A, TF_FEIS_IJ5000 B
+				WHERE A.SMID = #{smid}::NUMERIC
+					AND ST_INTERSECTS(A.SMGEOMETRY,B.SMGEOMETRY) 
+				GROUP BY A.SMGEOMETRY , B.SMGEOMETRY , A.SMID , B.PRRCK_LARG , B.PRRCK_MDDL 
+			) T 
+			WHERE RNK = 1
+		]]>
+	</select>
+	
+	<!-- 제보데이터 대상지방 아이디, 고유 아이디  부여 -->
+	<update id="updateLcpGvfData" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<![CDATA[
+			UPDATE TF_FEIS_LCP_GVF 
+			SET USERID = 0
+				, UNIQ_ID = #{uniqId}
+				, SLD_ID = #{sldId}
+				, CREAT_DT = NOW()
+			WHERE UNIQ_ID IS NULL
+				AND SLD_ID IS NULL
+				AND SMID = #{smid}::NUMERIC
+		]]>
+	</update>
+	
+	<!-- 조사대상지 정보 등록 -->
+	<insert id="insertSvySldInfo" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<![CDATA[
+			INSERT INTO TN_FEIS_LCP_SVYSLDINFO( GID
+				, SLD_ID
+				, RANK
+				, UNIQ_ID
+				, CTRD_CD
+				, STDG_CD
+				, LABEL
+				, ADDR
+				, FRTP_CD
+				, PRRCK_LARG
+				, PRRCK_MDDL
+				, SLTP_CD
+				, SIBFLR_SCS
+				, SIBFLR_STR
+				, ROCK_EXDGR
+				, SIBFLR_CBS
+				, WTEFF_DGR
+			)
+			VALUES( #{gid}::NUMERIC
+				, #{sldId}
+				, #{svyRank}::NUMERIC
+				, #{uniqId}
+				, #{ctrdCd}
+				, #{stdgCd}
+				, #{svyLabel}
+				, #{svyAddr}
+				, #{frtpCd}
+				, #{prrckLarg}
+				, #{prrckMddl}		
+				, #{sltpCd}		
+				, #{sibflrScs}		
+				, #{sibflrStr}		
+				, #{rockExdgr}		
+				, #{sibflrCbs}		
+				, #{wteffDgr}		
+			)
+		]]>
+	</insert>
+	
+	<!-- 제보 데이터 삭제 -->
+	<delete id="deleteLcpGvfData" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<![CDATA[
+			DELETE FROM TF_FEIS_LCP_GVF 
+			WHERE UNIQ_ID = #{uniqId}
+		]]>
+	</delete>
+	
+	<!-- 조사대상지방 제보 데이터 삭제 -->
+	<delete id="deleteSvySldInfo" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<![CDATA[
+			DELETE FROM TN_FEIS_LCP_SVYSLDINFO 
+			WHERE UNIQ_ID = #{uniqId}
+		]]>
+	</delete>
+	
+	<!-- 조사대상지방 제보 데이터 삭제 -->
+	<update id="updateSvySldRegInfo" parameterType="or.sabang.sys.lss.lcp.service.LssLcpGvfVO">
+		<![CDATA[
+ 			UPDATE TN_FEIS_LCP_SVYSLDREGINFO
+			SET LAST_UPDT_PNTTM = NOW()
+				, SVYSLD_REGCNT = (SELECT COUNT(*) FROM TN_FEIS_LCP_SVYSLDINFO WHERE SLD_ID = #{sldId} )
+			WHERE ID = #{sldId}::NUMERIC
+ 		]]>
+	</update>
+	
+</mapper>

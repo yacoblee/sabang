@@ -1,0 +1,8 @@
+/*리포트 프로그래스*/
+.eform_progress {
+	background-repeat: no-repeat;
+	background-position: 50% 30%;
+	background-image: url(../img/efromProgress.gif);
+	opacity: unset;
+	background-color: gray;
+}

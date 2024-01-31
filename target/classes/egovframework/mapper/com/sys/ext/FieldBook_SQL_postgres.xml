@@ -1,0 +1,2045 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="extFieldBookDAO">
+
+	<resultMap id="extfieldBook" type="or.sabang.sys.ext.service.ExtFieldBookVO">
+		<result property="id" column="id" />
+		<result property="mst_corpname" column="mst_corpname" />
+		<result property="mst_partname" column="mst_partname" />
+		<result property="mst_admin_user" column="mst_admin_user" />
+		<result property="mst_create_user" column="mst_create_user" />
+		<result property="mst_registered" column="mst_registered" />
+		<result property="mst_status" column="mst_status" />
+		<result property="mst_password" column="mst_password" />
+		<result property="mst_adminpwd" column="mst_adminpwd" />
+		<result property="mst_readpwd" column="mst_readpwd" />
+		<result property="mst_access" column="mst_access" />
+		<result property="svy_type" column="svy_type" />
+		<result property="totcnt" column="totcnt" />
+	</resultMap>
+	
+	<resultMap id="extfieldBookItem" type="or.sabang.sys.ext.service.ExtFieldBookItemVO">
+		<result property="MST_ID" column="mst_id" />
+		<result property="LOGIN_ID" column="login_id" />
+		<result property="_FID" column="_fid" />
+		<result property="_LON" column="_lon" />
+		<result property="_LAT" column="_lat" />
+		<result property="_DATA" column="_data" />
+		<result property="_KEYWORD" column="_keyword" />
+		<result property="_LABEL" column="_label" />
+		<result property="_STYLE" column="_style" />
+		<result property="_MEMO" column="_memo" />
+		<result property="_TAG1" column="_tag1" />
+		<result property="_TAG2" column="_tag2" />
+		<result property="_REG_DATE" column="_reg_date" />
+		<result property="_UPD_DATE" column="_upd_date" />
+		<result property="ATTR" column="ATTR" />
+	</resultMap>
+
+	<resultMap id="locImgInfo" type="or.sabang.sys.ext.service.LocImgInfoVO">
+		<result property="gid" column="g_id" />
+		<result property="svySe" column="svy_se" />
+		<result property="svyType" column="svy_type" />
+		<result property="svyIdx" column="svy_idx" />
+	</resultMap>
+
+	<!-- 전자야장 기초조사 공유방 체크 -->	
+<!-- 	<select id="selectBscCnrsSpceCheck" resultType="int" parameterType="hashMap"> -->
+<!-- 		SELECT COUNT(*)  -->
+<!-- 		FROM -->
+<!-- 			TN_FEIS_BSC_CNRSSPCE -->
+<!-- 		WHERE ID = #{mst_id} -->
+<!-- 	</select> -->
+	
+	<!-- 전자야장 외관점검 공유방 체크 -->
+<!-- 	<select id="selectAprCnrsSpceCheck" resultType="int" parameterType="hashMap"> -->
+<!-- 		SELECT COUNT(*)  -->
+<!-- 		FROM -->
+<!-- 			TN_FEIS_APR_CNRSSPCE -->
+<!-- 		WHERE ID = #{mst_id} -->
+<!-- 	</select> -->
+	
+	<!-- 전자야장 땅밀림실태조사 공유방 체크 -->
+<!-- 	<select id="selectLcpCnrsSpceCheck" resultType="int" parameterType="hashMap"> -->
+<!-- 		SELECT COUNT(*)  -->
+<!-- 		FROM -->
+<!-- 			TN_FEIS_LCP_CNRSSPCE -->
+<!-- 		WHERE ID = #{mst_id} -->
+<!-- 	</select> -->
+	
+	<!-- 전자야장 취약지역실태조사 공유방 체크 -->
+<!-- 	<select id="selectWkaCnrsSpceCheck" resultType="int" parameterType="hashMap"> -->
+<!-- 		SELECT COUNT(*)  -->
+<!-- 		FROM -->
+<!-- 			TN_FEIS_WKA_CNRSSPCE -->
+<!-- 		WHERE ID = #{mst_id} -->
+<!-- 	</select> -->
+	
+	<!-- 전자야장 취약지역해제조사 공유방 체크 -->
+<!-- 	<select id="selectCnlCnrsSpceCheck" resultType="int" parameterType="hashMap"> -->
+<!-- 		SELECT COUNT(*)  -->
+<!-- 		FROM -->
+<!-- 			TN_FEIS_CNL_CNRSSPCE -->
+<!-- 		WHERE ID = #{mst_id} -->
+<!-- 	</select> -->
+	
+	<!-- 전자야장 공유방 비밀번호 조회 -->
+	<select id="selectCnrsSpcePwd" resultType="egovMap" parameterType="hashMap">
+		<![CDATA[
+		SELECT T1.MST_PASSWORD, T1.MST_READPWD, T1.MST_ADMINPWD, T1.MST_CORPNAME, T1.MST_PARTNAME
+		FROM
+			TN_FEIS_BSC_CNRSSPCE T1
+		WHERE T1.ID = #{mst_id}
+		UNION ALL
+		SELECT T2.MST_PASSWORD, T2.MST_READPWD, T2.MST_ADMINPWD, T2.MST_CORPNAME, T2.MST_PARTNAME
+		FROM
+			TN_FEIS_APR_CNRSSPCE T2
+		WHERE T2.ID = #{mst_id}
+		UNION ALL
+		SELECT T3.MST_PASSWORD, T3.MST_READPWD, T3.MST_ADMINPWD, T3.MST_CORPNAME, T3.MST_PARTNAME
+		FROM
+			TN_FEIS_LCP_CNRSSPCE T3
+		WHERE T3.ID = #{mst_id}
+		UNION ALL
+		SELECT T4.MST_PASSWORD, T4.MST_READPWD, T4.MST_ADMINPWD, T4.MST_CORPNAME, T4.MST_PARTNAME
+		FROM
+			TN_FEIS_WKA_CNRSSPCE T4
+		WHERE T4.ID = #{mst_id}
+		UNION ALL
+		SELECT T5.MST_PASSWORD, T5.MST_READPWD, T5.MST_ADMINPWD, T5.MST_CORPNAME, T5.MST_PARTNAME
+		FROM
+			TN_FEIS_CNL_CNRSSPCE T5
+		WHERE T5.ID = #{mst_id}
+		UNION ALL
+		SELECT T6.MST_PASSWORD, T6.MST_READPWD, T6.MST_ADMINPWD, T6.MST_CORPNAME, T6.MST_PARTNAME
+		FROM
+			TN_FEIS_FRD_CNRSSPCE T6
+		WHERE T6.ID = #{mst_id}
+		UNION ALL
+		SELECT T7.MST_PASSWORD, T7.MST_READPWD, T7.MST_ADMINPWD, T7.MST_CORPNAME, T7.MST_PARTNAME
+		FROM
+			TN_FEIS_PCS_CNRSSPCE T7
+		WHERE T7.ID = #{mst_id}
+		UNION ALL
+		SELECT T8.MST_PASSWORD, T8.MST_READPWD, T8.MST_ADMINPWD, T8.MST_CORPNAME, T8.MST_PARTNAME
+		FROM
+			TN_FEIS_MSE_CNRSSPCE T8
+		WHERE T8.ID = #{mst_id}
+		]]>
+	</select>
+	
+	<!-- 전자야장 공유방 여부 -->
+	<select id="selectCnrsSpceAt" resultType="int" parameterType="hashMap">
+		<![CDATA[
+		SELECT SUM(A.CNT)
+		FROM
+		(
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_BSC_CNRSSPCE T1
+			WHERE 1=1
+			AND T1.ID = #{mst_id}
+			UNION
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_APR_CNRSSPCE T2
+			WHERE 1=1
+			AND T2.ID = #{mst_id}
+			UNION
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_LCP_CNRSSPCE T3
+			WHERE 1=1
+			AND T3.ID = #{mst_id}
+			UNION
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_WKA_CNRSSPCE T4
+			WHERE 1=1
+			AND T4.ID = #{mst_id}
+			UNION
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_CNL_CNRSSPCE T5
+			WHERE 1=1
+			AND T5.ID = #{mst_id}
+			UNION
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_FRD_CNRSSPCE T6
+			WHERE 1=1
+			AND T6.ID = #{mst_id}
+			UNION
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_PCS_CNRSSPCE T7
+			WHERE 1=1
+			AND T7.ID = #{mst_id}
+			UNION
+			SELECT COUNT(*) AS CNT
+			FROM
+				TN_FEIS_MSE_CNRSSPCE T8
+			WHERE 1=1
+			AND T8.ID = #{mst_id}
+		) AS A
+		]]>
+	</select>
+	
+	<!-- 전자야장 공유방 목록조회 -->
+	<select id="selectCnrsSpceList" resultMap="extfieldBook" parameterType="hashMap">
+		SELECT ID, MST_CORPNAME, MST_PARTNAME, MST_CREATE_USER, MST_ADMIN_USER, MST_STATUS, SVY_TYPE
+		FROM
+		(
+			SELECT T1.ID, T1.MST_CORPNAME, T1.MST_PARTNAME, T1.MST_CREATE_USER, T1.MST_ADMIN_USER, T1.MST_STATUS, T1.MST_REGISTERED,'BSC' AS SVY_TYPE
+			FROM
+				TN_FEIS_BSC_CNRSSPCE T1
+		    WHERE 1=1
+		    <if test='keyword != null'>	<![CDATA[ AND
+	             (T1.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T1.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T1.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T1.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T1.MST_CREATE_USER = #{user} ]]>
+	        </if>
+		    UNION ALL
+		    SELECT T2.ID, T2.MST_CORPNAME, T2.MST_PARTNAME, T2.MST_CREATE_USER, T2.MST_ADMIN_USER, T2.MST_STATUS, T2.MST_REGISTERED,'APR' AS SVY_TYPE
+			FROM
+				TN_FEIS_APR_CNRSSPCE T2
+		    WHERE 1=1
+			<if test='keyword != null'>	<![CDATA[ AND
+	             (T2.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T2.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T2.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T2.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T2.MST_CREATE_USER = #{user} ]]>
+	        </if>
+	        UNION ALL
+	        SELECT T3.ID, T3.MST_CORPNAME, T3.MST_PARTNAME, T3.MST_CREATE_USER, T3.MST_ADMIN_USER, T3.MST_STATUS, T3.MST_REGISTERED,'LCP' AS SVY_TYPE
+			FROM
+				TN_FEIS_LCP_CNRSSPCE T3
+		    WHERE 1=1
+			<if test='keyword != null'>	<![CDATA[ AND
+	             (T3.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T3.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T3.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T3.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T3.MST_CREATE_USER = #{user} ]]>
+	        </if>
+	        UNION ALL
+	        SELECT T4.ID, T4.MST_CORPNAME, T4.MST_PARTNAME, T4.MST_CREATE_USER, T4.MST_ADMIN_USER, T4.MST_STATUS, T4.MST_REGISTERED,'WKA' AS SVY_TYPE
+			FROM
+				TN_FEIS_WKA_CNRSSPCE T4
+		    WHERE 1=1
+			<if test='keyword != null'>	<![CDATA[ AND
+	             (T4.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T4.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T4.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T4.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T4.MST_CREATE_USER = #{user} ]]>
+	        </if>
+	        UNION ALL
+	        SELECT T5.ID, T5.MST_CORPNAME, T5.MST_PARTNAME, T5.MST_CREATE_USER, T5.MST_ADMIN_USER, T5.MST_STATUS, T5.MST_REGISTERED,'CNL' AS SVY_TYPE
+			FROM
+				TN_FEIS_CNL_CNRSSPCE T5
+		    WHERE 1=1
+			<if test='keyword != null'>	<![CDATA[ AND
+	             (T5.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T5.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T5.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T5.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T5.MST_CREATE_USER = #{user} ]]>
+	        </if>
+	        UNION ALL
+	        SELECT T6.ID, T6.MST_CORPNAME, T6.MST_PARTNAME, T6.MST_CREATE_USER, T6.MST_ADMIN_USER, T6.MST_STATUS, T6.MST_REGISTERED,'FRD' AS SVY_TYPE
+			FROM
+				TN_FEIS_FRD_CNRSSPCE T6
+		    WHERE 1=1
+			<if test='keyword != null'>	<![CDATA[ AND
+	             (T6.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T6.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T6.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T6.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T6.MST_CREATE_USER = #{user} ]]>
+	        </if>
+	        UNION ALL
+	        SELECT T7.ID, T7.MST_CORPNAME, T7.MST_PARTNAME, T7.MST_CREATE_USER, T7.MST_ADMIN_USER, T7.MST_STATUS, T7.MST_REGISTERED,'PCS' AS SVY_TYPE
+			FROM
+				TN_FEIS_PCS_CNRSSPCE T7
+		    WHERE 1=1
+			<if test='keyword != null'>	<![CDATA[ AND
+	             (T7.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T7.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T7.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T7.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T7.MST_CREATE_USER = #{user} ]]>
+	        </if>
+	        UNION ALL
+	        SELECT T8.ID, T8.MST_CORPNAME, T8.MST_PARTNAME, T8.MST_CREATE_USER, T8.MST_ADMIN_USER, T8.MST_STATUS, T8.MST_REGISTERED,'MSE' AS SVY_TYPE
+			FROM
+				TN_FEIS_MSE_CNRSSPCE T8
+		    WHERE 1=1
+			<if test='keyword != null'>	<![CDATA[ AND
+	             (T8.MST_CORPNAME LIKE CONCAT ('%', #{keyword},'%') OR
+	             T8.MST_PARTNAME LIKE CONCAT ('%', #{keyword},'%') OR T8.MST_CREATE_USER LIKE CONCAT ('%', #{keyword},'%')) ]]>
+	        </if>
+	        <if test='mst_id != ""'> <![CDATA[ AND
+	             T8.ID = #{mst_id} ]]>
+	        </if>
+	        <if test='user != null and user != ""'> <![CDATA[ AND
+	             T8.MST_CREATE_USER = #{user} ]]>
+	        </if>
+		) A
+		<if test='work_type != null and work_type != ""'> <![CDATA[ WHERE
+             SVY_TYPE = #{work_type} ]]>
+        </if>
+		ORDER BY MST_REGISTERED DESC
+	</select>
+	
+	<!-- 전자야장 공유방 단건조회 -->
+	<select id="selectCnrsSpceInfo" resultMap="extfieldBook" parameterType="hashMap">
+		<![CDATA[
+		SELECT T1.ID, T1.MST_CORPNAME, T1.MST_PARTNAME, ((SELECT COUNT(T2.*) FROM TN_FEIS_BSC_FIELDINFO T2 WHERE T2.MST_ID = T1.ID)) as TOTCNT
+		FROM
+			TN_FEIS_BSC_CNRSSPCE T1
+		WHERE 1=1
+        AND T1.ID = #{mst_id}
+        AND T1.MST_PASSWORD = #{mst_password}
+        UNION ALL
+        SELECT T3.ID, T3.MST_CORPNAME, T3.MST_PARTNAME, ((SELECT COUNT(T4.*) FROM TN_FEIS_APR_FIELDINFO T4 WHERE T4.MST_ID = T3.ID)) as TOTCNT
+		FROM
+			TN_FEIS_APR_CNRSSPCE T3
+		WHERE 1=1
+        AND T3.ID = #{mst_id}
+        AND T3.MST_PASSWORD = #{mst_password}
+        UNION ALL
+        SELECT T5.ID, T5.MST_CORPNAME, T5.MST_PARTNAME, ((SELECT COUNT(T6.*) FROM TN_FEIS_LCP_FIELDINFO T6 WHERE T6.MST_ID = T5.ID)) as TOTCNT
+		FROM
+			TN_FEIS_LCP_CNRSSPCE T5
+		WHERE 1=1		
+        AND T5.ID = #{mst_id}
+        AND T5.MST_PASSWORD = #{mst_password}
+        UNION ALL
+        SELECT T7.ID, T7.MST_CORPNAME, T7.MST_PARTNAME, ((SELECT COUNT(T8.*) FROM TN_FEIS_WKA_FIELDINFO T8 WHERE T8.MST_ID = T7.ID)) as TOTCNT
+		FROM
+			TN_FEIS_WKA_CNRSSPCE T7
+		WHERE 1=1		
+        AND T7.ID = #{mst_id}
+        AND T7.MST_PASSWORD = #{mst_password}
+        UNION ALL
+        SELECT T9.ID, T9.MST_CORPNAME, T9.MST_PARTNAME, ((SELECT COUNT(T10.*) FROM TN_FEIS_CNL_FIELDINFO T10 WHERE T10.MST_ID = T9.ID)) as TOTCNT
+		FROM
+			TN_FEIS_CNL_CNRSSPCE T9
+		WHERE 1=1		
+        AND T9.ID = #{mst_id}
+        AND T9.MST_PASSWORD = #{mst_password}
+        UNION ALL
+        SELECT T11.ID, T11.MST_CORPNAME, T11.MST_PARTNAME, ((SELECT COUNT(T12.*) FROM TN_FEIS_FRD_FIELDINFO T12 WHERE T12.MST_ID = T11.ID)) as TOTCNT
+		FROM
+			TN_FEIS_FRD_CNRSSPCE T11
+		WHERE 1=1		
+        AND T11.ID = #{mst_id}
+        AND T11.MST_PASSWORD = #{mst_password}
+        UNION ALL
+        SELECT T13.ID, T13.MST_CORPNAME, T13.MST_PARTNAME, ((SELECT COUNT(T14.*) FROM TN_FEIS_PCS_FIELDINFO T14 WHERE T14.MST_ID = T13.ID)) as TOTCNT
+		FROM
+			TN_FEIS_PCS_CNRSSPCE T13
+		WHERE 1=1		
+        AND T13.ID = #{mst_id}
+        AND T13.MST_PASSWORD = #{mst_password}
+        UNION ALL
+        SELECT T15.ID, T15.MST_CORPNAME, T15.MST_PARTNAME, ((SELECT COUNT(T16.*) FROM TN_FEIS_MSE_FIELDINFO T16 WHERE T16.MST_ID = T15.ID)) as TOTCNT
+		FROM
+			TN_FEIS_MSE_CNRSSPCE T15
+		WHERE 1=1		
+        AND T15.ID = #{mst_id}
+        AND T15.MST_PASSWORD = #{mst_password}
+        ]]>
+	</select>
+	
+	<!-- 전자야장 공유방 다운로드 : 완료테이블 비교 추가 -->
+ 	<select id="selectCnrsSpceDownload" resultMap="extfieldBookItem" parameterType="hashMap">
+		(SELECT 
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_BSC_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_BSC_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT as text) as _REG_DATE
+			, CAST(UPDT_PNTTM as text) as _UPD_DATE
+			, SVY_ATTR as ATTR
+		FROM TN_FEIS_BSC_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+		UNION ALL
+		(SELECT 
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_APR_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_FCK_APRCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_FCK_APRCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+		UNION ALL
+		(SELECT 
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_LCP_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_LCP_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_LCP_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+ 		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_WKA_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_WKA_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID			
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_WKA_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_CNL_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_CNL_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID			
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_CNL_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS _DATA
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_FRD_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_FRD_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID			
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_FRD_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS _DATA
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_PCS_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_PCS_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID			
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_PCS_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS _DATA
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_MSE_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_MSE_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID			
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		UNION
+		SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_MSE_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		LIMIT #{data_limit} OFFSET #{data_offset})
+	</select>
+	
+	<!-- 전자야장 공유방 조사데이터 단건조회 -->
+	<select id="selectCnrsSpceItem" resultType="egovMap" parameterType="hashMap">
+		<![CDATA[
+		SELECT MST_ID, LOGIN_ID,SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO
+		FROM
+			TN_FEIS_BSC_FIELDINFO T1
+		WHERE T1.MST_ID = #{mst_id}
+		AND T1.SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT MST_ID, LOGIN_ID,SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO
+		FROM
+			TN_FEIS_APR_FIELDINFO T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT MST_ID, LOGIN_ID,SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO 
+		FROM
+			TN_FEIS_LCP_FIELDINFO T3
+		WHERE T3.MST_ID = #{mst_id}
+		AND T3.SVY_LABEL = #{_label}
+ 		UNION ALL
+		SELECT MST_ID, LOGIN_ID, SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO 
+		FROM
+			TN_FEIS_WKA_FIELDINFO T4
+		WHERE T4.MST_ID = #{mst_id}
+		AND T4.SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT MST_ID, LOGIN_ID, SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO 
+		FROM
+			TN_FEIS_CNL_FIELDINFO T5
+		WHERE T5.MST_ID = #{mst_id}
+		AND T5.SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT MST_ID, LOGIN_ID, SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO 
+		FROM
+			TN_FEIS_FRD_FIELDINFO T6
+		WHERE T6.MST_ID = #{mst_id}
+		AND T6.SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT MST_ID, LOGIN_ID, SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO 
+		FROM
+			TN_FEIS_PCS_FIELDINFO T7
+		WHERE T7.MST_ID = #{mst_id}
+		AND T7.SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT MST_ID, LOGIN_ID, SVY_FID AS _FID, SVY_LON AS _LON, SVY_LAT AS _LAT, SVY_DATA AS "_DATA", SVY_KEYWORD AS _KEYWORD, SVY_LABEL AS _LABEL, SVY_STYLE AS _STYLE, SVY_MEMO AS _MEMO 
+		FROM
+			TN_FEIS_MSE_FIELDINFO T8
+		WHERE T8.MST_ID = #{mst_id}
+		AND T8.SVY_LABEL = #{_label}
+		]]>
+	</select>
+	
+	<!-- 공유방 조사데이터 FID 최대값 조회 테스트 -->
+<!-- 	<select id="selectCnrsSpceMvl" resultType="int" parameterType="hashMap">
+		SELECT COALESCE(MAX(SVY_FID),1)
+		FROM
+			TN_FEIS_BSC_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+	</select> -->
+	
+	<!-- 전자야장 기초조사 FID 갱신 -->
+	<select id="selectBscUpdtFid" resultType="int">
+		SELECT NEXTVAL('TN_FEIS_BSC_FIELDINFO__FID_SEQ')
+	</select>
+	
+	<!-- 전자야장 땅밀림 실태조사 FID 갱신 -->
+	<select id="selectLcpUpdtFid" resultType="int">
+		SELECT NEXTVAL('TF_FEIS_LCP_FIELDINFO__FID_SEQ')
+	</select>
+	
+	<!-- 전자야장 취약지역 실태조사 FID 갱신 -->
+	<select id="selectWkaUpdtFid" resultType="int">
+		SELECT NEXTVAL('TF_FEIS_WKA_FIELDINFO__FID_SEQ')
+	</select>
+	
+	<!-- 전자야장 취약지역 해제조사 FID 갱신 -->
+	<select id="selectCnlUpdtFid" resultType="int">
+		SELECT NEXTVAL('TF_FEIS_CNL_FIELDINFO__FID_SEQ')
+	</select>
+	
+	<!-- 전자야장  공유방 기초조사 조사데이터 FID 최대값 조회 -->
+	<select id="selectBscCnrsSpceMvl" resultType="int" parameterType="hashMap">
+		SELECT COALESCE(MAX(SVY_FID)+1,1)
+		FROM
+			TN_FEIS_BSC_FIELDINFO
+		WHERE MST_ID = #{mst_id}
+	</select>
+	
+	<!-- 전자야장 공유방 땅밀림실태조사 조사데이터 FID 최대값 조회 -->
+	<select id="selectLcpCnrsSpceMvl" resultType="int" parameterType="hashMap">
+		SELECT COALESCE(MAX(SVY_FID)+1,1)
+		FROM
+			TN_FEIS_LCP_FIELDINFO
+		WHERE MST_ID = #{mst_id}
+	</select>
+	
+	<!-- 전자야장 공유방 외관점검 조사데이터 FID 최대값 조회 -->	
+	<select id="selectAprCnrsSpceFieldMvl" resultType="int" parameterType="hashMap">
+		SELECT COALESCE(MAX(SVY_FID)+1,1)
+		FROM
+			TN_FEIS_APR_FIELDINFO
+		WHERE MST_ID = #{mst_id}
+	</select>	
+	
+	<!-- 전자야장  공유방 취약지역 실태조사 데이터 FID 최대값 조회 -->
+	<select id="selectWkaCnrsSpceMvl" resultType="int" parameterType="hashMap">
+		SELECT COALESCE(MAX(SVY_FID)+1,1)
+		FROM
+			TN_FEIS_WKA_FIELDINFO
+		WHERE MST_ID = #{mst_id}
+	</select>
+	
+	<!-- 전자야장  공유방 취약지역 해제조사 조사데이터 FID 최대값 조회 -->
+	<select id="selectCnlCnrsSpceMvl" resultType="int" parameterType="hashMap">
+		SELECT COALESCE(MAX(SVY_FID)+1,1)
+		FROM
+			TN_FEIS_CNL_FIELDINFO
+		WHERE MST_ID = #{mst_id}
+	</select>
+	
+	<!-- 전자야장 조사완료 외관점검 조사데이터 FID 최대값 조회 -->
+	<select id="selectAprCnrsSpceComptMvl" resultType="int" parameterType="hashMap">
+		SELECT COALESCE(MAX(SVY_FID)+1,1)
+		FROM
+			TN_FEIS_FCK_APRCOMPT
+		WHERE MST_ID = #{mst_id}
+	</select>
+	
+	<!-- 전자야장 완료테이블 조사데이터 여부 -->
+	<select id="selectUpsertAt" parameterType="or.sabang.sys.ext.service.ExtFieldBookItemVO" resultType="int">
+		SELECT COUNT(*)
+		FROM
+		<if test="SE == 'BSC'">
+            TN_FEIS_BSC_SVYCOMPT
+	    </if>
+	    <if test="SE == 'APR'">
+            TN_FEIS_FCK_APRCOMPT
+	    </if>
+	    <if test="SE == 'LCP'">
+            TN_FEIS_LCP_SVYCOMPT
+	    </if>
+	    <if test="SE == 'WKA'">
+            TN_FEIS_WKA_SVYCOMPT
+	    </if>
+	    <if test="SE == 'CNL'">
+            TN_FEIS_CNL_SVYCOMPT
+	    </if>
+	    <if test="SE == 'FRD'">
+            TN_FEIS_FRD_SVYCOMPT
+	    </if>
+	    <if test="SE == 'PCS'">
+            TN_FEIS_PCS_SVYCOMPT
+	    </if>
+	    <if test="SE == 'MSE'">
+            TN_FEIS_MSE_SVYCOMPT
+	    </if>
+		 WHERE MST_ID = CAST(#{MST_ID} AS INT) AND SVY_LABEL = #{_LABEL}
+	</select>
+	
+	<!-- 전자야장 전송 데이터 업데이트 날짜와 완료테이블 데이터 날짜 비교 -->
+	<select id="selectUpdDateAt" parameterType="or.sabang.sys.ext.service.ExtFieldBookItemVO" resultType="int">
+		SELECT COUNT(*)
+		FROM
+		<if test="SE == 'BSC'">
+		TN_FEIS_BSC_SVYCOMPT
+		</if>
+		<if test="SE == 'APR'">
+		TN_FEIS_FCK_APRCOMPT
+		</if>
+		<if test="SE == 'LCP'">
+		TN_FEIS_LCP_SVYCOMPT
+		</if>
+		<if test="SE == 'WKA'">
+		TN_FEIS_WKA_SVYCOMPT
+		</if>
+		<if test="SE == 'CNL'">
+		TN_FEIS_CNL_SVYCOMPT
+		</if>
+		<if test="SE == 'FRD'">
+		TN_FEIS_FRD_SVYCOMPT
+		</if>
+		<if test="SE == 'PCS'">
+		TN_FEIS_PCS_SVYCOMPT
+		</if>
+		<if test="SE == 'MSE'">
+		TN_FEIS_MSE_SVYCOMPT
+		</if>
+		WHERE MST_ID = CAST(#{MST_ID} AS INT) AND SVY_LABEL = #{_LABEL}
+		<![CDATA[
+		AND UPDT_PNTTM < TO_TIMESTAMP(#{_UPD_DATE}, 'YYYY/MM/DD HH24:MI:SS')
+		]]>
+	</select>
+	
+	<!-- 전자야장 공유방 조사데이터 생성 -->
+	<insert id="insertCnrsSpceItem" useGeneratedKeys="true" keyProperty="gid" parameterType="or.sabang.sys.ext.service.ExtFieldBookItemVO">
+			INSERT INTO
+			<if test="SE == 'BSC'">
+           		TN_FEIS_BSC_SVYCOMPT
+	        </if>
+	        <if test="SE == 'APR'">
+           		TN_FEIS_FCK_APRCOMPT
+	        </if>
+	        <if test="SE == 'LCP'">
+           		TN_FEIS_LCP_SVYCOMPT
+	        </if>
+	        <if test="SE == 'WKA'">
+           		TN_FEIS_WKA_SVYCOMPT
+	        </if>
+	        <if test="SE == 'CNL'">
+           		TN_FEIS_CNL_SVYCOMPT
+	        </if>
+	        <if test="SE == 'FRD'">
+           		TN_FEIS_FRD_SVYCOMPT
+	        </if>
+	        <if test="SE == 'PCS'">
+           		TN_FEIS_PCS_SVYCOMPT
+	        </if>
+	        <if test="SE == 'MSE'">
+           		TN_FEIS_MSE_SVYCOMPT
+	        </if>
+			(
+				MST_ID
+				, LOGIN_ID
+				, SVY_LON
+				, SVY_LAT
+				, SVY_DATA		
+				, SVY_KEYWORD
+				, SVY_LABEL
+				, SVY_STYLE
+				, SVY_MEMO
+				, LAST_UPDT_PNTTM
+				, UPDT_PNTTM
+				, CREAT_DT
+				, SVY_ATTR
+			) VALUES (
+				CAST(#{MST_ID} AS INT)
+				, #{LOGIN_ID}
+				, CAST(#{_LON} AS FLOAT)
+				, CAST(#{_LAT} AS FLOAT)
+				, #{_DATA}
+				, #{_KEYWORD}
+				, #{_LABEL}
+				, #{_STYLE}
+				, #{_MEMO}
+				, to_timestamp(#{_LAST_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+				, to_timestamp(#{_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+				, to_timestamp(#{_REG_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+				, #{ATTR}
+		    )
+	</insert>
+
+	<!-- 전자야장 공유방 조사데이터 업데이트 -->
+	<update id="updateCnrsSpceItem"  parameterType="or.sabang.sys.ext.service.ExtFieldBookItemVO">
+			UPDATE
+			<if test="SE == 'BSC'">
+           		TN_FEIS_BSC_SVYCOMPT
+	        </if>
+	        <if test="SE == 'APR'">
+           		TN_FEIS_FCK_APRCOMPT
+	        </if>
+	        <if test="SE == 'LCP'">
+           		TN_FEIS_LCP_SVYCOMPT
+	        </if>
+	        <if test="SE == 'WKA'">
+           		TN_FEIS_WKA_SVYCOMPT
+	        </if>
+	        <if test="SE == 'CNL'">
+           		TN_FEIS_CNL_SVYCOMPT
+	        </if>
+	        <if test="SE == 'FRD'">
+           		TN_FEIS_FRD_SVYCOMPT
+	        </if>
+	        <if test="SE == 'PCS'">
+           		TN_FEIS_PCS_SVYCOMPT
+	        </if>
+	        <if test="SE == 'MSE'">
+           		TN_FEIS_MSE_SVYCOMPT
+	        </if>
+			SET 
+			LOGIN_ID = #{LOGIN_ID}
+    		, SVY_LON = CAST(#{_LON} as FLOAT)
+    		, SVY_LAT = CAST(#{_LAT} as FLOAT)
+    		<!-- , GEOM = ST_Transform(ST_GeomFromText(#{_DATA},5186),5179) -->
+    		, SVY_KEYWORD = #{_KEYWORD}
+    		, SVY_LABEL = #{_LABEL}
+    		, SVY_STYLE = #{_STYLE}
+	    	, SVY_MEMO = #{_MEMO}
+	    	, UPDT_PNTTM = to_timestamp(#{_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+    		, LAST_UPDT_PNTTM = to_timestamp(#{_LAST_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+    		, SVY_ATTR = #{ATTR}
+    		WHERE MST_ID = CAST(#{MST_ID} AS INTEGER)
+    		AND SVY_LABEL = #{_LABEL}
+    		
+    		<!-- GID VO 바인딩되서 리턴 -->
+    		<selectKey keyProperty="gid" resultType="java.lang.Integer" order="AFTER">
+    		SELECT GID FROM
+    		<if test="SE == 'BSC'">TN_FEIS_BSC_SVYCOMPT</if>
+		    <if test="SE == 'APR'">TN_FEIS_FCK_APRCOMPT</if>
+		    <if test="SE == 'LCP'">TN_FEIS_LCP_SVYCOMPT</if>
+		    <if test="SE == 'WKA'">TN_FEIS_WKA_SVYCOMPT</if>
+		    <if test="SE == 'CNL'">TN_FEIS_CNL_SVYCOMPT</if>
+		    <if test="SE == 'FRD'">TN_FEIS_FRD_SVYCOMPT</if>
+		    <if test="SE == 'PCS'">TN_FEIS_PCS_SVYCOMPT</if>
+		    <if test="SE == 'MSE'">TN_FEIS_MSE_SVYCOMPT</if>
+		    WHERE MST_ID = CAST(#{MST_ID} AS INTEGER)
+    		AND SVY_LABEL = #{_LABEL}    
+    		</selectKey>
+	</update>
+	
+	<!-- 전자야장 공유방 조사데이터 upsert -->
+	<insert id="upsertCnrsSpceItem" useGeneratedKeys="true" keyProperty="gid" parameterType="or.sabang.sys.ext.service.ExtFieldBookItemVO">
+		INSERT INTO
+		<if test="SE == 'BSC'">
+			TN_FEIS_BSC_SVYCOMPT
+        </if>
+        <if test="SE == 'APR'">
+			TN_FEIS_FCK_APRCOMPT
+        </if>
+        <if test="SE == 'LCP'">
+			TN_FEIS_LCP_SVYCOMPT
+        </if>
+        <if test="SE == 'WKA'">
+			TN_FEIS_WKA_SVYCOMPT
+        </if>
+        <if test="SE == 'CNL'">
+			TN_FEIS_CNL_SVYCOMPT
+        </if>
+        <if test="SE == 'FRD'">
+			TN_FEIS_FRD_SVYCOMPT
+        </if>
+        <if test="SE == 'PCS'">
+			TN_FEIS_PCS_SVYCOMPT
+        </if>
+        <if test="SE == 'MSE'">
+			TN_FEIS_MSE_SVYCOMPT
+        </if>
+		(MST_ID, LOGIN_ID, SVY_LON, SVY_LAT, SVY_DATA, SVY_KEYWORD, SVY_LABEL, SVY_STYLE, SVY_MEMO, LAST_UPDT_PNTTM, UPDT_PNTTM, CREAT_DT, SVY_ATTR)
+		VALUES (
+			CAST(#{MST_ID} AS INT)
+			, #{LOGIN_ID}
+			, CAST(#{_LON} AS FLOAT)
+			, CAST(#{_LAT} AS FLOAT)
+			, #{_DATA}
+			, #{_KEYWORD}
+			, #{_LABEL}
+			, #{_STYLE}
+			, #{_MEMO}
+			, to_timestamp(#{_LAST_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+			, to_timestamp(#{_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+			, to_timestamp(#{_REG_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+			, #{ATTR}
+	    )
+		ON CONFLICT ON CONSTRAINT 
+		<if test="SE == 'BSC'">
+			TN_FEIS_BSC_SVYCOMPT_UN
+        </if>
+        <if test="SE == 'APR'">
+			TN_FEIS_FCK_APRCOMPT_UN
+        </if>
+        <if test="SE == 'LCP'">
+			TN_FEIS_LCP_SVYCOMPT_UN
+        </if>
+        <if test="SE == 'WKA'">
+			TN_FEIS_WKA_SVYCOMPT_UN
+        </if>
+        <if test="SE == 'CNL'">
+			TN_FEIS_CNL_SVYCOMPT_UN
+        </if>
+        <if test="SE == 'FRD'">
+			TN_FEIS_FRD_SVYCOMPT_UN
+        </if>
+        <if test="SE == 'PCS'">
+			TN_FEIS_PCS_SVYCOMPT_UN
+        </if>
+        <if test="SE == 'MSE'">
+			TN_FEIS_MSE_SVYCOMPT_UN
+        </if>
+		DO UPDATE SET 
+		LOGIN_ID = #{LOGIN_ID}
+   		, SVY_LON = CAST(#{_LON} as FLOAT)
+   		, SVY_LAT = CAST(#{_LAT} as FLOAT)
+   		, SVY_DATA = #{_DATA}
+   		, SVY_KEYWORD = #{_KEYWORD}
+   		, SVY_LABEL = #{_LABEL}
+   		, SVY_STYLE = #{_STYLE}
+    	, SVY_MEMO = #{_MEMO}
+    	, UPDT_PNTTM = to_timestamp(#{_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+   		, LAST_UPDT_PNTTM = to_timestamp(#{_LAST_UPD_DATE}, 'YYYY/MM/DD hh24:mi:ss')
+   		, SVY_ATTR = #{ATTR}
+	</insert>
+<!-- 	<select id="selectCnrsSpceCompItem" resultMap="extfieldBookItem" parameterType="hashMap">
+		<![CDATA[
+			SELECT MST_ID, LOGIN_ID, _FID, _LON, _LAT, ST_ASTEXT(_DATA) as "_DATA", _KEYWORD, _LABEL, _STYLE, _MEMO, _TAG1, _TAG2, RTRIM(_REG_DATE) as "_REG_DATE", RTRIM(_UPD_DATE) as "_UPD_DATE", ATTR
+			FROM 
+				TN_FEIS_BSC_FIELDINFO
+			WHERE MST_ID = #{mst_id}
+			AND _UPD_DATE >= #{last_update}
+		]]>
+	</select> -->
+	
+	<!-- 전자야장 공유방 조사 완료데이터 단건 조회 -->
+	<select id="selectCnrsSpceCompItem" resultMap="extfieldBookItem" parameterType="hashMap">
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_BSC_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_FCK_APRCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_LCP_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_WKA_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_CNL_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_FRD_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_PCS_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+		UNION ALL
+		SELECT 
+			MST_ID AS MST_ID
+			, LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		FROM TN_FEIS_MSE_SVYCOMPT
+		WHERE MST_ID = #{mst_id}
+		AND SVY_LABEL = #{_label}
+	</select>
+	
+	<!-- 전자야장 공유방 조사데이터 업로드 결과 목록 -->
+	<select id="selectCnrsSpceCompList" resultMap="extfieldBookItem" parameterType="hashMap">
+		SELECT 
+			T1.MST_ID AS MST_ID
+			, T1.LOGIN_ID AS LOGIN_ID
+		<if test="SE == 'BSC'">
+			, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT				
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS ATTR
+			, T1.SVY_DATA AS _DATA
+           	FROM TN_FEIS_BSC_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_BSC_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+        <if test="SE == 'APR'">
+        	, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT				
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS ATTR
+			, T1.SVY_DATA AS _DATA
+            	FROM TN_FEIS_APR_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_FCK_APRCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+        <if test="SE == 'LCP'">
+        	, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS _ATTR
+        	, T1.SVY_DATA AS "_DATA"
+            	FROM TN_FEIS_LCP_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_LCP_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+        <if test="SE == 'WKA'">
+			, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS _ATTR
+        	, T1.SVY_DATA AS "_DATA"
+           	FROM TN_FEIS_WKA_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_WKA_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+        <if test="SE == 'CNL'">
+			, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS _ATTR
+        	, T1.SVY_DATA AS "_DATA"
+           	FROM TN_FEIS_CNL_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_CNL_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+        <if test="SE == 'FRD'">
+			, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS _ATTR
+        	, T1.SVY_DATA AS "_DATA"
+           	FROM TN_FEIS_FRD_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_FRD_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+        <if test="SE == 'PCS'">
+			, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS _ATTR
+        	, T1.SVY_DATA AS "_DATA"
+           	FROM TN_FEIS_PCS_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_PCS_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+        <if test="SE == 'MSE'">
+			, T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, TO_CHAR(T1.CREAT_DT,'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(T1.LAST_UPDT_PNTTM,'YYYY/MM/DD HH24:MI:SS') AS _UPD_DATE
+			, T1.SVY_ATTR AS _ATTR
+        	, T1.SVY_DATA AS "_DATA"
+           	FROM TN_FEIS_MSE_FIELDINFO T1
+			LEFT OUTER JOIN TN_FEIS_MSE_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+			WHERE 1=1
+			AND T2.SVY_LABEL IS NULL
+			AND T1.MST_ID = #{mst_id}
+			AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+        </if>
+		UNION
+		SELECT 
+			T2.MST_ID AS MST_ID
+			, T2.LOGIN_ID AS LOGIN_ID
+			, SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, TO_CHAR(CREAT_DT, 'YYYY/MM/DD HH24:MI:SS') AS _REG_DATE
+			, TO_CHAR(UPDT_PNTTM, 'YYYY/MM-DD HH24:MI:SS') AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+			, SVY_DATA AS _DATA
+		<if test="SE == 'BSC'">			
+			FROM TN_FEIS_BSC_SVYCOMPT T2
+		</if>
+		<if test="SE == 'APR'">
+			FROM TN_FEIS_FCK_APRCOMPT T2
+		</if>
+		<if test="SE == 'LCP'">
+			FROM TN_FEIS_LCP_SVYCOMPT T2
+		</if>
+		<if test="SE == 'WKA'">
+			FROM TN_FEIS_WKA_SVYCOMPT T2
+		</if>
+		<if test="SE == 'CNL'">
+			FROM TN_FEIS_CNL_SVYCOMPT T2
+		</if>
+		<if test="SE == 'FRD'">
+			FROM TN_FEIS_FRD_SVYCOMPT T2
+		</if>
+		<if test="SE == 'PCS'">
+			FROM TN_FEIS_PCS_SVYCOMPT T2
+		</if>
+		<if test="SE == 'MSE'">
+			FROM TN_FEIS_MSE_SVYCOMPT T2
+		</if>
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS')
+	</select>
+	
+	<!--
+	* 정적 지도 이미지 조회
+	*@author ipodo
+	*@name selectFckAprComptLcmap
+	*@param int
+	*@returns egovMap
+	 -->
+	<select id="selectFckAprComptLcmap" parameterType="int" resultType="egovMap">
+		SELECT LCMAP FROM 
+		<choose>
+		<when test="SE == 'BSC'">TN_FEIS_BSC_SVYMEMO</when>		    
+		<otherwise>TN_FEIS_FCK_APRMEMO</otherwise>
+		</choose> 
+		WHERE GID = #{gid}
+	</select>
+	
+	<!--
+	* 정적 지도 이미지 포인트 조회
+	*@author ipodo
+	*@name selectFckAprComptLcmap
+	*@param int
+	*@returns egovMap
+	 -->
+	<select id="selectComptLcMapLonLat" parameterType="hashMap" resultType="egovMap">
+		<choose>
+		<when test="SE == 'BSC'">
+		SELECT ST_X(F.CEN) AS LON, ST_Y(F.CEN) AS LAT, 
+			CONCAT(ST_X(F.BP), ' ', ST_Y(F.BP), ';', ST_X(F.EP),' ', ST_Y(F.EP)) AS MARKER,
+			CONCAT(
+				ST_ASLATLONTEXT(ST_TRANSFORM(F.BP, 4326), 'D M S.SS'), ';', ST_ASLATLONTEXT(ST_TRANSFORM(F.EP, 4326), 'D M S.SS')
+			) AS LABEL,
+		CASE
+		WHEN ST_DISTANCE(F.BP, F.EP) > 1600 THEN 13
+		WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 600 AND 1600 THEN 14
+		WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 150 AND 600 THEN 15
+		WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 120 AND 150 THEN 16
+		WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 85 AND 120 THEN 17
+		ELSE 18
+		END AS ZOOM
+		FROM (
+				SELECT ST_CENTROID(ST_COLLECT(T.BP, T.EP)) AS CEN, T.BP, T.EP
+				FROM (    
+					SELECT 
+					ST_TRANSFORM(ST_SETSRID(ST_POINT(BPX, BPY), 5186), 3857) AS BP,
+					ST_TRANSFORM(ST_SETSRID(ST_POINT(EPX, EPY), 5186), 3857) AS EP
+				    FROM TN_FEIS_BSC_SVYMEMO WHERE GID = #{gid}
+				) AS T
+		) AS F
+		</when>		    
+		<when test="SE == 'APR' and type == '계류보전 외관점검'">
+		SELECT ST_X(F.POINT) AS LON, ST_Y(F.POINT) AS LAT,
+			CONCAT(ST_X(F.POINT), ' ', ST_Y(F.POINT)) AS MARKER, 
+			ST_ASLATLONTEXT(ST_TRANSFORM(F.POINT, 4326), 'D°M''S.SS"') AS LABEL,
+			17 AS ZOOM,
+			COALESCE((SELECT MAPTYPE FROM TN_FEIS_LOCIMG_INFO WHERE GID = #{gid} LIMIT 1),'') AS MAPTYPE
+		FROM (
+		    SELECT
+		    	CASE
+		    		 WHEN (T.F ->> 'X좌표1')::NUMERIC IS NULL THEN ST_TRANSFORM(ST_SETSRID(ST_POINT(COALESCE(NULLIF(PX,NULL),LON), COALESCE(NULLIF(PY,NULL),LAT)), 5186), 3857)
+		    		 ELSE ST_TRANSFORM(ST_SETSRID(ST_POINT((T.F ->> 'X좌표1')::NUMERIC, (T.F ->> 'Y좌표1')::NUMERIC), 5186), 3857)
+		    	END AS POINT
+		    FROM (
+				SELECT JSON_ARRAY_ELEMENTS(TRGLND::JSON) AS F
+				,PX,PY,LON,LAT
+				FROM TN_FEIS_FCK_APRMEMO
+				WHERE GID = #{gid}
+			) AS T
+		) AS F
+		</when>
+		<when test="SE == 'APR' and type == '산지사방 외관점검'">
+		SELECT ST_X(F.POINT) AS LON, ST_Y(F.POINT) AS LAT,
+			CONCAT(ST_X(F.POINT), ' ', ST_Y(F.POINT)) AS MARKER, 
+			ST_ASLATLONTEXT(ST_TRANSFORM(F.POINT, 4326), 'D°M''S.SS"') AS LABEL,
+			17 AS ZOOM,
+			COALESCE((SELECT MAPTYPE FROM TN_FEIS_LOCIMG_INFO WHERE GID = #{gid} LIMIT 1),'') AS MAPTYPE
+		FROM (
+		    SELECT
+		    	CASE
+		    		 WHEN (T.F ->> 'X좌표')::NUMERIC IS NULL THEN ST_TRANSFORM(ST_SETSRID(ST_POINT(COALESCE(NULLIF(PX,NULL),LON), COALESCE(NULLIF(PY,NULL),LAT)), 5186), 3857)
+		    		 ELSE ST_TRANSFORM(ST_SETSRID(ST_POINT((T.F ->> 'X좌표')::NUMERIC, (T.F ->> 'Y좌표')::NUMERIC), 5186), 3857)
+		    	END AS POINT
+		    FROM (
+				SELECT JSON_ARRAY_ELEMENTS(TRGLND::JSON) AS F
+				,PX,PY,LON,LAT
+				FROM TN_FEIS_FCK_APRMEMO
+				WHERE GID = #{gid}
+			) AS T
+		) AS F
+		</when>
+		<when test="SE == 'APR' and type == '사방댐 외관점검'">
+		SELECT ST_X(F.POINT) AS LON, ST_Y(F.POINT) AS LAT,
+			CONCAT(ST_X(F.POINT), ' ', ST_Y(F.POINT)) AS MARKER,
+			ST_ASLATLONTEXT(ST_TRANSFORM(F.POINT, 4326), 'D°M''S.SS"') AS LABEL,
+			17 AS ZOOM,
+			COALESCE((SELECT MAPTYPE FROM TN_FEIS_LOCIMG_INFO WHERE GID = #{gid} LIMIT 1),'') AS MAPTYPE
+		FROM  (
+			SELECT ST_TRANSFORM(ST_SETSRID(ST_POINT(COALESCE(NULLIF(PX,NULL),LON), COALESCE(NULLIF(PY,NULL),LAT)), 5186), 3857) AS POINT
+			FROM TN_FEIS_FCK_APRMEMO AS B WHERE GID = #{gid}
+		) AS F
+		</when>
+		</choose>
+		
+	</select>
+	<!--
+	* 정적 지도 이미지 포인트 조회
+	*@author ipodo
+	*@name selectFckAprComptLcmap
+	*@param int
+	*@returns egovMap
+	 -->
+	<select id="selectAprComptLcMapLonLat" parameterType="hashMap" resultType="egovMap">
+		SELECT ST_X(F.POINT) AS LON, ST_Y(F.POINT) AS LAT,
+			CONCAT(ST_X(F.POINT), ' ', ST_Y(F.POINT)) AS MARKER,
+			ST_ASLATLONTEXT(ST_TRANSFORM(F.POINT, 4326), 'D°M''S.SS"') AS LABEL,
+			17 AS ZOOM
+		FROM  (
+			SELECT ST_TRANSFORM(ST_SETSRID(ST_POINT(COALESCE(NULLIF(PX,NULL),LON), COALESCE(NULLIF(PY,NULL),LAT)), 5186), 3857) AS POINT
+			FROM TN_FEIS_FCK_APRMEMO AS B WHERE GID = #{gid}
+		) AS F
+	</select>
+	
+	<!--
+	* 정적 지도 이미지 포인트 조회
+	*@author ipodo
+	*@name selectPcsComptLcMapLonLat
+	*@param int
+	*@returns egovMap
+	 -->
+	<select id="selectPcsComptLcMapLonLat" parameterType="hashMap" resultType="egovMap">
+		SELECT ST_X(F.POINT) AS LON, ST_Y(F.POINT) AS LAT,
+			CONCAT(ST_X(F.POINT), ' ', ST_Y(F.POINT)) AS MARKER,
+			ST_ASLATLONTEXT(ST_TRANSFORM(F.POINT, 4326), 'D°M''S.SS"') AS LABEL,
+			17 AS ZOOM
+		FROM  (
+			SELECT ST_TRANSFORM(ST_SETSRID(ST_POINT(COALESCE(NULLIF(PX,NULL),LON), COALESCE(NULLIF(PY,NULL),LAT)), 5186), 3857) AS POINT
+			FROM TN_FEIS_PCS_SVYMEMO AS B WHERE GID = #{gid}
+		) AS F
+	</select>
+	
+	<!--
+	* 정적 지도 이미지 수정
+	*@author ipodo
+	*@name updateComptLcMap
+	*@param FckAprComptVO
+	*@returns 
+	 -->
+	<update id="updateComptLcMap" parameterType="hashMap">
+		UPDATE 
+		<choose>
+		<when test="SE == 'BSC'">TN_FEIS_BSC_SVYMEMO</when>
+		<when test="SE == 'LCP'">TN_FEIS_LCP_SVYMEMO</when>
+		<when test="SE == 'CNL'">TN_FEIS_CNL_SVYMEMO</when>
+		<when test="SE == 'APR'">TN_FEIS_FCK_APRMEMO</when>
+		<otherwise>TN_FEIS_PCS_SVYMEMO</otherwise>
+		</choose>
+		SET LCMAP = #{lcMap}::TEXT
+		WHERE GID = CAST(#{gid} AS INTEGER)
+	</update>
+	
+	<!-- 전자야장 공유방 동기화 -->
+	<select id="selectCnrsSpceSyncItem" resultMap="extfieldBookItem" parameterType="hashMap">
+		(SELECT 
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS _DATA
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS ATTR
+		FROM TN_FEIS_BSC_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_BSC_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_BSC_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION ALL
+		(SELECT 
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS _DATA
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS _TAG1
+			, T1.SVY_TAG2 AS _TAG2
+			, CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS ATTR
+		FROM TN_FEIS_APR_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_FCK_APRCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_FCK_APRCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION ALL
+		(SELECT 
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS TAG1
+			, T1.SVY_TAG2 AS TAG2
+			,CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_LCP_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_LCP_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_LCP_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS TAG1
+			, T1.SVY_TAG2 AS TAG2
+			,CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_WKA_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_WKA_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_WKA_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS TAG1
+			, T1.SVY_TAG2 AS TAG2
+			,CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_CNL_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_CNL_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_CNL_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS TAG1
+			, T1.SVY_TAG2 AS TAG2
+			,CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_FRD_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_FRD_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_FRD_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS TAG1
+			, T1.SVY_TAG2 AS TAG2
+			,CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_PCS_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_PCS_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_PCS_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION ALL
+		(SELECT
+			T1.SVY_FID AS _FID
+			, T1.SVY_LON AS _LON
+			, T1.SVY_LAT AS _LAT
+			, T1.SVY_DATA AS "_DATA"
+			, T1.SVY_KEYWORD AS _KEYWORD
+			, T1.SVY_LABEL AS _LABEL
+			, T1.SVY_STYLE AS _STYLE
+			, T1.SVY_MEMO AS _MEMO
+			, T1.SVY_TAG1 AS TAG1
+			, T1.SVY_TAG2 AS TAG2
+			,CAST(T1.CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(T1.LAST_UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, T1.SVY_ATTR AS "ATTR"
+		FROM TN_FEIS_MSE_FIELDINFO T1
+		LEFT OUTER JOIN TN_FEIS_MSE_SVYCOMPT T2
+			ON T1.SVY_LABEL = T2.SVY_LABEL
+			AND T1.MST_ID = T2.MST_ID
+		WHERE 1=1
+		AND T2.SVY_LABEL IS NULL
+		AND T1.MST_ID = #{mst_id}
+		AND T1.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+		UNION
+		(SELECT 
+			SVY_FID AS _FID
+			, SVY_LON AS _LON
+			, SVY_LAT AS _LAT
+			, SVY_DATA AS _DATA
+			, SVY_KEYWORD AS _KEYWORD
+			, SVY_LABEL AS _LABEL
+			, SVY_STYLE AS _STYLE
+			, SVY_MEMO AS _MEMO
+			, SVY_TAG1 AS _TAG1
+			, SVY_TAG2 AS _TAG2
+			, CAST(CREAT_DT AS TEXT) AS _REG_DATE
+			, CAST(UPDT_PNTTM AS TEXT) AS _UPD_DATE
+			, SVY_ATTR AS ATTR
+		FROM TN_FEIS_MSE_SVYCOMPT T2
+		WHERE T2.MST_ID = #{mst_id}
+		AND T2.LAST_UPDT_PNTTM >= TO_TIMESTAMP(#{last_update}, 'YYYY/MM/DD HH24:MI:SS'))
+	</select>
+	
+	<!-- 위치도 줌레벨 조회 -->
+	<select id="selectLocImgInfo" resultType="int" parameterType="or.sabang.sys.ext.service.LocImgInfoVO">
+			SELECT COALESCE(MAX(ZOOM),
+			<choose>
+				<when test="svySe == 'BSC'">
+				(SELECT CASE
+					WHEN ST_DISTANCE(F.BP, F.EP) > 1600 THEN 13
+					WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 600 AND 1600 THEN 14
+					WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 150 AND 600 THEN 15
+					WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 120 AND 150 THEN 16
+					WHEN ST_DISTANCE(F.BP, F.EP) BETWEEN 85 AND 120 THEN 17
+					ELSE 18
+					END AS VAL
+					FROM (
+							SELECT T.BP, T.EP
+							FROM (
+								SELECT
+									ST_TRANSFORM(ST_SETSRID(ST_POINT(BPX, BPY), 5186), 3857) AS BP,
+									ST_TRANSFORM(ST_SETSRID(ST_POINT(EPX, EPY), 5186), 3857) AS EP
+							    FROM TN_FEIS_BSC_SVYMEMO WHERE GID = #{gid}
+							) AS T
+					) AS F
+				)
+				</when>
+				<otherwise>17</otherwise>
+			</choose>
+			) AS ZOOM
+			FROM TN_FEIS_LOCIMG_INFO
+			WHERE GID = #{gid}
+	</select>
+	
+	<!-- 위치도 줌레벨 추가 및 수정 -->
+	<insert id="insertUpdtLocImgInfo" parameterType="or.sabang.sys.ext.service.LocImgInfoVO">
+		<![CDATA[
+			INSERT INTO TN_FEIS_LOCIMG_INFO
+			(
+				GID,SVYSE,SVYTYPE,ZOOM,IDX,MAPTYPE
+			)
+			VALUES
+			(
+				#{gid},
+				#{svySe},
+				#{svyType},
+				#{svyZoom},
+				#{svyIdx},
+				#{mapType}
+			)
+			ON CONFLICT ON CONSTRAINT TN_FEIS_LOCIMG_INFO_PKEY
+		    DO UPDATE
+				SET ZOOM = #{svyZoom},
+				MAPTYPE = #{mapType}
+		]]>
+	</insert>
+</mapper>

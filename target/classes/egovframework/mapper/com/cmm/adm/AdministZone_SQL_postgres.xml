@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:39 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AdministZoneDAO">
+	
+	<select id="selectAdministZoneCtprvn" resultType="or.sabang.cmm.service.AdministZoneVO">
+		<![CDATA[
+			SELECT  CTPRVN_COD AS adminCode
+			     ,  CTPRVN_NM AS adminNm
+			  FROM  TF_FEIS_CTPRVN
+			  ORDER BY CTPRVN_COD
+		]]>
+	</select>
+	
+	<select id="selectAdministZoneSigngu" parameterType="or.sabang.cmm.service.AdministZoneVO" resultType="or.sabang.cmm.service.AdministZoneVO">
+		SELECT  SIGNGU_COD AS adminCode
+		     ,  SIGNGU_NM AS adminNm
+		  FROM  TF_FEIS_SIGNGU
+		  WHERE 1=1
+		  <if test="sdCode != null and sdCode != ''">AND 
+		  	CTPRVN_COD = #{sdCode}
+		  </if>
+		  <if test="sdNm != null and sdNm != ''">AND 
+		  	CTPRVN_NM = #{sdNm}
+		  </if>
+		  ORDER BY SIGNGU_NM
+	</select>
+	
+	<select id="selectAdministZoneEmd" parameterType="or.sabang.cmm.service.AdministZoneVO" resultType="or.sabang.cmm.service.AdministZoneVO">
+		SELECT  EMD_CODE AS adminCode
+		     ,  EMD_NM AS adminNm
+		  FROM  TF_FEIS_EMD
+		  WHERE 1=1
+		  <if test="sggCode != null and sggCode != ''">AND 
+		  	SIGNGU_COD = #{sggCode}
+		  </if>
+		  <if test="sggNm != null and sggNm != ''">AND 
+		  	CTPRVN_NM = #{sdNm}
+		  	AND
+		  	SIGNGU_NM = #{sggNm}
+		  </if>
+		  ORDER BY EMD_NM
+	</select>
+	
+	<select id="selectAdministZoneRi" parameterType="or.sabang.cmm.service.AdministZoneVO" resultType="or.sabang.cmm.service.AdministZoneVO">
+		SELECT  LI_CODE AS adminCode
+		     ,  LI_NM AS adminNm
+		  FROM  TF_FEIS_LI
+		  WHERE 1=1
+		  <if test="emdCode != null and emdCode != ''">AND 
+		  	EMD_CODE = #{emdCode}
+		  </if>
+		  <if test="emdNm != null and emdNm != ''">AND 
+		  	CTPRVN_NM = #{sdNm}
+		  	AND
+		  	SIGNGU_NM = #{sggNm}
+		  	AND
+		  	EMD_NM = #{emdNm}
+		  </if>
+		  ORDER BY LI_NM
+	</select>
+	
+	<!-- 땅밀림 실태조사 8개 시도 조회 -->
+	<select id="selectLcpAdministZoneCtprvn" resultType="or.sabang.cmm.service.AdministZoneVO">
+		<![CDATA[
+			SELECT  CTPRVN_COD AS adminCode
+			     ,  CTPRVN_NM AS adminNm
+			  FROM  TF_FEIS_CTPRVN
+			  WHERE CTPRVN_COD BETWEEN '40' AND '48' 
+			  	OR CTPRVN_COD = '51'
+			  ORDER BY CTPRVN_COD ASC
+		]]>
+	</select>
+</mapper>

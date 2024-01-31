@@ -1,0 +1,2881 @@
+package or.sabang.utl;
+
+import java.awt.Color;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.supermap.analyst.spatialanalyst.ConversionAnalyst;
+import com.supermap.analyst.spatialanalyst.ConversionAnalystParameter;
+import com.supermap.analyst.spatialanalyst.GridStatisticsMode;
+import com.supermap.analyst.spatialanalyst.RasterClip;
+import com.supermap.analyst.spatialanalyst.SmoothMethod;
+import com.supermap.analyst.spatialanalyst.StatisticsAnalyst;
+import com.supermap.analyst.spatialanalyst.VectorClip;
+import com.supermap.analyst.spatialanalyst.ZonalStatisticsAnalystParameter;
+import com.supermap.analyst.spatialanalyst.ZonalStatisticsAnalystResult;
+import com.supermap.analyst.terrainanalyst.HydrologyAnalyst;
+import com.supermap.data.Charset;
+import com.supermap.data.ColorDictionary;
+import com.supermap.data.CoordSysTransMethod;
+import com.supermap.data.CoordSysTransParameter;
+import com.supermap.data.CoordSysTranslator;
+import com.supermap.data.CursorType;
+import com.supermap.data.Dataset;
+import com.supermap.data.DatasetGrid;
+import com.supermap.data.DatasetImage;
+import com.supermap.data.DatasetType;
+import com.supermap.data.DatasetVector;
+import com.supermap.data.Datasets;
+import com.supermap.data.Datasource;
+import com.supermap.data.DatasourceConnectionInfo;
+import com.supermap.data.Datasources;
+import com.supermap.data.EngineType;
+import com.supermap.data.Feature;
+import com.supermap.data.GeoCompound;
+import com.supermap.data.GeoCoordSys;
+import com.supermap.data.GeoLegend;
+import com.supermap.data.GeoLine;
+import com.supermap.data.GeoMap;
+import com.supermap.data.GeoPoint;
+import com.supermap.data.GeoRectangle;
+import com.supermap.data.GeoRegion;
+import com.supermap.data.GeoStyle;
+import com.supermap.data.GeoText;
+import com.supermap.data.Geometry;
+import com.supermap.data.GeometryType;
+import com.supermap.data.Point2D;
+import com.supermap.data.Point2Ds;
+import com.supermap.data.PrjCoordSys;
+import com.supermap.data.PrjParameter;
+import com.supermap.data.Recordset;
+import com.supermap.data.Rectangle2D;
+import com.supermap.data.Size2D;
+import com.supermap.data.TextAlignment;
+import com.supermap.data.TextPart;
+import com.supermap.data.TextStyle;
+import com.supermap.data.Workspace;
+import com.supermap.data.WorkspaceConnectionInfo;
+import com.supermap.data.WorkspaceType;
+import com.supermap.data.conversion.DataExport;
+import com.supermap.data.conversion.DataImport;
+import com.supermap.data.conversion.ExportSetting;
+import com.supermap.data.conversion.ExportSettings;
+import com.supermap.data.conversion.FileType;
+import com.supermap.data.conversion.ImportMode;
+import com.supermap.data.conversion.ImportResult;
+import com.supermap.data.conversion.ImportSettingSHP;
+import com.supermap.layout.LayoutElements;
+import com.supermap.layout.PrintFileType;
+import com.supermap.mapping.Layer;
+import com.supermap.mapping.LayerSettingGrid;
+import com.supermap.mapping.LayerSettingImage;
+import com.supermap.mapping.LayerSettingVector;
+import com.supermap.mapping.ThemeLabel;
+import com.supermap.mapping.ThemeUnique;
+import com.supermap.mapping.ThemeUniqueItem;
+import com.supermap.ui.Action;
+import com.supermap.ui.MapLayoutControl;
+
+import egovframework.com.cmm.EgovWebUtil;
+import egovframework.com.cmm.service.EgovProperties;
+import egovframework.com.utl.fcc.service.EgovFileUploadUtil;
+import egovframework.rte.fdl.cryptography.EgovEnvCryptoService;
+import egovframework.rte.fdl.property.EgovPropertyService;
+import or.sabang.sys.service.SysComptVO;
+import or.sabang.sys.service.SysFieldInfoVO;
+import or.sabang.sys.service.ZonalStatisticVO;
+
+@Component("superMapUtils")
+public class SuperMapUtils {
+	
+	public static final Logger LOGGER = LoggerFactory.getLogger(SuperMapUtils.class);
+	
+	/** 암호화서비스 */
+	@Resource(name = "egovEnvCryptoService")
+	EgovEnvCryptoService cryptoService;
+	/** 프러퍼티서비스 */
+	@Resource(name="propertiesService")
+    protected EgovPropertyService propertyService;
+	
+	private Workspace workspace = null;
+	private Datasources datasources = null;
+	
+	//database
+	private DatasourceConnectionInfo connectionInfo = null;
+	private Datasource datasource = null;
+	private Datasets datasets = null;
+	private DatasetVector dataset = null;
+	private Recordset recordset = null;
+	
+	//udb
+	private DatasourceConnectionInfo uConnectionInfo = null;
+	private Datasource uDatasource = null;
+	private Datasets uDatasets = null;
+	private DatasetVector uDataset = null;
+	private Recordset uRecordset = null;
+	
+	//vworld
+	private DatasourceConnectionInfo vConnectionInfo = null;
+	private Datasource vDatasource = null;
+	private Datasets vDatasets = null;
+	private DatasetVector vDataset = null;
+	private Recordset vRecordset = null;
+	
+	private MapLayoutControl mapLayoutcontrol = null;
+	
+	private Map<String, Object> attributes = null;
+	private JSONObject returnLog = null;
+	private int epsg = 0;
+	
+	private boolean deleted = false;
+	
+	/** 첨부파일 위치 지정  => globals.properties */
+    private final String uploadDir = EgovProperties.getProperty("Globals.fileStorePath.analysis");
+    private final String smwuPath = EgovProperties.getProperty("Globals.supermap.smwuPath");
+	/**
+	 * 연결정보
+	 * @param type
+	 * @throws Exception
+	 */
+	private void getConnectionInfo(String type) throws Exception{
+		workspace = new Workspace();
+		
+		if(type.equals("pggis")) {
+			getDatasourceConnectionInfo();
+		}else if(type.equals("udbx")) {
+			getUdbxConnectionInfo();
+		}else if(type.equals("vworld")) {
+			getVworldConnectionInfo();
+		}else {
+			getDatasourceConnectionInfo();
+			getUdbxConnectionInfo();
+		}
+	}
+	
+	private void getConnectionInfo() throws Exception{
+		workspace = new Workspace();
+		createWorkspace();
+		getDatasourceConnectionInfo();
+		getUdbxConnectionInfo();
+	}
+	
+	/**
+	 * worspace 연결
+	 */
+	public void createWorkspace() {
+		try {
+			WorkspaceConnectionInfo conn = new WorkspaceConnectionInfo();
+			//String path = "";//SphUtil.getFilePath(this.item.getFileDefaultLocPath(), "smwu", this.item.getServerInfohash());
+			conn.setType(WorkspaceType.SMWU);
+			conn.setName("feis");
+			conn.setServer(smwuPath);
+
+			workspace.open(conn);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Datasources 가져오기
+	 * @return
+	 */
+	private Datasources getDatasources() {
+		return workspace.getDatasources();
+	}
+	
+	/**
+	 * 슈퍼맵 연결정보 생성
+	 * @return
+	 * @throws Exception
+	 */
+	private void getDatasourceConnectionInfo() throws Exception{
+		//작업공간을 열고 데이터소스 가져오기
+		//workspace = new Workspace();
+		datasources = getDatasources();
+		
+		String server = propertyService.getString("supermap.postgres.server");
+		//String driver = propertyService.getString("Globals.postgres.DriverClassName");
+		String database = propertyService.getString("supermap.postgres.database");
+		//String alias = propertyService.getString("supermap.postgres.alias");
+		
+		boolean isNew = true;
+		
+		if(datasources.contains("sabang")) {
+			for(int i = 0; i < datasources.getCount(); i++) {
+				Datasource source = datasources.get(i);
+				if(server.equals(source.getConnectionInfo().getServer())) {
+					isNew = false;
+					break;
+				}
+			}
+		}
+		
+		if(!isNew) {
+			datasource = datasources.get("sabang");
+		}else {
+			connectionInfo = new DatasourceConnectionInfo();
+			
+			//연결정보 입력하기
+			connectionInfo.setEngineType(EngineType.PGGIS);
+			connectionInfo.setServer(server);
+			connectionInfo.setDatabase(database);
+			connectionInfo.setUser(cryptoService.getUsername());
+			connectionInfo.setPassword(cryptoService.getPassword());
+			connectionInfo.setAlias("sabang");
+			connectionInfo.setReadOnly(false);
+			
+			datasource = datasources.open(connectionInfo);
+		}
+		
+		datasets = datasource.getDatasets();
+	}
+	
+	/**
+	 * 슈퍼맵 UDB 연결정보 생성
+	 * @throws Exception
+	 */
+	private void getUdbxConnectionInfo() throws Exception {
+		datasources = getDatasources();
+		
+		String udbxPath = EgovProperties.getProperty("Globals.supermap.udbPath");
+		boolean isNew = true;
+		
+		if(datasources.contains("feis")) {
+			for(int i = 0; i < datasources.getCount(); i++) {
+				Datasource source = datasources.get(i);
+				if(udbxPath.equals(source.getConnectionInfo().getServer())) {
+					isNew = false;
+					break;
+				}
+			}
+		}
+		
+		if(!isNew) {
+			uDatasource = datasources.get("feis");
+		}else {
+			uConnectionInfo = new DatasourceConnectionInfo();
+
+			uConnectionInfo.setServer(udbxPath);
+			uConnectionInfo.setReadOnly(false);
+			uConnectionInfo.setAlias("feis");
+			uConnectionInfo.setEngineType(EngineType.UDBX);
+			
+			uDatasource = datasources.open(uConnectionInfo);
+		}
+		
+		uDatasets = uDatasource.getDatasets();
+	}
+	
+	private void getVworldConnectionInfo() throws Exception{
+		datasources = getDatasources();
+		
+		vDatasource = datasources.get("api.vworld.kr");
+		Dataset satDataset = vDatasource.getDatasets().get("VworldSatellite");
+		
+	}
+	
+	/**
+	 * 쉐이프파일 업로드 저장
+	 * @param url 파일경로
+	 * @param vectorName 테이블명
+	 * @param delAll 전체삭제여무
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONObject uploadInsertShape(String url, String vectorName, boolean delAll) throws Exception{
+		returnLog = new JSONObject();
+		boolean processed = true;
+		
+		try {
+			//getDatasourceConnectionInfo();
+			getConnectionInfo("pggis");
+			//테이블 존재여부 확인
+			if(datasets.contains(vectorName)) {
+				//datasets.delete(dataSetVectorNmae); //테이블 삭제
+				dataset = (DatasetVector) datasets.get(vectorName);
+				
+				if(delAll) {
+					LOGGER.info("dataset truncate start...");
+					processed = dataset.truncate();//데이터셋 레코드 전체 삭제
+					LOGGER.info("dataset truncate end...");
+				}
+				
+				if(processed) {
+					ImportResult result = importShpToDb(url,vectorName);
+					
+	                if(result.getFailedSettings().length == 0) {
+	                	LOGGER.info("등록완료.");
+	                	returnLog.put("status", "success");
+			        	returnLog.put("message", "등록완료.");
+	                }else {
+	                	LOGGER.info("저장실패.");
+	                	returnLog.put("status", "fail");
+			        	returnLog.put("message", "등록실패.");
+	                }
+				}else {
+					returnLog.put("status", "fail");
+					returnLog.put("message", "랭크 데이터를 삭제하지 못했습니다.\n관리자에게 문의하세요.");
+				}
+			}else {
+				returnLog.put("status", "fail");
+				returnLog.put("message", "테이블을 찾을 수 없습니다\n관리자에게 문의하세요.");
+			}
+		} catch (Exception e) {
+			returnLog.put("error", e.getLocalizedMessage());
+			LOGGER.error(e.getLocalizedMessage());
+		} finally {
+			//closeDbmsAll();
+			//closeWorkspace();
+			closeConnection("pggis");
+		}
+		
+		return returnLog;
+	}
+	
+	/**
+	 * or.sabang.sys.service.SysComptVO -> com.supermap.data.Recordset 저장
+	 * @param itemVo
+	 * @param vectorName
+	 * @param query
+	 * @param epsgNum
+	 * @return
+	 * @throws Exception
+	 * @see upsertRecordSet(조사정보저장테이블 VO, 테이블명, 조건절, 입력된 좌표체계코드)
+	 * 
+	 * {
+	 *	"MST_ID":400,
+	 *	"LOGIN_ID":"김포도",
+	 *	"_FID":888,
+	 *	"_LON":258146.32280701745,
+	 *	"_LAT":436616.8263157895,
+	 *	"_KEYWORD":"1",
+	 *	"_LABEL":"1",
+	 *	"_STYLE":"BRUSH(bc:#f6402c8f,fc:#f6402cff);SYMBOL(c:#f6402cff,o:#f6402cff,s:8)",
+	 *	"_MEMO":{"토양특성.토심판정값":"10이하","암석노출도":"5~20","땅밀림현황.지하수용출":[{"시점_경도":208389.54928607607,"발생위치":"7부 능선","시점_고도":"76","시점_위도":208389.54928607607,"발생정도":"적다"}],"능선":"4","지형특성.최대높이":"0","완료":"완료","조치사항":"없음","PNU":"0000000000000000000","땅밀림.지질특성.조사3.종류":"절리","판정점수_균열":22,"지질특성.조사1.종류":"엽리","부번":"0000","점검자":"test","땅밀림현황.균열":[{"발생방향":"수직방향","높이":"18","시점_경도":208402.8564821757,"시점_고도":"77","시점_위도":208402.8564821757,"종점_경도":208385.8710675667,"유형":"수직방향","연장":"13","종점_위도":208385.8710675667,"깊이":"13","종점_고도":"77"}],"시군구":"부천시","LON":208401.95743984176,"지형특성.경사_최소":"13","지질특성.조사2.주향":"1","판정점수_단차":22,"지질특성.조사4.종류":"편리","산림특성.임상":"상록활엽수","지질특성.주구성암석":"화성암(심성암류)","토양특성.암석노출도":"5~20","수리특성.하부계류":"무","지질특성.조사1.경사":"1","조사유형":"땅밀림","판정점수_수목생장이상":14,"지형특성.조사위치":"산복","_LON":208401.95743984176,"너덜":"무","지형구분":"구릉지","지질특성.조사5.주향":"1","지질특성.모암":"화강암류","지질특성.암석풍화":"보통암","지질특성.조사4.경사":"1","토양수분":"약습","최종점검결과":"양호","국가지점번호":"다사 6415 3482","땅밀림.지질특성.조사1.종류":"엽리","지질특성.지질구조_단층":"유","지형특성.경사도":"10~20","땅밀림현황.수목이상생장":[{"수고":"18","이상생장_방향":"산정방향","발생범위_세로":"49","임상":"활엽수","수종":"떡갈,오리나무,개서어나무,활엽수","발생범위_가로":"16","시점_경도":208392.94880248944,"지표높이":"134","시점_고도":"75","흉고직경":"46","시점_위도":208392.94880248944,"유형":"떡갈,오리나무,개서어나무,활엽수"}],"산림특성.주요수종":"개가시,녹나무,사스레피나무","지형특성.사면길이":"0","수리특성.저수지":"유","토양형":"적윤성 산림토양","시도":"경기도","토양구조":"벽상","기타특성.임지이용상태":"민가","토양특성.토양형":"적윤성 산림토양","지형특성.평면형":"凸형(미근형)","판정점수_지하수용출":14,"땅밀림현황.단차":[{"발생방향":"수직방향","높이":"79","시점_경도":208395.19521305585,"시점_고도":"77","시점_위도":208395.19521305585,"종점_경도":208359.81842914008,"연장":"13","종점_위도":208359.81842914008,"깊이":"48","종점_고도":"81"}],"지질특성.조사2.종류":"절리","LAT":534729.0567405795,"기타특성.민가":"13","사진":["gimg:///한국치산기술협회-땅밀림-테스트.ncx/QWER.0001.jpg"],"지형특성.능선":"4","지정해제":"해제가능","본번":"0000","지질특성.조사3.주향":"1","토성":"사질양토(SL SIL)","사진태그":[],"지질특성.조사5.종류":"층리","토양특성.토양수분":"약습","지형특성.경사_평균":"18","지질특성.조사2.경사":"1","토양특성.토양구조":"벽상","속칭":"ㅅ디딛ㅅ디디ㅡ","평면형":"凸형(미근형)","지형특성.지형구분":"구릉지","컬러":-638932,"판정점수_지형특성":11,"토양특성.토성":"사질양토(SL SIL)","수리특성.상부지하수유입":"유","땅밀림현황.구조물이상":[{"구조물크기_세로":"49","구조물종류":"석재류","구조물크기_높이":"13","시점_경도":208388.72638998658,"구조물크기_가로":"13","발생위치":"중","이상정도":"부분 파손","시점_고도":"76","시점_위도":208388.72638998658}],"지형특성.경사_최대":"15","조사ID":"QWER","리":"상동","지질특성.조사5.경사":"1","지질특성.블연속면간격":"넓음(60이상)","종단면형":"凸형(미근형)","땅밀림.지질특성.조사4.종류":"편리","판정점수_구조물이상":14,"지질특성.지질구조_습곡":"무","지형특성.종단면형":"凸형(미근형)","점검일시":"2022-07-04","지질특성.타지층관입암":"유","땅밀림.패스사유":"사유지 및 사유시설","지질특성.불연속면방향수":"2","판정점수_지질특성":10,"지번":"13","신규추가":"신규추가","지질특성.조사1.주향":"1","조사지역위치":"산복","토양특성.토심":"13","땅밀림.지질특성.조사5.종류":"층리","위치정보_Y":208389.1281968704,"조사자":"test","위치정보_X":208389.1281968704,"지질특성.조사3.종류":"절리","FID":2109,"판정점수_토양특성":9,"FILE_NCX":"/storage/emulated/0/가온지도/도면/한국치산기술협회-땅밀림-테스트.ncx","지질특성.불연속면방향성":"수평방향","지질특성.조사4.주향":"1","종합의견2":"지형특성","종합의견3":"보호시설","종합의견1":"대상지현황","_LAT":534729.0567405795,"종합의견4":"기타1","종합의견5":"기타2","지목":"","읍면동":"원미구","고도":"76","토양특성.너덜유무":"무","지질특성.조사3.경사":"1","기타특성.하부이용상태":"농경지","TITLE":"조사야장","땅밀림.지질특성.조사2.종류":"절리"},
+	 *	"_TAG1":null,
+	 *	"_TAG2":null,
+	 *	"_REG_DATE":"2022\/05\/31 11:42:11",
+	 *	"_UPD_DATE":"2022\/06\/30 11:42:11",
+	 *	"ATTR":[{"VALUE":"97207","NAME":"조사ID"},{"VALUE":"땅밀림 실태조사","NAME":"조사유형"},{"VALUE":"2022","NAME":"조사연도"},{"VALUE":"부산광역시","NAME":"시도"},{"VALUE":"기장군","NAME":"시군구"},{"VALUE":"정관읍","NAME":"읍면동"},{"VALUE":"두명리","NAME":"리"},{"VALUE":"355도","NAME":"지번"},{"VALUE":"35° 21'' 21.082376880010543\"","NAME":"위도"},{"VALUE":"129° 8'' 52.75872599998593\"","NAME":"경도"}],
+	 *	"_DATA":"MULTIPOLYGON (((234694.69999999984 234258.80000000016, 234689.70000000024 234258.80000000086, 234689.69999999943 234253.80000000028, 234679.6999999993 234253.79999999952, 234679.70000000007 234243.80000000045, 234674.69999999943 234243.80000000045, 234674.6999999994 234208.80000000057, 234679.70000000083 234208.80000000057, 234679.6999999994 234203.80000000139, 234684.7000000007 234203.8, 234684.69999999972 234208.80000000057, 234689.70000000074 234208.80000000127, 234689.69999999984 234213.79999999976, 234694.70000000056 234213.79999999976, 234694.69999999975 234218.79999999964, 234709.7000000006 234218.80000000034, 234709.69999999885 234228.8000000001, 234699.6999999989 234228.8000000008, 234699.70000000086 234233.8, 234694.70000000074 234233.8000000007, 234694.70000000065 234238.80000000057, 234689.70000000048 234238.79999999917, 234689.70000000115 234248.8000000004, 234694.70000000106 234248.79999999894, 234694.69999999984 234258.80000000016, 234699.69999999928 234258.80000000016, 234699.70000000112 234253.80000000028, 234704.7000000005 234253.79999999952, 234704.70000000033 234248.79999999894, 234719.7000000003 234248.79999999964, 234719.7000000007 234243.80000000045, 234729.70000000094 234243.79999999976, 234729.69999999943 234238.80000000057, 234734.70000000065 234238.80000000203, 234734.70000000106 234218.80000000034, 234739.70000000027 234218.80000000034, 234739.69999999966 234213.80000000045, 234744.70000000118 234213.79999999906, 234744.70000000033 234193.80000000016, 234739.70000000083 234193.80000000016, 234739.700000001 234183.8000000011, 234734.6999999989 234183.8000000004, 234734.69999999914 234178.79999999912, 234729.69999999917 234178.79999999912, 234729.6999999995 234173.79999999923, 234724.69999999934 234173.80000000133, 234724.69999999896 234183.8000000004, 234719.7000000011 234183.7999999997, 234719.69999999908 234193.80000000016, 234709.70000000083 234193.80000000016, 234709.69999999905 234198.80000000005, 234699.70000000024 234198.80000000005, 234699.69999999958 234193.80000000092, 234684.700000001 234193.80000000092, 234684.70000000024 234188.80000000173, 234674.6999999993 234188.80000000028, 234674.70000000097 234183.799999999, 234654.70000000094 234183.799999999, 234654.69999999955 234188.80000000028, 234634.7000000007 234188.79999999888, 234634.69999999984 234193.79999999877, 234614.69999999952 234193.80000000092, 234614.69999999914 234203.8000000007, 234609.69999999914 234203.79999999853, 234609.69999999943 234208.80000000057, 234604.69999999923 234208.80000000057, 234604.69999999917 234228.8000000001, 234614.7000000008 234228.8000000001, 234614.69999999972 234238.79999999847, 234594.70000000088 234238.80000000133, 234594.7000000008 234233.7999999993, 234584.69999999934 234233.80000000144, 234584.6999999997 234238.80000000057, 234579.70000000094 234238.79999999987, 234579.6999999994 234243.8000000012, 234574.70000000048 234243.79999999976, 234574.70000000097 234253.80000000168, 234579.69999999963 234253.80000000028, 234579.69999999905 234258.79999999946, 234584.69999999955 234258.80000000016, 234584.70000000065 234283.80000000028, 234589.7 234283.80000000028, 234589.700000001 234288.80000000162, 234594.69999999984 234288.80000000016, 234594.70000000094 234293.80000000005, 234599.6999999993 234293.8000000008, 234599.7000000005 234298.79999999993, 234619.69999999958 234298.79999999993, 234619.69999999917 234293.8000000008, 234624.70000000077 234293.8000000008, 234624.70000000115 234283.79999999958, 234629.7000000005 234283.80000000098, 234629.69999999893 234268.79999999993, 234634.7000000009 234268.80000000063, 234634.69999999992 234258.80000000016, 234644.69999999908 234258.80000000086, 234644.69999999925 234253.79999999952, 234649.70000000094 234253.80000000098, 234649.6999999992 234248.79999999894, 234659.69999999984 234248.79999999964, 234659.69999999896 234253.79999999952, 234664.69999999995 234253.80000000028, 234664.69999999917 234258.80000000016, 234669.69999999978 234258.80000000086, 234669.69999999908 234263.80000000075, 234674.6999999993 234263.80000000144, 234674.700000001 234268.79999999923, 234684.70000000056 234268.79999999993, 234684.69999999923 234263.80000000005, 234694.70000000068 234263.80000000005, 234694.69999999984 234258.80000000016), (234609.6999999998 234258.80000000086, 234609.69999999943 234273.79999999912, 234604.7000000009 234273.79999999912, 234604.70000000083 234258.79999999946, 234609.6999999998 234258.80000000086)))"
+	 *	}
+	 */
+	public JSONObject upsertRecordSet(SysComptVO itemVo, String vectorName, String query, int epsgNum) throws Exception{
+		returnLog = new JSONObject();
+		try {
+			//getDatasourceConnectionInfo();
+			getConnectionInfo("pggis");
+			
+			epsg = epsgNum;
+			//테이블 존재여부 확인
+			if(datasets.contains(vectorName)) {
+				dataset = (DatasetVector) datasets.get(vectorName);
+				//dataset.truncate();
+				Map<String, Object> items = changeVoToMap(itemVo);
+				Map<String, Object> geomParams = getGeometryParam(items);
+				
+				String geomType = geomParams.get("type").toString();
+				String geomNm = geomParams.get("name").toString();
+		        String geomStr = geomParams.get("geometry").toString();
+		        
+				Geometry geom = null;
+				
+				recordset = dataset.query(query,CursorType.DYNAMIC);
+				//recordset = dataset.getRecordset(false, CursorType.DYNAMIC);
+				
+				geom = createGeometry(geomStr, geomType);
+				attributes = createAttributes(items, geomNm, geomType);
+				
+				if(recordset.getRecordCount() == 0) {
+					recordset.addNew(geom, attributes);
+				}else {
+					Geometry orginGeom = recordset.getGeometry();
+					
+					if(orginGeom.getType() != geom.getType()) {
+						LOGGER.error("지오메트리 타입이 일치하지 않습니다.");
+						throw new Exception("지오메트리 타입이 일치하지 않습니다.");
+					}
+					
+					recordset.edit();
+					
+					for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+				        String entryKey = entry.getKey();
+				        Object entryVal = entry.getValue();
+				        
+ 				        Object recordVal = recordset.getFieldValue(entryKey);
+ 				       
+				        if(recordVal != null) {
+				        	if(!entryVal.toString().equals(recordVal.toString())) {
+				        		recordset.setFieldValue(entryKey,entryVal);
+				        	}
+				        }
+				    }
+					
+					if(checkUpdateGeometry(orginGeom,geom)) {
+						recordset.setGeometry(geom);
+					}
+					
+					orginGeom.dispose();
+				}
+				recordset.update();
+				
+				if(geom != null) {
+					geom.dispose();
+				}
+				
+				returnLog.put("status", "success");
+				returnLog.put("message", "저장되었습니다.");
+			}else {
+				returnLog.put("status", "fail");
+				returnLog.put("message", "테이블을 찾을 수 없습니다\n관리자에게 문의하세요.");
+			}
+		} catch (Exception e) {
+			returnLog.put("error", e.getLocalizedMessage());
+			LOGGER.error(e.getLocalizedMessage());
+		} finally {
+			//closeDbmsAll();
+			//closeWorkspace();
+			closeConnection("pggis");
+		}
+		
+		return returnLog;
+	}
+	
+	/**
+	 * 조사정보 목록 수퍼맵 저장
+	 * @param list
+	 * @param vectorName
+	 * @param query
+	 * @param epsgNum
+	 * @return
+	 * @throws Exception
+	 * @see upsertBulkRecordSet(조사정보저장테이블 List, 테이블명, 조건절, 입력된 좌표체계코드)
+	 */
+	public JSONObject upsertBulkRecordSet(List<SysFieldInfoVO> list, String vectorName, String query, int epsgNum) throws Exception{
+		returnLog = new JSONObject();
+		
+		try {
+			//getDatasourceConnectionInfo();
+			getConnectionInfo("pggis");
+			
+			epsg = epsgNum;
+			//테이블 존재여부 확인
+			if(datasets.contains(vectorName)) {
+				dataset = (DatasetVector) datasets.get(vectorName);
+				
+				for(SysFieldInfoVO itemVo : list) {
+					Map<String, Object> items = changeVoToMap(itemVo);
+					Map<String, Object> geomParams = getGeometryParam(items);
+					
+					String geomType = geomParams.get("type").toString();
+					String geomNm = geomParams.get("name").toString();
+			        String geomStr = geomParams.get("geometry").toString();
+			        
+					Geometry geom = null;
+					
+					query = query.replace("{1}",String.valueOf(itemVo.getMST_ID()));
+					query = query.replace("{2}",itemVo.get_LABEL());
+					
+					recordset = dataset.query(query,CursorType.DYNAMIC);
+					//recordset = dataset.getRecordset(false, CursorType.DYNAMIC);
+					
+					geom = createGeometry(geomStr, geomType);
+					attributes = createAttributes(items, geomNm, geomType);
+					
+					if(recordset.getRecordCount() == 0) {
+						recordset.addNew(geom, attributes);
+					}else {
+						Geometry orginGeom = recordset.getGeometry();
+						
+						if(orginGeom.getType() != geom.getType()) {
+							LOGGER.error("지오메트리 타입이 일치하지 않습니다.");
+							throw new Exception("지오메트리 타입이 일치하지 않습니다.");
+						}
+						
+						recordset.edit();
+						
+						for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+					        String entryKey = entry.getKey();
+					        Object entryVal = entry.getValue();
+					        
+	 				        Object recordVal = recordset.getFieldValue(entryKey);
+	 				       
+					        if(recordVal != null) {
+					        	if(!entryVal.toString().equals(recordVal.toString())) {
+					        		recordset.setFieldValue(entryKey,entryVal);
+					        	}
+					        }
+					    }
+						
+						if(checkUpdateGeometry(orginGeom,geom)) {
+							recordset.setGeometry(geom);
+						}
+						
+						orginGeom.dispose();
+					}
+					recordset.update();
+					
+					if(geom != null) {
+						geom.dispose();
+					}
+					
+					returnLog.put("status", "success");
+					returnLog.put("message", "저장되었습니다.");
+				}
+				
+				
+			}else {
+				returnLog.put("status", "fail");
+				returnLog.put("message", "테이블을 찾을 수 없습니다\n관리자에게 문의하세요.");
+			}
+		}catch (Exception e) {
+			returnLog.put("error", e.getLocalizedMessage());
+			LOGGER.error(e.getLocalizedMessage());
+		}finally {
+			//closeDbmsAll();
+			//closeWorkspace();
+			closeConnection("pggis");
+		}
+		
+		return returnLog;
+	}
+	
+	
+	/**
+	 * or.sabang.sys.service.SysFieldInfoVO -> com.supermap.data.Recordset 저장
+	 * @param itemVo
+	 * @param vectorName
+	 * @param epsgNum
+	 * @return
+	 * @throws Exception
+	 * @see upsertRecordSet(공유방대상지저장장테이블 VO, 테이블명, 입력된 좌표체계코드)
+	 */
+	public JSONObject upsertRecordSet(SysFieldInfoVO itemVo, String vectorName, String query, int epsgNum) throws Exception{
+		returnLog = new JSONObject();
+		try {
+			//getDatasourceConnectionInfo();
+			getConnectionInfo("pggis");
+			
+			epsg = epsgNum;
+			//테이블 존재여부 확인
+			if(datasets.contains(vectorName)) {
+				dataset = (DatasetVector) datasets.get(vectorName);
+				//dataset.truncate();
+				Map<String, Object> items = changeVoToMap(itemVo);
+				Map<String, Object> geomParams = getGeometryParam(items);
+				
+				String geomType = geomParams.get("type").toString();
+				String geomNm = geomParams.get("name").toString();
+		        String geomStr = geomParams.get("geometry").toString();
+		        
+				Geometry geom = null;
+				
+				recordset = dataset.query(query,CursorType.DYNAMIC);
+				//recordset = dataset.getRecordset(false, CursorType.DYNAMIC);
+				
+				geom = createGeometry(geomStr, geomType);
+				attributes = createAttributes(items, geomNm, geomType);
+				
+				if(recordset.getRecordCount() == 0) {
+					recordset.addNew(geom, attributes);
+				}else {
+					Geometry orginGeom = recordset.getGeometry();
+					
+					if(orginGeom.getType() != geom.getType()) {
+						LOGGER.error("지오메트리 타입이 일치하지 않습니다.");
+						throw new Exception("지오메트리 타입이 일치하지 않습니다.");
+					}
+					
+					if(recordset.edit()) {
+						for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+					        String entryKey = entry.getKey();
+					        Object entryVal = entry.getValue();
+					        
+	 				        Object recordVal = recordset.getFieldValue(entryKey);
+	 				       
+					        if(recordVal != null) {
+					        	if(!entryVal.toString().equals(recordVal.toString())) {
+					        		recordset.setFieldValue(entryKey,entryVal);
+					        	}
+					        }
+					    }
+						
+						if(checkUpdateGeometry(orginGeom,geom)) {
+							recordset.setGeometry(geom);
+						}
+						
+						orginGeom.dispose();
+					}else {
+						returnLog.put("status", "fail");
+						returnLog.put("message", "레코드셋 상태를 수정을 변경하지 못했습니다.");
+					}
+				}
+				if(recordset.update()) {
+					returnLog.put("status", "success");
+					returnLog.put("message", "저장되었습니다.");
+				}else {
+					returnLog.put("status", "fail");
+					returnLog.put("message", "저장을 실패하였습니다.");
+				}
+				
+				if(geom != null) {
+					geom.dispose();
+				}
+				
+				
+			}else {
+				returnLog.put("status", "fail");
+				returnLog.put("message", "테이블을 찾을 수 없습니다\n관리자에게 문의하세요.");
+			}
+		} catch (Exception e) {
+			returnLog.put("error", e.getLocalizedMessage());
+			LOGGER.error(e.getLocalizedMessage());
+		} finally {
+			//closeDbmsAll();
+			//closeWorkspace();
+			closeConnection("pggis");
+		}
+		
+		return returnLog;
+	}
+	
+	/**
+	 * 레코드셋 삭제
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONObject deleteRecordSet(String vectorName, String query) throws Exception{
+		returnLog = new JSONObject();
+		try {
+			//getDatasourceConnectionInfo();
+			getConnectionInfo("pggis");
+			
+			if(datasets.contains(vectorName)) {
+				dataset = (DatasetVector) datasets.get(vectorName);
+				
+				recordset = dataset.query(query,CursorType.DYNAMIC);
+				
+				boolean deleted = recordset.deleteAll();
+				recordset.update();
+				if(deleted) {
+					returnLog.put("status", "success");
+					returnLog.put("message", "삭제되었습니다.");
+				}else {
+					returnLog.put("status", "fail");
+					returnLog.put("message", "레코드셋 삭제를 실패하였습니다.");
+				}
+				
+			}else {
+				returnLog.put("status", "fail");
+				returnLog.put("message", "테이블을 찾을 수 없습니다\n관리자에게 문의하세요.");
+			}
+			
+			
+		} catch (Exception e) {
+			returnLog.put("status", "fail");
+			returnLog.put("message", "레코드셋 삭제를 실패하였습니다.");
+		} finally {
+			//closeDbmsAll();
+			//closeWorkspace();
+			closeConnection("pggis");
+		}
+		
+		return returnLog;
+	}
+	
+	/**
+	 * udbx 데이터셋 삭제
+	 * @param datasetName
+	 * @param query
+	 * @return
+	 * @throws Exception
+	 */
+	public void deleteUdbxDataSet(String datasetName) throws Exception{
+		try {
+			getConnectionInfo("udbx");
+			
+			if(uDatasets.contains(datasetName)) {
+				boolean complate = uDatasets.delete(datasetName);
+				if(!complate) {
+					LOGGER.error(datasetName.concat(" 데이터셋 삭제를 실패하였습니다."));
+				}
+			}else {
+				LOGGER.error(datasetName.concat(" 데이터셋이 존재하지 않습니다."));
+			}
+			
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection("udbx");
+		}
+		
+	}
+	/**
+	 * 데이터셋 복사
+	 * @param vectorName
+	 * @param copyName
+	 * @param query
+	 * @return
+	 * @throws Exception
+	 */
+	public JSONObject copyDataSet(String vectorName, String copyName, String query) throws Exception{
+		returnLog = new JSONObject();
+		try {
+			//getDatasourceConnectionInfo();
+			
+			//getUdbxConnectionInfo();
+			getConnectionInfo();
+			
+			if(datasets.contains(vectorName)) {
+				dataset = (DatasetVector) datasets.get(vectorName);
+				recordset = dataset.query(query,CursorType.STATIC);
+				
+				DatasetVector datasetVector = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(copyName),dataset);
+				
+				datasetVector.append(recordset);
+				datasetVector.close();
+				
+				returnLog.put("status", "success");
+			}
+		}catch(Exception e) {
+			returnLog.put("status", "fail");
+			returnLog.put("message", "레코드셋 복사를 실패하였습니다.");
+		}finally {
+			//closeDbmsAll();
+			//closeUdbxAll();
+			//closeWorkspace();
+			closeConnection();
+		}
+		return returnLog;
+	}
+	
+	/**
+	 * 구역통계 분석(Zonal Statistics)
+	 * @param zonalName 구역데이터명(vector)
+	 * @param valueName 추출데이터명(raster)
+	 * @param outputDatasetName 결과데이터명
+	 * @param outputTableName 결과테이블 명
+	 * @return
+	 * @throws Exception
+	 */
+	public List<ZonalStatisticVO> zonalStatisticsProcessing(String zonalName,String valueName,String outputDatasetName, String outputTableName, String zonalFieldName) throws Exception{
+		List<ZonalStatisticVO> resultList = null;
+		
+		try {
+			//workspace = new Workspace();
+			getConnectionInfo("udbx");
+			//getUdbxConnectionInfo();
+			//getDatasourceConnectionInfo();
+			
+			Dataset zonalDataset = null;
+			DatasetGrid valueDataset = null;
+			
+			if(uDatasets.contains(zonalName)) {
+				zonalDataset = (Dataset) uDatasets.get(zonalName);
+			}else {
+				LOGGER.error("구역통계(Zonal Statistics)의 Zonal Data가 존재하지 않습니다.");
+				return null;
+			}
+			
+			if(uDatasets.contains(valueName)) {
+				valueDataset = (DatasetGrid) uDatasets.get(valueName);
+			}else {
+				LOGGER.error("구역통계(Zonal Statistics)의 Value Data가 존재하지 않습니다.");
+				return null;
+			}
+			
+			if (uDatasets.contains(outputDatasetName))
+			{
+				uDatasets.delete(outputDatasetName);
+			}
+		
+			if (uDatasets.contains(outputTableName))
+			{
+				uDatasets.delete(outputTableName);
+			}
+		
+			ZonalStatisticsAnalystParameter parameter = new ZonalStatisticsAnalystParameter();
+			parameter.setTargetDatasource(uDatasource);
+			parameter.setTargetDatasetName(outputDatasetName);
+			parameter.setTargetTableName(outputTableName);
+			parameter.setZonalFieldName(zonalFieldName);
+			parameter.setIgnoreNoValue(true);
+			parameter.setStatisticsMode(GridStatisticsMode.MEAN);
+			//parameter.setPixelFormat(PixelFormat.DOUBLE);
+			parameter.setValueDataset(valueDataset);
+			parameter.setZonalDataset(zonalDataset);
+			
+			ZonalStatisticsAnalystResult zonalStatisticResult = StatisticsAnalyst.zonalStatisticsOnRasterValue(parameter);
+			DatasetVector resultDatasetVector = zonalStatisticResult.getResultTable();
+			
+			DatasetVector zonalDatasetVector = (DatasetVector) uDatasets.get(zonalName);
+			Recordset zonalRecordSet = null;
+			
+			Map<Integer, Feature> list = resultDatasetVector.getAllFeatures();
+			
+			resultList = new ArrayList<ZonalStatisticVO>();
+			
+			for(Map.Entry<Integer, Feature> item : list.entrySet()) {
+				Feature feature = item.getValue();
+				
+				String zonalId = feature.getValue("ZonalID").toString();
+				double minValue = Double.valueOf(feature.getValue("Minimum").toString());
+				double maxValue = Double.valueOf(feature.getValue("Maximum").toString());
+				double meanValue = Double.valueOf(feature.getValue("Mean").toString());
+				
+				zonalRecordSet = zonalDatasetVector.query("SmID = ".concat(zonalId),CursorType.STATIC);
+				
+				String uniqId = (String) zonalRecordSet.getFieldValue("uniq_id");
+				int zonalMin = (int) Math.round(minValue);
+				int zonalMax = (int) Math.round(maxValue);
+				int zonalMean = (int) Math.round(meanValue);
+				
+				ZonalStatisticVO resultVo = new ZonalStatisticVO();
+				resultVo.setUniqId(uniqId);
+				resultVo.setZonalMin(zonalMin);
+				resultVo.setZonalMax(zonalMax);
+				resultVo.setZonalMean(zonalMean);
+				
+				resultList.add(resultVo);
+				
+//				LOGGER.info("-------------------------------------------------------");
+//				LOGGER.info("ZonalID : "+feature.getValue("ZonalID").toString());
+//				LOGGER.info("Minimum : "+feature.getValue("Minimum").toString());
+//				LOGGER.info("Maximum : "+feature.getValue("Maximum").toString());
+//				LOGGER.info("Mean : "+feature.getValue("Mean").toString());
+//				LOGGER.info("-------------------------------------------------------");
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			//closeUdbxAll();
+			//closeWorkspace();
+			closeConnection("udbx");
+		}
+		return resultList;
+	}
+	
+	/**
+	 * 유역분석(WaterShed)
+	 * @throws Exception
+	 */
+	public void waterShedProcessing(double x, double y,String resultName,Map<String, Object> attr) throws Exception{
+		DatasetGrid grid = null;
+		try {
+			getConnectionInfo();
+			//2022-09-28 중간보고용 tf_feis_flowdirection 강원도만 clip한 데이터
+			DatasetGrid directionGrid = (DatasetGrid)uDatasource.getDatasets().get("tf_feis_flowdirection_ts");//flow_direction
+			Point2Ds point2ds = new Point2Ds();
+			Point2D point2d = new Point2D(x,y);
+			
+			point2ds.add(point2d);
+			
+			grid = HydrologyAnalyst.watershed(directionGrid, point2ds, uDatasource, resultName);
+			
+			addRecordset(new GeoPoint(point2d),attr,"tf_feis_ecrtcnl");
+			
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+		
+		//return grid;
+	}
+	
+	/**
+	 * 래스터를 벡터로 변환
+	 * @param sourceDataset
+	 * @param targetDatasetName
+	 * @throws Exception
+	 */
+	public void rasterToVector(String sourceDataset, String targetDatasetName, String saveDatasetName, Map<String, Object> saveAttr) throws Exception{
+		try {
+			getConnectionInfo();
+			
+			Dataset sourceDs = null;
+			
+			if(uDatasets.contains(sourceDataset)) {
+				sourceDs = (Dataset) uDatasets.get(sourceDataset);
+				
+				ConversionAnalystParameter parameter = new ConversionAnalystParameter();
+				parameter.setSourceDataset(sourceDs);
+				parameter.setTargetDatasource(uDatasource);
+				parameter.setTargetDatasetName(targetDatasetName);
+				parameter.setSmoothDegree(40);
+				parameter.setNoValue(255);
+				parameter.setSmoothMethod(SmoothMethod.BSPLINE);
+				parameter.setTargetDatasetType(DatasetType.REGION);
+				parameter.setValueFieldName("value");
+				
+				uDataset = ConversionAnalyst.rasterToVector(parameter);
+				uDataset.smooth(40, false);
+				
+				uRecordset = uDataset.getRecordset(false, CursorType.STATIC);
+				
+				if(uRecordset.getRecordCount() > 0) {
+					copyUdbToPggisRcordset(uRecordset,saveDatasetName,saveAttr);
+				}
+				
+				uDatasets.delete(sourceDataset);
+				uDatasets.delete(targetDatasetName);
+				//addRecordset
+				//copyUdbToPggisRcordset(targetDatasetName,"tf_feis_watershed");
+			}else {
+				LOGGER.error("rasterToVector Data가 존재하지 않습니다.");
+				//return null;
+			}
+			
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+	}
+	
+	/**
+	 * 대상지 위치도 생성
+	 * @throws Exception
+	 */
+	public String createLocationImg(String mstId,String sldId,String analId) throws Exception{
+		String saveImgNm = null;
+		String mapId = "Map_".concat(analId);
+		String ecrtcnlDatasetNm = "tf_feis_ecrtcnl";
+		String watershedDatasetNm = "tf_feis_watershed";
+		String watershedQuery = "mst_id = ".concat(mstId).concat(" and sld_id = '").concat(sldId).concat("' and anal_id = '").concat(analId).concat("'");
+		String ecrtcnlCopyDatasetNm = "ecrtcnl_".concat(analId);
+		String watershedCopyDatasetNm = "watershed_".concat(analId);
+		String lgstrCopyDatasetNm = "lgstr_".concat(analId);
+		
+		DatasetVector ecrtcnlCopyDatastVector = null;
+		DatasetVector watershedCopyDatasetVector = null;
+		DatasetVector lgstrClipDatasetVector = null;
+		
+		Rectangle2D newBound = null;
+		
+		try {
+			//슈퍼맵 연결
+			getConnectionInfo();
+			
+			//smwu프로젝트에 Map 생성하기
+			createNewMap(mapId);
+			
+			//유출구 데이터 DB에서 UDB로 복사
+			if(datasets.contains(ecrtcnlDatasetNm)) {
+				dataset = (DatasetVector) datasets.get(ecrtcnlDatasetNm);
+				recordset = dataset.query(watershedQuery,CursorType.STATIC);
+
+				ecrtcnlCopyDatastVector = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(ecrtcnlCopyDatasetNm),dataset);
+				
+				ecrtcnlCopyDatastVector.append(recordset);
+				ecrtcnlCopyDatastVector.close();
+				
+				recordset.dispose();
+				dataset.close();
+			}
+			
+			//유역분석 결과 벡터레이어 DB에서 UDB로 복사
+			if(datasets.contains(watershedDatasetNm)) {
+				dataset = (DatasetVector) datasets.get(watershedDatasetNm);
+				recordset = dataset.query(watershedQuery,CursorType.STATIC);
+				
+				watershedCopyDatasetVector = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(watershedCopyDatasetNm),dataset);
+				
+				watershedCopyDatasetVector.append(recordset);
+				watershedCopyDatasetVector.close();
+				
+				recordset.dispose();
+				dataset.close();
+			}
+			
+			//지적데이터셋 자르기
+			if(uDatasets.contains(watershedCopyDatasetNm)) {
+				
+				watershedCopyDatasetVector = (DatasetVector) uDatasets.get(watershedCopyDatasetNm);
+				uRecordset = watershedCopyDatasetVector.query("",CursorType.STATIC);
+				
+				Rectangle2D bound = uRecordset.getGeometry().getBounds();
+				newBound = new Rectangle2D();
+				//클립할 영역 설정(이미지 영역보다 조금 더 많이 자름)
+				newBound.setTop(bound.getTop()+200);
+				newBound.setBottom(bound.getBottom()-200);
+				newBound.setLeft(bound.getLeft()-200);
+				newBound.setRight(bound.getRight()+200);
+				
+				GeoRectangle geoRect = new GeoRectangle(newBound, 0);
+				GeoRegion region = geoRect.convertToRegion();
+
+				uRecordset.dispose();
+				
+				lgstrClipDatasetVector = VectorClip.clipDatasetVector((DatasetVector)datasource.getDatasets().get("tf_feis_lgstr"), region, true, false, uDatasource, lgstrCopyDatasetNm);
+				
+				//이미지 영역설정
+				newBound.setTop(bound.getTop()+100);
+				newBound.setBottom(bound.getBottom()-100);
+				newBound.setLeft(bound.getLeft()-100);
+				newBound.setRight(bound.getRight()+100);
+			}
+			
+			ecrtcnlCopyDatastVector = (DatasetVector) uDatasets.get(ecrtcnlCopyDatasetNm);
+			
+			addLayerSingleBandVector(lgstrClipDatasetVector,mapId,lgstrCopyDatasetNm);
+			addLayerSingleBandVector(watershedCopyDatasetVector,mapId,watershedCopyDatasetNm);
+			addLayerSingleBandVector(ecrtcnlCopyDatastVector,mapId,ecrtcnlCopyDatasetNm);
+			
+			if(setMapLayoutControl("locTemplate",mapId,newBound)) {
+				saveImgNm = saveMapImage();
+				
+				if(deleted) {
+					workspace.getMaps().remove(mapId);
+					
+					if(uDatasets.contains(ecrtcnlCopyDatasetNm)) {
+						uDatasets.delete(ecrtcnlCopyDatasetNm);
+					}
+					if(uDatasets.contains(watershedCopyDatasetNm)) {
+						uDatasets.delete(watershedCopyDatasetNm);
+					}
+					if(uDatasets.contains(lgstrCopyDatasetNm)) {
+						uDatasets.delete(lgstrCopyDatasetNm);
+					}
+				}
+			}
+			
+			lgstrClipDatasetVector.close();
+			watershedCopyDatasetVector.close();
+			ecrtcnlCopyDatastVector.close();
+			
+			//"D:\\home\\tomcat\\FEIStorage\\analysis\\20220923\\D9CB988E19CA428FB5AB3C6FFFFD3EB9.png";//
+			//String type = "shp";
+			//HashMap<String, FileType> hash = manage.getFileType(type);
+			//manage.exportDataset(vTest, type, hash);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+		return saveImgNm;
+	}
+	
+	/**
+	 * 땅밀림 실태조사 위치도
+	 * @param schMap
+	 * @throws Exception
+	 */
+	public String creatLcpLocationMap(HashMap<String, Object> schMap,String processId) throws Exception{
+		
+		String mstId = schMap.get("mst_id").toString();
+		String svyLabel = schMap.get("_label").toString();
+		String saveImgNm = null;
+		String mapId = "Map_".concat(processId);
+		String ctrlnDatasetNm = "tf_feis_ctrln";//등고선
+		String lgstrDatasetNm = "tf_feis_lgstr";//지적
+		String roadDatasetNm = "tf_feis_road";//도로중심선
+		String rankDatasetNm = "tf_feis_lcp_fieldinfo";//랭크대상지
+		
+		String rankCopydatasetNm = "rank_".concat(processId);;//랭크대상지 클립 데이터셋명
+		String ctrlnCopyDatasetNm = "ctrln_".concat(processId);;//등고선 클립 데이터셋명
+		String lgstrCopyDatasetNm = "lgstr_".concat(processId);;//지적 클립 데이터셋명
+		String roadCopyDatasetNm = "road_".concat(processId);;//도로중심선 클립 데이터셋명
+		
+		DatasetVector rankCopyDatasetVector = null;
+		DatasetVector ctrlnClipDatasetVector = null;
+		DatasetVector lgstrClipDatasetVector = null;
+		DatasetVector roadClipDatasetVector = null;
+		
+		String stripLandQuery = "mst_id = ".concat(mstId).concat(" and svy_label = '").concat(svyLabel).concat("'");
+		
+		Rectangle2D newBound = null;
+		
+		try {
+			//슈퍼맵 연결
+			getConnectionInfo();
+			
+			//smwu프로젝트에 Map 생성하기
+			createNewMap(mapId);
+			
+			//랭크대상지 데이터 DB에서 UDB로 복사
+			if(datasets.contains(rankDatasetNm)) {
+				dataset = (DatasetVector) datasets.get(rankDatasetNm);
+				recordset = dataset.query(stripLandQuery,CursorType.STATIC);
+
+				DatasetVector rankCopyDataset = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(rankCopydatasetNm),dataset);
+				
+				rankCopyDataset.append(recordset);
+				rankCopyDataset.close();
+				
+				recordset.dispose();
+				dataset.close();
+			}
+			
+			//지적데이터셋 자르기
+			if(uDatasets.contains(rankCopydatasetNm)) {
+				
+				rankCopyDatasetVector = (DatasetVector) uDatasets.get(rankCopydatasetNm);
+				uRecordset = rankCopyDatasetVector.query("",CursorType.STATIC);
+				
+				Rectangle2D bound = uRecordset.getGeometry().getBounds();
+				newBound = new Rectangle2D();
+				//클립할 영역 설정(이미지 영역보다 조금 더 많이 자름)
+				newBound.setTop(bound.getTop()+300);
+				newBound.setBottom(bound.getBottom()-300);
+				newBound.setLeft(bound.getLeft()-500);
+				newBound.setRight(bound.getRight()+500);
+				
+				GeoRectangle geoRect = new GeoRectangle(newBound, 0);
+				GeoRegion region = geoRect.convertToRegion();
+
+				uRecordset.dispose();
+				
+				ctrlnClipDatasetVector = VectorClip.clipDatasetVector((DatasetVector)datasource.getDatasets().get(ctrlnDatasetNm), region, true, false, uDatasource, ctrlnCopyDatasetNm);
+				lgstrClipDatasetVector = VectorClip.clipDatasetVector((DatasetVector)datasource.getDatasets().get(lgstrDatasetNm), region, true, false, uDatasource, lgstrCopyDatasetNm);
+				roadClipDatasetVector = VectorClip.clipDatasetVector((DatasetVector)datasource.getDatasets().get(roadDatasetNm), region, true, false, uDatasource, roadCopyDatasetNm);
+				//이미지 영역설정
+				newBound.setTop(bound.getTop()+200);
+				newBound.setBottom(bound.getBottom()-200);
+				newBound.setLeft(bound.getLeft()-200);
+				newBound.setRight(bound.getRight()+200);
+			}
+			
+			addLayerThemeUniqueVector(ctrlnClipDatasetVector,mapId,ctrlnCopyDatasetNm);
+			addLayerSingleBandVector(lgstrClipDatasetVector,mapId,lgstrCopyDatasetNm);
+			addLayerThemeLabelVector(lgstrClipDatasetVector,mapId,lgstrCopyDatasetNm);
+			addLayerSingleBandVector(roadClipDatasetVector,mapId,roadCopyDatasetNm);
+			addLayerSingleBandVector(rankCopyDatasetVector,mapId,rankCopydatasetNm);
+			
+			if(setMapLayoutControl("lcpVectorLocTemplate",mapId,newBound)) {
+				saveImgNm = saveMapImage();
+				
+				if(deleted) {
+					workspace.getMaps().remove(mapId);
+					
+					if(uDatasets.contains(rankCopydatasetNm)) {
+						uDatasets.delete(rankCopydatasetNm);
+					}
+					if(uDatasets.contains(roadCopyDatasetNm)) {
+						uDatasets.delete(roadCopyDatasetNm);
+					}
+					if(uDatasets.contains(lgstrCopyDatasetNm)) {
+						uDatasets.delete(lgstrCopyDatasetNm);
+					}
+					if(uDatasets.contains(ctrlnCopyDatasetNm)) {
+						uDatasets.delete(ctrlnCopyDatasetNm);
+					}
+				}
+			}
+			ctrlnClipDatasetVector.close();
+			lgstrClipDatasetVector.close();
+			roadClipDatasetVector.close();
+			rankCopyDatasetVector.close();
+			
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+		return saveImgNm;
+		
+		
+	}
+
+	/**
+	 * 땅밀림 실태조사 위성영상 위치도
+	 * @param schMap
+	 * @param processId
+	 * @return
+	 * @throws Exception
+	 */
+	public String creatLcpLocSatMap(HashMap<String, Object> schMap,String processId) throws Exception{
+		String mstId = schMap.get("mst_id").toString();
+		String svyLabel = schMap.get("_label").toString();
+		String saveImgNm = null;
+		String mapId = "Map_".concat(processId);
+		String rankDatasetNm = "tf_feis_lcp_fieldinfo";//랭크대상지
+		
+		String rankCopydatasetNm = "rank_".concat(processId);;//랭크대상지 클립 데이터셋명
+		
+		DatasetVector rankCopyDatasetVector = null;
+		
+		String stripLandQuery = "mst_id = ".concat(mstId).concat(" and svy_label = '").concat(svyLabel).concat("'");
+		
+		Rectangle2D newBound = null;
+		
+		try {
+			//슈퍼맵 연결
+			getConnectionInfo();
+			
+			//smwu프로젝트에 Map 생성하기
+			createNewMap(mapId);
+			
+			//랭크대상지 데이터 DB에서 UDB로 복사
+			if(datasets.contains(rankDatasetNm)) {
+				dataset = (DatasetVector) datasets.get(rankDatasetNm);
+				recordset = dataset.query(stripLandQuery,CursorType.STATIC);
+
+				rankCopyDatasetVector = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(rankCopydatasetNm),dataset);
+				
+				rankCopyDatasetVector.append(recordset);
+				rankCopyDatasetVector.close();
+				
+				recordset.dispose();
+				dataset.close();
+			}
+			
+			if(uDatasets.contains(rankCopydatasetNm)) {
+				rankCopyDatasetVector = (DatasetVector) uDatasets.get(rankCopydatasetNm);
+				
+				if(coordSysTranslator(rankCopyDatasetVector,3857)) {
+					
+				}else {
+					LOGGER.error("좌표변환에 실패하였습니다.");
+				}
+				
+				uRecordset = rankCopyDatasetVector.query("",CursorType.STATIC);
+				
+				Rectangle2D bound = uRecordset.getGeometry().getBounds();
+				newBound = new Rectangle2D();
+				
+				newBound.setTop(bound.getTop()+200);
+				newBound.setBottom(bound.getBottom()-200);
+				newBound.setLeft(bound.getLeft()-200);
+				newBound.setRight(bound.getRight()+200);
+				
+				Datasource vDatasource = datasources.get("api.vworld.kr");
+				Dataset satDataset = vDatasource.getDatasets().get("VworldSatellite");
+				
+				addLayerImage(satDataset,mapId,"vworld");
+				addLayerSingleBandVector(rankCopyDatasetVector,mapId,rankCopydatasetNm);
+				
+				if(setMapLayoutControl("lcpSatelliteLocTemplate",mapId,newBound)) {
+					saveImgNm = saveMapImage();
+					if(deleted) {
+						workspace.getMaps().remove(mapId);
+				
+						if(uDatasets.contains(rankCopydatasetNm)) {
+							uDatasets.delete(rankCopydatasetNm);
+						}
+					}
+				}
+				
+				rankCopyDatasetVector.close();
+				satDataset.close();
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+		return saveImgNm;
+	}
+	
+	/**
+	 * 유역분석 폴리곤으로 데이터셋 자르기
+	 * @param mstId
+	 * @param sldId
+	 * @param analId
+	 * @param clipDatasetNm
+	 * @param captionNm
+	 * @return
+	 * @throws Exception
+	 */
+	public String createClipImg(String mstId,String sldId,String analId,String clipDatasetNm, String captionNm) throws Exception{
+		String saveImgNm = null;
+		String mapId = "Map_".concat(captionNm).concat("_"+analId);
+		String watershedDatasetNm = "tf_feis_watershed";
+		String watershedQuery = "mst_id = ".concat(mstId).concat(" and sld_id = '").concat(sldId).concat("' and anal_id = '").concat(analId).concat("'");
+		String watershedCopyDatasetNm = "watershed_".concat(analId);
+		String clipCopyDatasetNm = captionNm.concat("_"+analId);
+		
+		DatasetVector watershedCopyDatasetVector = null;
+		Dataset clipDataset = null;
+		DatasetType clipType = null;
+		GeoRegion region = null;
+		
+		Rectangle2D newBound = null;
+		
+		try {
+			//슈퍼맵 연결
+			getConnectionInfo();
+			
+			//smwu프로젝트에 Map 생성하기
+			createNewMap(mapId);
+			
+			//유역분석 결과 벡터레이어 DB에서 UDB로 복사
+			if(datasets.contains(watershedDatasetNm)) {
+				dataset = (DatasetVector) datasets.get(watershedDatasetNm);
+				recordset = dataset.query(watershedQuery,CursorType.STATIC);
+				
+				watershedCopyDatasetVector = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(watershedCopyDatasetNm),dataset);
+				
+				watershedCopyDatasetVector.append(recordset);
+				watershedCopyDatasetVector.close();
+				
+				recordset.dispose();
+				dataset.close();
+			}
+			
+			//데이터셋 자르기
+			if(uDatasets.contains(watershedCopyDatasetNm)) {
+				watershedCopyDatasetVector = (DatasetVector) uDatasets.get(watershedCopyDatasetNm);
+				uRecordset = watershedCopyDatasetVector.query("",CursorType.STATIC);
+				
+				Rectangle2D bound = uRecordset.getGeometry().getBounds();
+				newBound = new Rectangle2D();
+				
+				newBound.setTop(bound.getTop()+100);
+				newBound.setBottom(bound.getBottom()-100);
+				newBound.setLeft(bound.getLeft()-100);
+				newBound.setRight(bound.getRight()+100);
+				
+				region = new GeoRegion();
+				
+				while (!uRecordset.isEOF()) {
+					for (int i = 0; i < ((GeoRegion)uRecordset.getGeometry()).getPartCount(); i++) {
+						region.addPart(((GeoRegion) uRecordset.getGeometry()).getPart(i));
+					}
+					uRecordset.moveNext();
+				}
+				uRecordset.dispose();
+				
+				Dataset clipData =  datasource.getDatasets().get(clipDatasetNm);
+				//Dataset clipData =  uDatasource.getDatasets().get(clipDatasetNm);
+				clipType = clipData.getType();
+
+				if(clipType.equals(DatasetType.GRID)) {
+					clipDataset = RasterClip.clip((DatasetGrid)clipData,region, true, false, uDatasource, clipCopyDatasetNm);
+				}else {
+					clipDataset = VectorClip.clipDatasetVector((DatasetVector)clipData, region, true, false, uDatasource, clipCopyDatasetNm);
+				}
+				
+				clipData.close();
+			}
+			
+			if(clipType.equals(DatasetType.GRID)) {
+				addLayerSingleBandGrid(clipDataset,mapId,clipCopyDatasetNm);
+			}else {
+				//addLayerSingleBandVector(clipDataset,mapId,clipCopyDatasetNm);
+				addLayerThemeUniqueVector(clipDataset,mapId,clipCopyDatasetNm);
+			}
+			
+			addLayerSingleBandVector(watershedCopyDatasetVector,mapId,watershedCopyDatasetNm);
+			
+			if(setMapLayoutControl("clipTemplate",mapId,newBound)) {
+				saveImgNm = saveMapImage();
+				
+				if(deleted) {
+					workspace.getMaps().remove(mapId);
+					
+					if(uDatasets.contains(watershedCopyDatasetNm)) {
+						uDatasets.delete(watershedCopyDatasetNm);
+					}
+					if(uDatasets.contains(clipCopyDatasetNm)) {
+						uDatasets.delete(clipCopyDatasetNm);
+					}
+				}
+			}
+			watershedCopyDatasetVector.close();
+			clipDataset.close();
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+		
+		return saveImgNm;
+	}
+	
+	/**
+	 * 대상지 위치도(영상) 생성
+	 * @param mstId
+	 * @param sldId
+	 * @param analId
+	 * @param clipDatasetNm
+	 * @param captionNm
+	 * @return
+	 * @throws Exception
+	 */
+	public String createClipSatImg(String mstId,String sldId,String analId,String clipDatasetNm, String captionNm) throws Exception{
+		String saveImgNm = null;
+		String mapId = "Map_sat_".concat(analId);
+		String watershedDatasetNm = "tf_feis_watershed";
+		String watershedQuery = "mst_id = ".concat(mstId).concat(" and sld_id = '").concat(sldId).concat("' and anal_id = '").concat(analId).concat("'");
+		String clipCopyDatasetNm = captionNm.concat("_"+analId);
+		
+		Dataset clipDataset = null;
+		GeoRegion region = null;
+		
+		Rectangle2D newBound = null;
+		
+		try {
+			//슈퍼맵 연결
+			getConnectionInfo();
+			
+			//smwu프로젝트에 Map 생성하기
+			createNewMap(mapId);
+			
+			//유역분석 결과 벡터레이어 DB에서 UDB로 복사
+			if(datasets.contains(watershedDatasetNm)) {
+				dataset = (DatasetVector) datasets.get(watershedDatasetNm);
+				recordset = dataset.query(watershedQuery,CursorType.STATIC);
+				
+				Rectangle2D bound = recordset.getGeometry().getBounds();
+				newBound = new Rectangle2D();
+				
+				newBound.setTop(bound.getTop()+100);
+				newBound.setBottom(bound.getBottom()-100);
+				newBound.setLeft(bound.getLeft()-100);
+				newBound.setRight(bound.getRight()+100);
+				
+				GeoRectangle geoRect = new GeoRectangle(newBound, 0);
+				region = geoRect.convertToRegion();
+
+				recordset.dispose();
+			}
+			
+			if(datasets.contains(clipDatasetNm)) {
+				clipDataset = VectorClip.clipDatasetVector((DatasetVector)datasource.getDatasets().get(clipDatasetNm), region, true, false, uDatasource, clipCopyDatasetNm);
+			}
+			
+			if(coordSysTranslator(clipDataset,3857)) {
+				Datasource vDatasource = datasources.get("api.vworld.kr");
+				Dataset satDataset = vDatasource.getDatasets().get("VworldSatellite");
+				
+				addLayerImage(satDataset,mapId,"vworld");
+				addLayerSingleBandVector(clipDataset,mapId,clipCopyDatasetNm);
+				
+				if(setMapLayoutControl("satelliteTemplate",mapId,newBound)) {
+					saveImgNm = saveMapImage();
+					if(deleted) {
+						workspace.getMaps().remove(mapId);
+				
+						if(uDatasets.contains(clipCopyDatasetNm)) {
+							uDatasets.delete(clipCopyDatasetNm);
+						}
+					}
+				}
+				clipDataset.close();
+				satDataset.close();
+			}else {
+				LOGGER.error("좌표변환에 실패하였습니다.");
+			}
+			
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+		
+		return saveImgNm;
+	}
+	
+	/**
+	 * 사방사업 타당성평가 첫번째 대상지위지도
+	 * @param pnu
+	 * @param analId
+	 * @throws Exception
+	 */
+	public void createVytEcbLocation001(String pnu,String analId) throws Exception{
+		String saveImgNm = null;
+		String mapIdSgg = "Map_VytEcb001Sgg_".concat(analId);
+		String mapIdEmd = "Map_VytEcb001Emd_".concat(analId);
+		String sggDatasetNm = "tf_feis_signgu";
+		String emdDatasetNm = "tf_feis_emd";
+		
+		String sggQuery = "ctprvn_cod = '".concat(pnu.substring(0, 2)).concat("'");
+		String emdQuery = "signgu_cod = '".concat(pnu.substring(0, 5)).concat("'");
+		
+		String sggCopyDatasetNm = "sgg_".concat(analId);
+		String emdCopyDatasetNm = "emd_".concat(analId);
+		
+		DatasetVector sggDatasetVector = null, emdDatasetVector = null;
+		Recordset sggRecordset = null, emdRecordset = null;
+		
+		Rectangle2D newBound = null;
+		Rectangle2D sggBound = null, emdBound = null;
+
+		try {
+			//슈퍼맵 연결
+			getConnectionInfo();
+			
+			//smwu프로젝트에 Map 생성하기
+			createNewMap(mapIdSgg);
+			createNewMap(mapIdEmd);
+			//시군구 데이터 추출
+			if(datasets.contains(sggDatasetNm)) {
+				sggDatasetVector = (DatasetVector) datasets.get(sggDatasetNm);
+				sggRecordset = sggDatasetVector.query(sggQuery,CursorType.STATIC);
+				
+				sggDatasetVector = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(sggCopyDatasetNm),sggDatasetVector);
+				
+				sggDatasetVector.append(sggRecordset);
+				sggDatasetVector.close();
+				
+				sggRecordset.dispose();
+				sggDatasetVector.close();
+			}
+			
+			//읍면동 데이터 추출
+			if(datasets.contains(emdDatasetNm)) {
+				emdDatasetVector = (DatasetVector) datasets.get(emdDatasetNm);
+				emdRecordset = emdDatasetVector.query(emdQuery,CursorType.STATIC);
+				
+				emdDatasetVector = (DatasetVector) uDatasets.createFromTemplate(uDatasets.getAvailableDatasetName(emdCopyDatasetNm),emdDatasetVector);
+				
+				emdDatasetVector.append(emdRecordset);
+				emdDatasetVector.close();
+				
+				emdRecordset.dispose();
+				emdDatasetVector.close();
+			}
+			
+			//추출한 시군구 데이터셋 선택
+			if(uDatasets.contains(sggCopyDatasetNm)) {
+				sggDatasetVector = (DatasetVector) uDatasets.get(sggCopyDatasetNm);
+				sggRecordset = sggDatasetVector.query("",CursorType.STATIC);
+				
+				Rectangle2D bound = sggRecordset.getGeometry().getBounds();
+				sggBound = new Rectangle2D();
+				
+				sggBound.setTop(bound.getTop()+100);
+				sggBound.setBottom(bound.getBottom()-100);
+				sggBound.setLeft(bound.getLeft()-100);
+				sggBound.setRight(bound.getRight()+100);
+
+				sggRecordset.dispose();
+				
+				addLayerThemeUniqueVector(sggDatasetVector,mapIdSgg,sggCopyDatasetNm);
+			}
+			
+			//추출한 읍면동 데이터셋 선택
+			if(uDatasets.contains(emdCopyDatasetNm)) {
+				emdDatasetVector = (DatasetVector) uDatasets.get(emdCopyDatasetNm);
+				emdRecordset = emdDatasetVector.query("",CursorType.STATIC);
+				
+				Rectangle2D bound = emdRecordset.getGeometry().getBounds();
+				emdBound = new Rectangle2D();
+				
+				emdBound.setTop(bound.getTop()+100);
+				emdBound.setBottom(bound.getBottom()-100);
+				emdBound.setLeft(bound.getLeft()-100);
+				emdBound.setRight(bound.getRight()+100);
+				
+				emdRecordset.dispose();
+				
+				addLayerThemeUniqueVector(emdDatasetVector,mapIdEmd,emdCopyDatasetNm);
+			}
+			
+			mapLayoutcontrol = new MapLayoutControl();
+			mapLayoutcontrol.getMapLayout().setWorkspace(workspace);
+			mapLayoutcontrol.getMapLayout().open("tp_vyt_ecb_001_img01");
+			
+			int mapLen = 0;
+			String targetMapName = null;
+			Rectangle2D targetBound = null;
+			
+			try {
+				LayoutElements layoutElements = mapLayoutcontrol.getMapLayout().getElements();
+				while(!layoutElements.isEOF()) {
+					Geometry geometry = layoutElements.getGeometry();
+					if(geometry instanceof GeoMap) {
+						if(mapLen == 0) {
+							targetMapName = mapIdSgg;
+							targetBound = sggBound;
+						}else {
+							targetMapName = mapIdEmd;
+							targetBound = emdBound;
+						}
+						GeoMap target = (GeoMap)geometry;
+						target.setMapName(targetMapName);
+						
+						layoutElements.setGeometry(target);
+						
+						com.supermap.mapping.Map map = new com.supermap.mapping.Map();
+						map.setWorkspace(workspace);
+						System.out.println(targetMapName);
+						map.open(targetMapName);
+						
+						//Rectangle2D rect = datasource.getDatasets().get(this.dataSetNm).getBounds();
+						//rect.inflate(100, 100);
+						
+						mapLayoutcontrol.setMapAction(Action.NULL);
+						mapLayoutcontrol.setActiveGeoMapID(layoutElements.getID());
+						mapLayoutcontrol.getActiveMap().setViewBounds(targetBound);
+						mapLayoutcontrol.getActiveMap().setCenter(targetBound.getCenter());
+						mapLayoutcontrol.getActiveMap().refresh();
+						mapLayoutcontrol.setActiveGeoMapID(-1);
+						 
+					}
+					layoutElements.moveNext();
+				}
+				layoutElements.refresh();
+				mapLayoutcontrol.getMapLayout().refresh();
+				
+				sggDatasetVector.close();
+				emdDatasetVector.close();
+				
+				if(deleted) {
+					workspace.getMaps().remove(mapIdSgg);
+					workspace.getMaps().remove(mapIdEmd);
+					
+					if(uDatasets.contains(sggCopyDatasetNm)) {
+						uDatasets.delete(sggCopyDatasetNm);
+					}
+					if(uDatasets.contains(emdCopyDatasetNm)) {
+						uDatasets.delete(emdCopyDatasetNm);
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage());
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			closeConnection();
+		}
+	}
+	
+	/**
+	 * Map 생성
+	 * @param mapNm
+	 */
+	public void createNewMap(String mapNm) {
+		com.supermap.mapping.Map map = new com.supermap.mapping.Map(workspace);
+		map.setPrjCoordSys(new PrjCoordSys(5179));
+		
+		workspace.getMaps().add(mapNm, map.toXML());
+		workspace.getMaps().setMapXML(mapNm, map.toXML());
+	}
+	
+	/**
+	 * Map 삭제
+	 * @param mapNm
+	 */
+	public void deleteMap(String mapNm) {
+		//workspace.getMaps().get
+		workspace.getMaps().remove(mapNm);
+	}
+	
+	/**
+	 * Map에 테마라벨 맵 추가
+	 * @param dataset
+	 * @param mapName
+	 * @param caption
+	 * @return
+	 */
+	private boolean addLayerThemeLabelVector(Dataset dataset, String mapName, String caption) {
+		try {
+			DatasetVector vector = (DatasetVector)dataset;
+			System.out.println(vector.getName());
+			
+			com.supermap.mapping.Map map = new com.supermap.mapping.Map(workspace);
+			map.open(mapName);
+			
+			ThemeLabel themeLabel = getThemeLabel(caption);
+			//Layer vectorlayer = map.getLayers().add(vector, true);
+			Layer themeLayer = map.getLayers().add(vector,themeLabel,true);
+			
+			//map.viewEntire();
+			//vectorlayer.setVisible(false);
+			themeLayer.setVisible(true);
+			workspace.getMaps().setMapXML(mapName, map.toXML());
+			map.refresh();
+			map.close();
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+		return true;
+	}
+	
+	/**
+	 * Map에 테마맵 추가
+	 * @param dataset
+	 * @param mapName
+	 * @param caption
+	 * @return
+	 */
+	private boolean addLayerThemeUniqueVector(Dataset dataset, String mapName, String caption) {
+		try {
+			DatasetVector vector = (DatasetVector)dataset;
+			System.out.println(vector.getName());
+			
+			Recordset record = vector.query("",CursorType.STATIC);
+			LinkedHashSet<String> exprList = new LinkedHashSet<String>();
+			
+			if(record.getRecordCount() > 0 ) {
+				do {
+					//String expr = (String)record.getFieldValue(getUniqueExpr(caption));
+					Object getFieldValue = record.getFieldValue(getUniqueExpr(caption));
+					
+					String expr = getFieldValue != null ? getFieldValue.toString() : null;
+					if(expr != null) {
+						exprList.add(expr);
+					}
+				}while(record.moveNext());
+			}
+			record.dispose();
+			
+			com.supermap.mapping.Map map = new com.supermap.mapping.Map(workspace);
+			map.open(mapName);
+			
+			ThemeUnique themeUnique = getThemeUnique(caption,exprList);
+			//Layer vectorlayer = map.getLayers().add(vector, true);
+			Layer themeLayer = map.getLayers().add(vector,themeUnique,true);
+			
+			//map.viewEntire();
+			//vectorlayer.setVisible(false);
+			themeLayer.setVisible(true);
+			workspace.getMaps().setMapXML(mapName, map.toXML());
+			map.refresh();
+			map.close();
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+		return true;
+	}
+	
+	private String getUniqueExpr(String caption) {
+		String expr = null;
+		if(caption.matches("koftr.*")) {
+			expr = "koftr_grou";
+		}else if(caption.matches("agcls.*")) {
+			expr = "agcls_cd";
+		}else if(caption.matches("dnst.*")) {
+			expr = "dnst_cd";
+		}else if(caption.matches("dmcls.*")) {
+			expr = "dmcls_cd";
+		}else if(caption.matches("ctrln.*")) {
+			expr = "cont";
+		}
+		
+		return expr;
+	}
+	
+	/**
+	 * Label Theme Map 라벨설정
+	 * @param caption
+	 * @return
+	 */
+	private ThemeLabel getThemeLabel(String caption) {
+		ThemeLabel themeLabel = new ThemeLabel();
+		TextStyle textStyle = new TextStyle();
+		
+		if(caption.matches("lgstr.*")) {
+			textStyle.setForeColor(new Color(196,196,196));
+//			textStyle.setFontWidth(25);
+			textStyle.setFontHeight(2.5);
+			textStyle.setSizeFixed(true);
+			textStyle.setAlignment(TextAlignment.MIDDLECENTER);
+		}
+		themeLabel.setLabelExpression(getLabelExpr(caption));
+		themeLabel.setUniformStyle(textStyle);
+		
+		return themeLabel;
+	}
+	
+	/**
+	 * Label Theme Map LabelExprssion 설정
+	 * @param caption
+	 * @return
+	 */
+	private String getLabelExpr(String caption) {
+		String expr = null;
+		if(caption.matches("lgstr.*")) {
+			expr = "a5";
+		}
+		
+		return expr;
+	}
+	
+	/**
+	 * UniqeValue Theme Map 테마설정
+	 * @param caption
+	 * @param exprlist
+	 * @return
+	 */
+	private ThemeUnique getThemeUnique(String caption,LinkedHashSet<String> exprlist) {
+		ThemeUnique themeUnique = new ThemeUnique();
+		themeUnique.setDefaultStyleVisible(false);
+		
+		themeUnique.setUniqueExpression(getUniqueExpr(caption));
+		if(caption.matches("koftr.*")) {
+			for (String expr : exprlist) {
+				
+				if(expr.equals("10")) {themeUnique.add(getItem(new Color(129,94,41), 100,"10","기타침엽수",caption));
+				}else if(expr.equals("11")) {themeUnique.add(getItem(new Color(165,145,104), 100,"11","소나무",caption));
+				}else if(expr.equals("12")) {themeUnique.add(getItem(new Color(198,154,135), 100,"12","잣나무",caption));
+				}else if(expr.equals("13")) {themeUnique.add(getItem(new Color(191,150,119), 100,"13","낙엽송",caption));
+				}else if(expr.equals("14")) {themeUnique.add(getItem(new Color(146,107,44), 100,"14","리기다소나무",caption));
+				}else if(expr.equals("15")) {themeUnique.add(getItem(new Color(173,135,1), 100,"15","곰솔",caption));
+				}else if(expr.equals("16")) {themeUnique.add(getItem(new Color(176,111,0), 100,"16","전나무",caption));
+				}else if(expr.equals("17")) {themeUnique.add(getItem(new Color(177,91,0), 100,"17","편백나무",caption));
+				}else if(expr.equals("18")) {themeUnique.add(getItem(new Color(153,81,0), 100,"18","삼나무",caption));
+				}else if(expr.equals("19")) {themeUnique.add(getItem(new Color(138,66,18), 100,"19","가분비나무",caption));
+				}else if(expr.equals("20")) {themeUnique.add(getItem(new Color(198,125,0), 100,"20","비자나무",caption));
+				}else if(expr.equals("21")) {themeUnique.add(getItem(new Color(214,179,0), 100,"21","은행나무",caption));
+				}else if(expr.equals("30")) {themeUnique.add(getItem(new Color(198,235,97), 100,"30","기타활엽수",caption));
+				}else if(expr.equals("31")) {themeUnique.add(getItem(new Color(222,248,41), 100,"31","상수리나무",caption));
+				}else if(expr.equals("32")) {themeUnique.add(getItem(new Color(193,220,7), 100,"32","신갈나무",caption));
+				}else if(expr.equals("33")) {themeUnique.add(getItem(new Color(149,169,5), 100,"33","굴참나무",caption));
+				}else if(expr.equals("34")) {themeUnique.add(getItem(new Color(207,249,66), 100,"34","기타참나무류",caption));
+				}else if(expr.equals("35")) {themeUnique.add(getItem(new Color(230,243,0), 100,"35","오리나무",caption));
+				}else if(expr.equals("36")) {themeUnique.add(getItem(new Color(230,233,16), 100,"36","고로쇠나무",caption));
+				}else if(expr.equals("37")) {themeUnique.add(getItem(new Color(230,213,0), 100,"37","자작나무",caption));
+				}else if(expr.equals("38")) {themeUnique.add(getItem(new Color(230,200,0), 100,"38","박달나무",caption));
+				}else if(expr.equals("39")) {themeUnique.add(getItem(new Color(175,224,7), 100,"39","밤나무",caption));
+				}else if(expr.equals("40")) {themeUnique.add(getItem(new Color(137,175,5), 100,"40","물푸레나무",caption));
+				}else if(expr.equals("41")) {themeUnique.add(getItem(new Color(100,129,3), 100,"41","서어나무",caption));
+				}else if(expr.equals("42")) {themeUnique.add(getItem(new Color(78,100,2), 100,"42","때죽나무",caption));
+				}else if(expr.equals("43")) {themeUnique.add(getItem(new Color(218,237,154), 100,"43","호두나무",caption));
+				}else if(expr.equals("44")) {themeUnique.add(getItem(new Color(181,230,51), 100,"44","백합나무",caption));
+				}else if(expr.equals("45")) {themeUnique.add(getItem(new Color(158,181,2), 100,"45","포플러",caption));
+				}else if(expr.equals("46")) {themeUnique.add(getItem(new Color(131,188,34), 100,"46","벚나무",caption));
+				}else if(expr.equals("47")) {themeUnique.add(getItem(new Color(155,186,61), 100,"47","느티나무",caption));
+				}else if(expr.equals("48")) {themeUnique.add(getItem(new Color(118,169,32), 100,"48","층층나무",caption));
+				}else if(expr.equals("49")) {themeUnique.add(getItem(new Color(0,149,55), 100,"49","아까시나무",caption));
+				}else if(expr.equals("60")) {themeUnique.add(getItem(new Color(33,102,139), 100,"60","기타상록활엽수",caption));
+				}else if(expr.equals("61")) {themeUnique.add(getItem(new Color(179,225,172), 100,"61","가시나무",caption));
+				}else if(expr.equals("62")) {themeUnique.add(getItem(new Color(179,222,105), 100,"62","구실잣밤나무",caption));
+				}else if(expr.equals("63")) {themeUnique.add(getItem(new Color(179,220,16), 100,"63","녹나무",caption));
+				}else if(expr.equals("64")) {themeUnique.add(getItem(new Color(102,184,33), 100,"64","굴거리나무",caption));
+				}else if(expr.equals("65")) {themeUnique.add(getItem(new Color(102,189,108), 100,"65","황칠나무",caption));
+				}else if(expr.equals("66")) {themeUnique.add(getItem(new Color(102,194,165), 100,"66","사스레피나무",caption));
+				}else if(expr.equals("67")) {themeUnique.add(getItem(new Color(0,153,155), 100,"67","후박나무",caption));
+				}else if(expr.equals("68")) {themeUnique.add(getItem(new Color(0,146,112), 100,"68","새덕이",caption));
+				}else if(expr.equals("77")) {themeUnique.add(getItem(new Color(155,192,41), 100,"77","침활혼효림",caption));
+				}else if(expr.equals("78")) {themeUnique.add(getItem(new Color(217,182,115), 100,"78","죽림",caption));
+				}else if(expr.equals("81")) {themeUnique.add(getItem(new Color(204,204,204), 100,"81","미립목지",caption));
+				}else if(expr.equals("82")) {themeUnique.add(getItem(new Color(228,177,155), 100,"82","제지",caption));
+				}else if(expr.equals("83")) {themeUnique.add(getItem(new Color(236,249,199), 100,"83","관목덤불",caption));
+				}else if(expr.equals("91")) {themeUnique.add(getItem(new Color(254,246,164), 100,"91","주거지",caption));
+				}else if(expr.equals("92")) {themeUnique.add(getItem(new Color(170,218,50), 100,"92","초지",caption));
+				}else if(expr.equals("93")) {themeUnique.add(getItem(new Color(219,205,0), 100,"93","경작지",caption));
+				}else if(expr.equals("94")) {themeUnique.add(getItem(new Color(190,210,255), 100,"94","수체",caption));
+				}else if(expr.equals("95")) {themeUnique.add(getItem(new Color(217,125,23), 100,"95","과수원",caption));
+				}else if(expr.equals("99")) {themeUnique.add(getItem(new Color(255,255,193), 100,"99","기타",caption));}
+			}
+		}else if(caption.matches("agcls.*")) {
+			for (String expr : exprlist) {
+				if(expr.equals("1")) {
+					themeUnique.add(getItem(new Color(53,130,53), 100,"1","1영급",caption));
+				}else if(expr.equals("2")) {
+					themeUnique.add(getItem(new Color(63,140,63), 100,"2","2영급",caption));
+				}else if(expr.equals("3")) {
+					themeUnique.add(getItem(new Color(73,150,73), 100,"3","3영급",caption));
+				}else if(expr.equals("4")) {
+					themeUnique.add(getItem(new Color(83,160,83), 100,"4","4영급",caption));
+				}else if(expr.equals("5")) {
+					themeUnique.add(getItem(new Color(93,170,93), 100,"5","5영급",caption));
+				}else if(expr.equals("6")) {
+					themeUnique.add(getItem(new Color(103,180,103), 100,"6","6영급",caption));
+				}else if(expr.equals("7")) {
+					themeUnique.add(getItem(new Color(129,193,129), 100,"7","7영급",caption));
+				}else if(expr.equals("8")) {
+					themeUnique.add(getItem(new Color(146,202,146), 100,"8","8영급",caption));
+				}else if(expr.equals("9")) {
+					themeUnique.add(getItem(new Color(173,215,173), 100,"9","9영급",caption));
+				}
+			}
+		}else if(caption.matches("dnst.*")) {
+			for (String expr : exprlist) {
+				if(expr.equals("A")) {
+					themeUnique.add(getItem(new Color(0,236,118), 100,"A","소",caption));
+				}else if(expr.equals("B")) {
+					themeUnique.add(getItem(new Color(0,196,118), 100,"B","중",caption));
+				}else if(expr.equals("C")) {
+					themeUnique.add(getItem(new Color(0,156,118), 100,"C","밀",caption));
+				}
+			}
+		}else if(caption.matches("dmcls.*")) {
+			for (String expr : exprlist) {
+				if(expr.equals("0")) {
+					themeUnique.add(getItem(new Color(252,213,181), 100,"0","치수",caption));
+				}else if(expr.equals("1")) {
+					themeUnique.add(getItem(new Color(250,192,144), 100,"1","소경목",caption));
+				}else if(expr.equals("2")) {
+					themeUnique.add(getItem(new Color(228,108,10), 100,"2","중경목",caption));
+				}else if(expr.equals("3")) {
+					themeUnique.add(getItem(new Color(152,72,7), 100,"3","대경목",caption));
+				}
+			}
+		}else if(caption.matches("ctrln.*")) {
+			for (String expr : exprlist) {
+				double cont = Double.parseDouble(expr);
+				if(cont%100 == 0) {
+					themeUnique.add(getItem(new Color(185,93,49), 100,expr,expr,caption));
+				}else if(cont%20 == 0){
+					themeUnique.add(getItem(new Color(255,192,162), 100,expr,expr,caption));
+				}
+			}
+		}
+		
+		return themeUnique;
+	}
+	
+	private ThemeUniqueItem getItem(Color color, int opaqueRate, String value, String caption, String type) {
+		// Set the items to the object of themeunique
+		ThemeUniqueItem item = new ThemeUniqueItem();
+		item.setUnique(value);
+		item.setCaption(caption);
+		item.setVisible(true);
+
+		// Set the style of the items
+		GeoStyle geostyle = new GeoStyle();
+		if(type.matches("ctrln.*")) {
+			double cont = Double.parseDouble(value);
+			geostyle.setLineColor(color);
+			if(cont%100 == 0) {
+				geostyle.setLineWidth(0.5);
+			}else if(cont%20 == 0){
+				geostyle.setLineWidth(0.1);
+			}
+		}else {
+			geostyle.setFillForeColor(color);
+			geostyle.setFillOpaqueRate(opaqueRate);
+			geostyle.setLineSymbolID(5);
+		}
+
+		item.setStyle(geostyle);
+
+		return item;
+	}
+	
+	/**
+	 * Map에 벡터 데이터셋 추가
+	 * @param dataset
+	 * @param mapName
+	 * @param caption
+	 * @return
+	 */
+	private boolean addLayerSingleBandVector(Dataset dataset, String mapName, String caption) {
+		try {
+			DatasetVector vector = (DatasetVector)dataset;
+			System.out.println(vector.getName());
+			com.supermap.mapping.Map map = new com.supermap.mapping.Map(workspace);
+			map.open(mapName);
+			LayerSettingVector lsv = new LayerSettingVector();
+			
+			Layer layer = map.getLayers().add(vector,lsv, true);
+			lsv = (LayerSettingVector)layer.getAdditionalSetting();
+			lsv.setStyle(getGeoStyle(caption));
+			
+			map.viewEntire();
+			layer.setVisible(true);
+			workspace.getMaps().setMapXML(mapName, map.toXML());
+			
+			map.close();
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+		return true;
+	}
+	
+	/**
+	 * Map에 래스터 데이터셋 추가
+	 * @param dataset
+	 * @param mapName
+	 * @param caption
+	 * @return
+	 */
+	private boolean addLayerSingleBandGrid(Dataset dataset, String mapName, String caption) {
+		try {
+			DatasetGrid grid = (DatasetGrid)dataset;
+			System.out.println(grid.getName());
+			com.supermap.mapping.Map map = new com.supermap.mapping.Map(workspace);
+			map.open(mapName);
+			
+			LayerSettingGrid lsg = new LayerSettingGrid();
+			lsg.setSpecialValue(-9999.0);
+			lsg.setSpecialValueTransparent(true);
+			
+			Layer layer = map.getLayers().add(grid,lsg, true);
+			lsg = (LayerSettingGrid)layer.getAdditionalSetting();
+
+			//lsg.setSpecialValueColor(Color.WHITE);
+			lsg.setColorDictionary(getColorDictionary(caption));
+			
+			map.viewEntire();
+			layer.setVisible(true);
+			workspace.getMaps().setMapXML(mapName, map.toXML());
+			
+			map.close();
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+		return true;
+	}
+	
+	/**
+	 * Map에 이미지 데이터셋 추가
+	 * @param dataset
+	 * @param mapName
+	 * @param caption
+	 * @return
+	 */
+	private boolean addLayerImage(Dataset dataset, String mapName, String caption) {
+		try {
+			DatasetImage image = (DatasetImage)dataset;
+			System.out.println(image.getName());
+			com.supermap.mapping.Map map = new com.supermap.mapping.Map(workspace);
+			map.open(mapName);
+			
+			LayerSettingImage lsi = new LayerSettingImage();
+			//lsi.
+			//lsg.setSpecialValue(-9999.0);
+			//lsg.setSpecialValueTransparent(true);
+			
+			Layer layer = map.getLayers().add(image,lsi, true);
+			//lsg = (LayerSettingGrid)layer.getAdditionalSetting();
+
+			//lsg.setSpecialValueColor(Color.WHITE);
+			//lsg.setColorDictionary(getColorDictionary(caption));
+			
+			map.viewEntire();
+			layer.setVisible(true);
+			workspace.getMaps().setMapXML(mapName, map.toXML());
+			
+			map.close();
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+		return true;
+	}
+	
+	/**
+	 * 벡터 데이터셋 심볼 설정
+	 * @param caption
+	 * @return
+	 * @throws Exception
+	 */
+	private GeoStyle getGeoStyle(String caption) throws Exception{
+		GeoStyle style = new GeoStyle();
+		
+		style.setFillForeColor(Color.white);
+		style.setFillOpaqueRate(0);
+		
+		if(caption.matches("lgstr.*")) {
+			style.setLineColor(Color.lightGray);
+		}else if(caption.matches("watershed.*")) {
+			style.setLineColor(Color.red);
+			style.setLineWidth(0.2);
+		}else if(caption.matches("ecrtcnl.*")) {
+			style.setFillForeColor(Color.red);
+			style.setFillOpaqueRate(1);
+			style.setMarkerSize(new Size2D(8, 8));
+			style.setLineColor(Color.red);
+		}else if(caption.matches("ctrln.*")) {
+			style.setLineColor(Color.lightGray);
+		}else if(caption.matches("road.*")) {
+			style.setLineColor(new Color(48,120,235));
+			style.setLineWidth(0.5);
+		}else if(caption.matches("rank.*")) {
+			style.setLineColor(Color.yellow);
+			style.setLineWidth(0.5);
+		}else {
+			style.setLineColor(Color.black);
+		}
+		
+		return style;
+	}
+	
+	/**
+	 * 래스터 데이터셋 심볼설정
+	 * @param caption
+	 * @return
+	 */
+	private ColorDictionary getColorDictionary(String caption) {
+		ColorDictionary cd = new ColorDictionary();
+		
+		if(caption.matches("slope.*")) {
+			cd.setColor(10, new Color(56,167,0));
+			cd.setColor(15, new Color(102,191,1));
+			cd.setColor(20, new Color(156,217,0));
+			cd.setColor(25, new Color(222,241,0));
+			cd.setColor(30, new Color(255,221,0));
+			cd.setColor(35, new Color(255,144,0));
+			cd.setColor(40, new Color(255,73,0));
+			cd.setColor(Double.MAX_VALUE, new Color(254,0,0));
+			
+		}else {
+		}
+		
+		return cd;
+	}
+	
+	/**
+	 * 템플릿 레이아웃 설정
+	 * @param name
+	 * @throws Exception
+	 */
+	public boolean setMapLayoutControl(String layoutName, String mapName,Rectangle2D rect){
+		String legendTitle = "범례";
+		
+		mapLayoutcontrol = new MapLayoutControl();
+		mapLayoutcontrol.getMapLayout().setWorkspace(workspace);
+		mapLayoutcontrol.getMapLayout().open(layoutName);
+		
+		try {
+			LayoutElements layoutElements = mapLayoutcontrol.getMapLayout().getElements();
+			while(!layoutElements.isEOF()) {
+				Geometry geometry = layoutElements.getGeometry();
+				
+				if(geometry instanceof GeoText) {
+					
+				}
+				if(geometry instanceof GeoLegend) {
+					GeoLegend legend = createGeoLegend(layoutName,geometry, mapName);
+					layoutElements.setGeometry(legend);
+				}
+				
+				if(geometry instanceof GeoMap) {
+					GeoMap target = (GeoMap)geometry;
+					target.setMapName(mapName);
+					
+					layoutElements.setGeometry(target);
+					
+					com.supermap.mapping.Map map = new com.supermap.mapping.Map();
+					map.setWorkspace(workspace);
+					System.out.println(mapName);
+					map.open(mapName);
+					
+					//Rectangle2D rect = datasource.getDatasets().get(this.dataSetNm).getBounds();
+					//rect.inflate(100, 100);
+					
+					mapLayoutcontrol.setMapAction(Action.NULL);
+					mapLayoutcontrol.setActiveGeoMapID(layoutElements.getID());
+					mapLayoutcontrol.getActiveMap().setViewBounds(rect);
+					mapLayoutcontrol.getActiveMap().setCenter(rect.getCenter());
+					mapLayoutcontrol.getActiveMap().refresh();
+					mapLayoutcontrol.setActiveGeoMapID(-1);
+					 
+				}
+				layoutElements.moveNext();
+			}
+			layoutElements.refresh();
+			mapLayoutcontrol.getMapLayout().refresh();
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+		return true;
+	}
+	
+	/**
+	 * 지도템플릿 범례생성
+	 * @param geometry
+	 * @param mapName
+	 * @return
+	 * @throws Exception
+	 */
+	private GeoLegend createGeoLegend(String layoutName, Geometry geometry, String mapName) throws Exception{
+		String legendTitle = "범례";
+		GeoLegend target = (GeoLegend)geometry;
+		GeoLegend legend = new GeoLegend(mapName, datasource.getWorkspace(), legendTitle);
+		
+		legend.setColumnCount(1);
+		legend.setWidth(target.getBounds().getWidth());
+		//legend.setHeight(target.getBounds().getHeight());
+		legend.setCenter(new Point2D(target.getInnerPoint().x, target.getInnerPoint().y));
+		
+		GeoCompound compound = legend.getInnerGeometry();
+		
+		legend.setHeight((compound.getPartCount()/2)*65);
+		//legend.setCenter(new Point2D(legend.getInnerPoint().x, legend.getHeight()/2+30));
+		
+		int idx =0, recIdx = 0, lineIdx = 0;
+		double positionX = 0, positionY = 0;
+		
+		LinkedHashMap<Integer, Double> positionYMap = new LinkedHashMap<Integer, Double>();
+		for (int i =0; i < compound.getPartCount(); i++) {
+			//System.out.println(compound.getPart(i).getType());
+			Geometry typeCheck = (Geometry)compound.getPart(i);
+			
+			if((typeCheck instanceof GeoText)) {
+				GeoText text = (GeoText) typeCheck;
+				if(idx == 0 ) {
+					positionX =  text.getInnerPoint().x;
+					//positionY = text.getInnerPoint().y;
+					//System.out.println("POSITION X / Y : " + positionX +" / "+ positionY);
+					idx++;
+				}
+				if(text.getText().matches("범례")) {
+					//positionY = text.getInnerPoint().y;
+					positionY = positionYMap.get(0);
+					positionY = positionY + (legend.getHeight()/2)-40;
+					
+					TextPart part = new TextPart();
+					part.setText(text.getText());
+					part.setX(positionX);
+					part.setY(positionY);
+					
+					//Text Style Set
+					TextStyle style = new TextStyle();
+					style.setFontWidth(5);
+					style.setFontHeight(5);
+					style.setSizeFixed(true);
+//					style.setFontScale(10);
+					text.setTextStyle(style);
+					text.setPart(0, part);
+				}else {
+					TextPart part = new TextPart();
+					if(text.getText().matches("watershed.*")) {
+						part.setText("유역경계");
+					}else {
+						part.setText(text.getText());
+					}
+					positionY = positionYMap.get(idx);
+					//Text position & text Set
+					part.setX(positionX+100);
+					part.setY(positionY);
+					//part.setY((positionY) - ((idx -1) * 60));
+					
+					//Text Style Set
+					TextStyle style = new TextStyle();
+					style.setFontWidth(3);
+					style.setFontHeight(3);
+					style.setSizeFixed(true);
+					text.setTextStyle(style);
+					text.setPart(0, part);
+					
+					idx++;
+				}
+			}
+			
+			if(typeCheck instanceof GeoLine) {
+				GeoLine line = (GeoLine) typeCheck;
+				//System.out.println(line.getInnerPoint().x+","+line.getInnerPoint().y);
+				if(lineIdx == 0) {
+					positionY = line.getInnerPoint().y;
+					positionYMap.put(lineIdx, positionY);
+				}else {
+					if(lineIdx == 1) {
+						positionX =  line.getInnerPoint().x+40;
+						positionY = positionY + (legend.getHeight()/2)-120;//rec.getInnerPoint().y;
+					}
+					line.offset(positionX, positionY - ((lineIdx -1) * 60));
+					
+					positionYMap.put(lineIdx, positionY - ((lineIdx -1) * 60));
+				}
+				//System.out.println("after ::: "+line.getInnerPoint().x+","+line.getInnerPoint().y);
+				lineIdx++;
+			}
+			
+			if(typeCheck instanceof GeoRectangle) {
+				GeoRectangle rec = (GeoRectangle) typeCheck;
+				//System.out.println(rec.getInnerPoint().x+","+rec.getInnerPoint().y);
+				if(recIdx == 0) {
+					positionY = rec.getInnerPoint().y;
+					positionYMap.put(recIdx, positionY);
+				}else {
+					if(recIdx == 1) {
+						positionX =  rec.getInnerPoint().x+40;
+						positionY = positionY + (legend.getHeight()/2)-120;//rec.getInnerPoint().y;
+					}
+					rec.setWidth(100);
+					rec.setHeight(40);
+					rec.setCenter(new Point2D(positionX, positionY - ((recIdx -1) * 60)));
+					
+					positionYMap.put(recIdx, positionY - ((recIdx -1) * 60));
+				}
+				//System.out.println("after ::: "+rec.getInnerPoint().x+","+rec.getInnerPoint().y);
+				recIdx++;
+			}
+		}
+		legend.setCenter(new Point2D(target.getInnerPoint().x, legend.getHeight()/2+30));
+		return legend;
+	}
+	
+	/**
+	 * 지도 이미지 저장
+	 * @return
+	 * @throws Exception
+	 */
+	public String saveMapImage() throws Exception{
+		String saveFileNm = null;
+		if(mapLayoutcontrol != null) {
+			try {
+				String serverSubPath = EgovFileUploadUtil.getTodayString();
+				String physicalName = EgovFileUploadUtil.getPhysicalFileName();
+				String savePath = EgovWebUtil.filePathBlackList(uploadDir + serverSubPath + File.separator + physicalName);
+				
+				File folder = new File(uploadDir + serverSubPath);
+				if(!folder.exists()) {
+					folder.mkdir();
+				}
+				
+				boolean status = mapLayoutcontrol.getMapLayout().printToFile(savePath.concat(".png"), PrintFileType.PNG, 96);
+				if(status) {
+					saveFileNm = savePath.concat(".png");
+				}
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage());
+			}
+			
+		}
+		System.out.println(saveFileNm);
+		return saveFileNm;
+	}
+	
+	/**
+	 * 좌표변환
+	 * @param dataset
+	 * @return
+	 */
+	private boolean coordSysTranslator(Dataset dataset,int epsg) {
+		return CoordSysTranslator.convert(dataset, new PrjCoordSys(epsg), new CoordSysTransParameter(), CoordSysTransMethod.MTH_GEOCENTRIC_TRANSLATION);
+	}
+	
+	/**
+	 * 지오메트리 정보 조회
+	 * @param items
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> getGeometryParam(Map<String, Object> items) throws Exception{
+		String geomType = null;
+		String geomNm = null;
+        String geomStr = null;
+        Map<String, Object> geomParams = new HashMap<String, Object>();
+        
+		for(Map.Entry<String, Object> attr : items.entrySet()) {
+			String attr_key = attr.getKey();
+			Object attr_val = attr.getValue();
+					
+			if(attr_val != null && Pattern.matches("POINT.*(.*)", attr_val.toString())) {
+				geomType = "POINT";
+				geomNm = attr_key;
+				geomStr = attr_val.toString();
+			}else if(attr_val != null && Pattern.matches("MULTIPOLYGON.*(.*)", attr_val.toString())) {
+				geomType = "MULTIPOLYGON";
+				geomNm = attr_key;
+				geomStr = attr_val.toString();
+			}
+		}
+		
+		if(geomType != null) {
+			geomParams.put("type", geomType);
+			geomParams.put("name", geomNm);
+			geomParams.put("geometry", geomStr);
+		}else {
+			returnLog.put("status", "fail");
+			returnLog.put("message", "지오메트리 형식이 맞지 않습니다.");
+			LOGGER.error("지오메트리 형식이 맞지 않습니다.");
+		}
+		
+		return geomParams;
+	}
+	
+	/**
+	 * 지오메트리 생성
+	 * @param geomStr
+	 * @param geomType
+	 * @return
+	 * @throws Exception
+	 * @Description point 좌표변환 확인해볼것....
+	 */
+	public Geometry createGeometry(String geomStr,String geomType) throws Exception{
+		Geometry geom = null;
+		String geom_str = null;
+		
+		if(geomType.equals("POINT")) {
+			geom_str = geomStr.replaceAll("POINT \\(|POINT\\(|\\)", "");
+			
+			String pt = geom_str;
+			
+			double x = Double.parseDouble(pt.split(" ")[0]);
+			double y = Double.parseDouble(pt.split(" ")[1]);
+			
+			Point2D pt2d = new Point2D(x,y);
+			
+			//GeoPoint geoPt = new GeoPoint(pt2d);
+			geom = new GeoPoint(pt2d);
+		}else if(geomType.equals("POLYGON")) {
+			geom_str = geomStr.replaceAll("POLYGON \\(\\(|POLYGON\\(\\(|\\)\\)\\)", "");
+		}else if(geomType.equals("MULTIPOLYGON")) {
+			geom_str = geomStr.replaceAll("MULTIPOLYGON \\(\\(\\(|MULTIPOLYGON\\(\\(\\(|\\)\\)\\)", "");
+			String[] multiPolygons = geom_str.split("\\),\\(|\\), \\(");
+			
+			GeoRegion geoRegion = new GeoRegion();
+			for (int i = 0; i < multiPolygons.length; i++) {
+				String polygonStr = multiPolygons[i];//.replaceAll("\\(|\\)","");
+				String[] multiPolygon = polygonStr.split(",");
+				
+				Point2Ds point2ds = new Point2Ds();
+				
+				for (int j = 0; j < multiPolygon.length; j++) {
+					String polygon = multiPolygon[j].trim();
+					
+					double x = Double.parseDouble(polygon.split(" ")[0]);
+					double y = Double.parseDouble(polygon.split(" ")[1]);
+					
+					point2ds.add(new Point2D(x, y));
+				}
+				geoRegion.addPart(point2ds);
+			}
+			
+			geom = geoRegion;
+		}
+		
+		PrjCoordSys srcPrjCoordSys = PrjCoordSys.fromEPSG(epsg);
+		PrjCoordSys desPrjCoordSys = srcPrjCoordSys.getProjection() != null ? dataset.getPrjCoordSys() : PrjCoordSys.fromEPSG(5179);
+		
+		//printPrjCoordSys(dataset.getPrjCoordSys());
+		//if(!checkPrjCoordSys(desPrjCoordSys,srcPrjCoordSys)) {
+		if(epsg != 5179) {
+			boolean transCheck = CoordSysTranslator.convert(geom, srcPrjCoordSys, desPrjCoordSys, new CoordSysTransParameter(), CoordSysTransMethod.MTH_Prj4);
+			if(!transCheck) {
+				LOGGER.error("좌표변환에 실패하였습니다.");
+				throw new Exception("좌표변환에 실패하였습니다.");
+			}
+		}
+		
+		return geom;
+	}
+	
+	/**
+	 * 속성정보 생성
+	 * @param items
+	 * @param geoNm
+	 * @param geoType
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> createAttributes(Map<String, Object> items, String geoNm, String geoType) throws Exception{
+		Map<String, Object> prolerties = new HashMap<String, Object>();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		
+		for(Map.Entry<String, Object> attr : items.entrySet()) {
+			String attr_key = attr.getKey();
+			Object attr_val = attr.getValue();
+			
+			if(attr_val != null && !attr_key.equals("smid")) {
+				boolean dateTypeCheck = Pattern.matches("[0-9][0-9][0-9][0-9]\\/[0-1][0-9]\\/[0-3][0-9]\\s[0-2][0-9]\\:[0-5][0-9]\\:[0-5][0-9].*", attr_val.toString());
+				
+				if(dateTypeCheck) {
+					//prolerties.put(attr_key, "to_date(".concat(attr_val.toString()).concat(")"));
+					prolerties.put(attr_key, formatter.parse(attr_val.toString()));
+				}else {
+					if(!geoNm.equals(attr_key)) {
+						prolerties.put(attr_key, attr_val);
+					}
+				}
+			}
+		}
+		
+		return prolerties;
+	}
+	
+	/**
+	 * 쉐이프파일 임포트
+	 * @param url
+	 * @param vectorName
+	 * @return
+	 * @throws Exception
+	 */
+	public ImportResult importShpToDb(String url, String vectorName) throws Exception{
+		ImportSettingSHP importSettingSHP = new ImportSettingSHP();
+        importSettingSHP.setAttributeIgnored(false);
+		
+        importSettingSHP.setImportMode(ImportMode.APPEND);
+        importSettingSHP.setSourceFilePath(url);
+        importSettingSHP.setSourceFileCharset(Charset.UTF8);
+
+        importSettingSHP.setTargetDatasource(datasource);
+        importSettingSHP.setTargetDatasetName(vectorName);
+
+        DataImport importer = new DataImport();
+        importer.getImportSettings().add(importSettingSHP);
+        ImportResult result = importer.run();
+        
+        return result;
+	}
+	
+	/**
+	 * 쉐이프파일 저장
+	 * @param vectorName
+	 * @param outputPath
+	 * @throws Exception
+	 */
+	public void exportDbToShp(String vectorName, String outputPath) throws Exception{
+		try {
+			//getDatasourceConnectionInfo();
+			getConnectionInfo("pggis");
+			
+			if(datasets.contains(vectorName)) {
+				//datasets.delete(dataSetVectorNmae); //테이블 삭제
+				dataset = (DatasetVector) datasets.get(vectorName);
+				
+				ExportSettings exportSettings = new ExportSettings();
+				
+				File shpFile = new File(outputPath+File.separator+dataset.getName());
+				shpFile.mkdirs();
+				
+				ExportSetting exportSetting = new ExportSetting(dataset, shpFile+File.separator+dataset.getName()+".shp", FileType.SHP);
+				exportSettings.add(exportSetting);
+				
+				DataExport dataExport = new DataExport();
+				dataExport.setExportSettings(exportSettings);
+				dataExport.run();
+				dataExport.dispose();
+			}else {
+				LOGGER.error("요청한 테이블 정보가 존재하지 않습니다.");
+				throw new Exception("요청한 테이블 정보가 존재하지 않습니다.");
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			//closeDbmsAll();
+			//closeWorkspace();
+			closeConnection("pggis");
+		}
+	}
+	
+	/**
+	 * 슈퍼맵 DBMS 연결정보 닫기
+	 * @throws Exception
+	 */
+	public void closeDbmsAll() throws Exception{
+		if(recordset != null) {
+			recordset.close();
+			recordset.dispose();
+			recordset = null;
+		}
+		if(dataset != null && !dataset.isDisposed()){
+			dataset.close();
+		}
+//		if(datasources != null) {
+//			datasources.closeAll();
+//		}
+		if(connectionInfo != null) {
+			connectionInfo.dispose();
+		}
+	}
+	
+	/**
+	 * 슈퍼맵 UDBX 연결정보 닫기
+	 * @throws Exception
+	 */
+	public void closeUdbxAll() throws Exception{
+		if(uRecordset != null) {
+			uRecordset.close();
+			uRecordset.dispose();
+			uRecordset = null;
+		}
+		if(uDataset != null && !uDataset.isDisposed()){
+			uDataset.close();
+		}
+//		if(uDatasources != null) {
+//			uDatasources.closeAll();
+//		}
+		if(uConnectionInfo != null) {
+			uConnectionInfo.dispose();
+		}
+	}
+	
+	/**
+	 * 슈퍼맵 연결 닫기
+	 * @param type
+	 * @throws Exception
+	 */
+	public void closeConnection(String type) throws Exception{
+		if(type.equals("pggis")) {
+			closeDbmsAll();
+		}else if(type.equals("udbx")) {
+			closeUdbxAll();
+		}else {
+			closeDbmsAll();
+			closeUdbxAll();
+		}
+		
+		if(workspace != null) {
+			workspace.save();
+			//workspace.getDatasources().closeAll();
+			//workspace.close();
+        	workspace.dispose();
+		}
+	}
+	
+	/**
+	 * 슈퍼맵 연결 닫기
+	 * @throws Exception
+	 */
+	public void closeConnection() throws Exception{
+		closeDbmsAll();
+		closeUdbxAll();
+		
+		if(workspace != null) {
+			workspace.save();
+			//workspace.getDatasources().closeAll();
+			//workspace.close();
+        	workspace.dispose();
+		}
+	}
+	
+	/**
+	 * ExtFieldBookItemVO -> Map 바꾸기
+	 * @param itemVo
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> changeVoToMap(SysComptVO itemVo) throws Exception{
+		Map<String, Object> items = new HashMap<String, Object>();
+		
+		Field[] fields = itemVo.getClass().getDeclaredFields();
+		
+		for(Field field : fields) {
+			field.setAccessible(true);
+			items.put(field.getName(), field.get(itemVo));
+		}
+		
+		return items;
+	}
+	
+	/**
+	 * SysFieldInfoVO -> Map 바꾸기
+	 * @param itemVo
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> changeVoToMap(SysFieldInfoVO itemVo) throws Exception{
+		Map<String, Object> items = new HashMap<String, Object>();
+		
+		Field[] fields = itemVo.getClass().getDeclaredFields();
+		
+		for(Field field : fields) {
+			field.setAccessible(true);
+			items.put(field.getName(), field.get(itemVo));
+		}
+		
+		return items;
+	}
+	
+	/**
+	 * 지오메트리 업데이트 대상 유무 확인
+	 * @return
+	 * @throws Exception
+	 * @Description 포인트는 X,Y 값을 비교, 폴리곤은 바운더리의 상하좌우 좌표와 width,height 그리고 중심좌표 X,Y 값을 비교하여 변경이 되었는지 확인.
+	 * 
+	 */
+	public boolean checkUpdateGeometry(Geometry sourceGeom, Geometry updateGeom) throws Exception{
+		boolean updated = false;
+		if(sourceGeom.getType() == GeometryType.GEOPOINT) {
+			GeoPoint sourcePoint = (GeoPoint) sourceGeom;
+			GeoPoint updatePoint = (GeoPoint) updateGeom;
+			
+			updated = sourcePoint.getX() != updatePoint.getX() || sourcePoint.getX() != updatePoint.getX();
+					
+			updated = sourceGeom.getInnerPoint().getX() != updateGeom.getInnerPoint().getX() ||
+					sourceGeom.getInnerPoint().getY() != updateGeom.getInnerPoint().getY();
+		}else if(sourceGeom.getType() == GeometryType.GEOREGION) {
+//			updated = sourceGeom.getBounds().getTop() != updateGeom.getBounds().getTop() ||
+//					sourceGeom.getBounds().getBottom() != updateGeom.getBounds().getBottom() ||
+//					sourceGeom.getBounds().getLeft() != updateGeom.getBounds().getLeft() ||
+//					sourceGeom.getBounds().getRight() != updateGeom.getBounds().getRight() ||
+//					sourceGeom.getBounds().getWidth() != updateGeom.getBounds().getWidth() ||
+//					sourceGeom.getBounds().getHeight() != updateGeom.getBounds().getHeight() ||
+//					sourceGeom.getBounds().getCenter().getX() != updateGeom.getBounds().getCenter().getX() ||
+//					sourceGeom.getBounds().getCenter().getY() != updateGeom.getBounds().getCenter().getY();
+			
+			GeoRegion sourceRegion = (GeoRegion)sourceGeom;
+			GeoRegion updateRegion = (GeoRegion)updateGeom;
+			
+			updated = sourceRegion.getArea() != updateRegion.getArea();
+		
+			//sourceRegion.getArea()
+		}
+		
+		return updated;
+	}
+	
+	/**
+	 * 데이터셋 좌표체계와 입력 좌표체계 일치 유무
+	 * @param sourceCoordSys
+	 * @param targetCoordSys
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean checkPrjCoordSys(PrjCoordSys sourceCoordSys,PrjCoordSys targetCoordSys) throws Exception{
+		boolean checkPrj = false;
+		PrjParameter sPrjParameter = sourceCoordSys.getPrjParameter();
+		GeoCoordSys sGeoCoordSys = sourceCoordSys.getGeoCoordSys();
+		
+		PrjParameter tPrjParameter = targetCoordSys.getPrjParameter();
+		GeoCoordSys tGeoCoordSys = targetCoordSys.getGeoCoordSys();
+		
+		checkPrj = sourceCoordSys.getProjection().getName().toString().equals(targetCoordSys.getProjection().getName().toString()) &&
+				sPrjParameter.getCentralMeridian() == tPrjParameter.getCentralMeridian() &&
+				sPrjParameter.getCentralParallel() == tPrjParameter.getCentralParallel() &&
+				sPrjParameter.getFalseEasting() == tPrjParameter.getFalseEasting() &&
+				sPrjParameter.getFalseNorthing() == tPrjParameter.getFalseNorthing() &&
+				sPrjParameter.getScaleFactor() == tPrjParameter.getScaleFactor() &&
+				sGeoCoordSys.getName().equals(tGeoCoordSys.getName()) &&
+				sGeoCoordSys.getGeoDatum().getName().equals(tGeoCoordSys.getGeoDatum().getName()) &&
+				sGeoCoordSys.getGeoDatum().getGeoSpheroid().getName().equals(tGeoCoordSys.getGeoDatum().getGeoSpheroid().getName()) &&
+				sGeoCoordSys.getGeoDatum().getGeoSpheroid().getAxis() == tGeoCoordSys.getGeoDatum().getGeoSpheroid().getAxis();
+		
+		return checkPrj;
+	}
+	
+	/**
+	 * 구역통계 분석(Zonal Statistics)
+	 * @param zonalDataset
+	 * @param valueDataset
+	 * @return
+	 * @throws Exception
+	 */
+//	public DatasetGrid rasterValueZonalStatistics(Dataset zonalDataset, DatasetGrid valueDataset,String outputDatasetName, String outputTableName) throws Exception{
+//		getDatasourceConnectionInfo();
+//		//Set the name of the result dataset, and check whether this dataset has already existed in the datasource. If yes, delete this dataset
+//		String outputDatasetName = "ta_feis_zonalStats_Result";
+//		if (datasets.contains(outputDatasetName))
+//		{
+//			datasets.delete(outputDatasetName);
+//		}
+//	
+//		//Set the name of the result attribute table, and check whether this dataset has already existed in the datasource. If yes, delete this dataset
+//		String outputTableName = "ta_feis_zonalStats_ResultTable";
+//		if (datasets.contains(outputTableName))
+//		{
+//			datasets.delete(outputTableName);
+//		}
+//	
+//		ZonalStatisticsAnalystParameter parameter = new ZonalStatisticsAnalystParameter();
+//		parameter.setTargetDatasource(datasource);
+//		parameter.setTargetDatasetName(outputDatasetName);
+//		parameter.setTargetTableName(outputTableName);
+//		parameter.setIgnoreNoValue(false);
+//		parameter.setStatisticsMode(GridStatisticsMode.SUM);
+//		parameter.setPixelFormat(PixelFormat.DOUBLE);
+//		parameter.setValueDataset(valueDataset);
+//		parameter.setZonalDataset(zonalDataset);
+//		//zonalStatisticsParameter.TargetDatasource = targetDatasource;
+//		//zonalStatisticsParameter.TargetDatasetName = targetDatasetName;
+//		//zonalStatisticsParameter.TargetDatasource = targetDatasource;
+//		//zonalStatisticsParameter.TargetTableName = targetTableName;
+//		//zonalStatisticsParameter.IsIgnoreNoValue = false;
+//		//zonalStatisticsParameter.StatisticsMode = GridStatisticsMode.Sum;
+//		//zonalStatisticsParameter.PixelFormat = PixelFormat.Double;
+//		//zonalStatisticsParameter.ValueDataset = ValueDataset;
+//		//zonalStatisticsParameter.ZonalDataset = ZoneDataset;
+//	
+//		//Call the ZonalStatisticsOnRasterValue method, and get the ZonalStatisticsAnalystResult object
+//		ZonalStatisticsAnalystResult zonalStatisticResult = StatisticsAnalyst.zonalStatisticsOnRasterValue(parameter);
+//		DatasetGrid resultDatasetGrid = zonalStatisticResult.getResultDatasetGrid();
+//	
+//	return resultDatasetGrid;
+//
+//	}
+	
+	
+	/**
+	 * 좌표체계 출력
+	 * @param prjCoordSys
+	 * @throws Exception
+	 */
+	public void printPrjCoordSys(PrjCoordSys prjCoordSys) throws Exception{
+		//PrjCoordSys prjCoordSys = dataset.getPrjCoordSys();
+		//PrjCoordSys prjCoordSys = PrjCoordSys.fromEPSG(5186);
+		PrjParameter prjParameter = prjCoordSys.getPrjParameter();
+		GeoCoordSys geoCoordSys = prjCoordSys.getGeoCoordSys();
+		
+		LOGGER.info(prjCoordSys.getName().toString());
+		LOGGER.info(prjCoordSys.getProjection().getName().toString());
+		LOGGER.info(String.valueOf(prjParameter.getCentralMeridian()));
+		LOGGER.info(String.valueOf(prjParameter.getCentralParallel()));
+		LOGGER.info(String.valueOf(prjParameter.getStandardParallel1()));
+		LOGGER.info(String.valueOf(prjParameter.getStandardParallel2()));
+		LOGGER.info(String.valueOf(prjParameter.getFalseEasting()));
+		LOGGER.info(String.valueOf(prjParameter.getFalseNorthing()));
+		LOGGER.info(String.valueOf(prjParameter.getScaleFactor()));
+		LOGGER.info(String.valueOf(prjParameter.getAzimuth()));
+		LOGGER.info(String.valueOf(prjParameter.getFirstPointLongitude()));
+		LOGGER.info(String.valueOf(prjParameter.getSecondPointLongitude()));
+		
+		LOGGER.info(geoCoordSys.getName());
+		LOGGER.info(geoCoordSys.getGeoDatum().getName());
+		LOGGER.info(geoCoordSys.getGeoDatum().getGeoSpheroid().getName());
+		LOGGER.info(String.valueOf(geoCoordSys.getGeoDatum().getGeoSpheroid().getAxis()));
+		LOGGER.info(String.valueOf(geoCoordSys.getGeoDatum().getGeoSpheroid().getFlatten()));
+		LOGGER.info(String.valueOf(geoCoordSys.getGeoPrimeMeridian().getLongitudeValue()));
+	}
+	
+	/**
+	 * 레코드셋 추가
+	 * @param geom
+	 * @param attr
+	 * @param vectorName
+	 * @throws Exception
+	 */
+	public void addRecordset(Geometry geom, Map<String, Object> attr, String vectorName) throws Exception{
+		try {
+			if(datasets.contains(vectorName)) {
+				dataset = (DatasetVector) datasets.get(vectorName);
+				
+				recordset = dataset.getRecordset(false, CursorType.DYNAMIC);
+				recordset.addNew(geom, attr);
+				recordset.update();
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		} finally {
+			if(geom != null) {
+				geom.dispose();
+			}
+		}
+		
+	}
+	
+	/**
+	 * 결과 레코드셋를 db 테이블로 복사
+	 * @param udbDatasetName
+	 * @param pggisDatasetName
+	 * @throws Exception
+	 */
+	public void copyUdbToPggisRcordset(Recordset resultRecordSet ,String saveDatasetName, Map<String, Object> saveAttr) throws Exception{
+		try {
+			if(datasets.contains(saveDatasetName)) {
+				
+				if(resultRecordSet.getRecordCount() > 0) {
+					
+					dataset = (DatasetVector) datasets.get(saveDatasetName);
+					recordset = dataset.getRecordset(false, CursorType.DYNAMIC);
+					
+					recordset.addNew(resultRecordSet.getGeometry(), saveAttr);
+					recordset.update();
+					//dataset.append(uRecordset);
+					//dataset.close();
+				}else {
+					LOGGER.error("udb의 ".concat(resultRecordSet.getDataset().getName()).concat(" 레코드셋 정보가 없습니다."));
+				}
+				
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			LOGGER.error(e.getMessage());
+		}
+	}
+	
+	/**
+	 * 분석결과 고유 데이터셋명 생성
+	 * @return
+	 * @throws Exception
+	 */
+	public String getDatasetUuid() throws Exception{
+		return String.valueOf((new Date().getTime()));
+		//return UUID.randomUUID().toString().replaceAll("-", "");
+	}
+}

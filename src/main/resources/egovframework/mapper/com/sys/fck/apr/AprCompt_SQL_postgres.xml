@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fckAprComptDAO">
+	
+	<resultMap id="fckAprComptListVO" type="or.sabang.sys.fck.apr.service.FckAprComptVO">
+		<result property="gid" column="GID" /><!-- 고유아이디 -->	
+		<result property="mstId" column="MST_ID" /><!-- 공유방아이디 -->
+		<result property="svyId" column="SVY_ID" /><!-- 조사ID -->
+		<result property="svyUser" column="SVY_USER" /><!-- 점검자 -->
+		<result property="svyType" column="SVY_TYPE" /><!-- 점검유형 -->
+		<result property="trgLndLen" column="TRGLND_LEN" /><!-- 대상지 수 -->
+		<result property="photoLen" column="PHOTO_LEN" /><!-- 현장사진 수 -->
+		<result property="dmgSttusPhotoLen" column="DMG_STTUS_PHOTO_LEN" /><!-- 피해발생현황 사진개수 -->
+		<result property="dmgFcltPhotoLen" column="DMG_FCLT_PHOTO_LEN" /><!-- 피해시설 위치 및 피해현황 사진개수 -->
+		<result property="creatDt" column="CREAT_DT" /><!-- 등록일자 -->
+		<result property="lastUpdtPnttm" column="LAST_UPDT_PNTTM" /><!-- 수정일자 -->
+	</resultMap>
+	
+	<resultMap id="fckAprComptDetailVO" type="or.sabang.sys.fck.apr.service.FckAprComptVO">
+		<result property="gid" column="GID" /><!-- 고유아이디 -->
+		<result property="mstId" column="MST_ID" /><!-- 공유방아이디 -->
+		<result property="svyId" column="SVY_ID" /><!-- 조사ID -->
+		<result property="svyUser" column="SVY_USER" /><!-- 점검자 -->
+		<result property="loginId" column="LOGIN_ID" /><!-- 작성자ID -->
+		<result property="chkUser" column="CHK_USER" /><!-- 점검자 -->
+		<result property="svyType" column="SVY_TYPE" /><!-- 점검유형 -->
+		<result property="creatDt" column="CREAT_DT" /><!-- 등록일자 -->
+		<result property="svyLatLon" column="SVY_LATLON" /><!-- 위경도 -->
+		<result property="svyLon" column="LON" /><!-- 경도 -->
+		<result property="svyLat" column="LAT" /><!-- 위도 -->
+		<result property="svySd" column="SD" /><!-- 시도 -->
+		<result property="svySgg" column="SGG" /><!-- 시군구 -->
+		<result property="svyEmd" column="EMD" /><!-- 읍면동 -->
+		<result property="svyRi" column="RI" /><!-- 리 -->
+		<result property="svyJibun" column="JIBUN" /><!-- 지번 -->
+		<result property="svyDt" column="SVY_DT" /><!-- 조사일 -->
+		<result property="knd" column="KND" /><!-- 사방댐,시설물 종류 -->
+		<result property="svyForm" column="SVY_FORM" /><!-- 사방댐형식-->
+		<result property="ecnrRnum" column="ECNR_RNUM" /><!-- 사방댐관리번호-->
+		<result property="nationSpotNum" column="NATION_SPOT_NUM" /><!-- 국가지점번호-->
+		<result property="dsgArea" column="DSG_AREA" /><!-- 지정면적 -->
+		<result property="fcltYear" column="FCLT_YEAR" /><!-- 시설제원 시설년도-->
+		<result property="fcltUprHg" column="FCLT_UPR_HG" /><!-- 시설제원 상장-->
+		<result property="fcltLwrHg" column="FCLT_LWR_HG" /><!-- 시설제원 하장-->
+		<result property="fcltStkHg" column="FCLT_STK_HG" /><!-- 시설제원 유효고-->
+		<result property="orginlDamVal" column="ORGINL_DAM_VAL" /><!-- 본댐 측정값 -->
+		<result property="orginlDamJdgVal" column="ORGINL_DAM_JDGVAL" /><!-- 본댐 판정값-->
+		<result property="sideWallVal" column="SIDE_WALL_VAL" /><!-- 측벽 측정값 -->
+		<result property="sideWallJdgVal" column="SIDE_WALL_JDGVAL" /><!-- 측벽 판정값-->
+		<result property="dwnsptVal" column="DWNSPT_VAL" /><!-- 물받이 측정값 -->
+		<result property="dwnsptJdgVal" column="DWNSPT_JDGVAL" /><!-- 물받이 판정값-->
+		<result property="flugtJdgVal" column="FLUGT_JDGVAL" /><!-- 수문 판정값-->
+		<result property="vtnsttusJdgVal" column="VTNSTTUS_JDGVAL" /><!-- 식생상태 판정값-->
+		<result property="sffcJdgVal" column="SFFC_JDGVAL" /><!-- 안전시설 판정값-->
+		<result property="accssrdJdgVal" column="ACCSSRD_JDGVAL" /><!-- 접근도로 판정값-->
+		<result property="etcJdgVal" column="ETC_JDGVAL" /><!-- 기타 판정값-->
+		<result property="snddpsitJdgVal" column="SNDDPSIT_JDGVAL" /><!-- 저사상태 판정값-->
+		<result property="fckRslt" column="FCK_RSLT" /><!-- 최종점검결과-->
+		<result property="mngmtr" column="MNGMTR" /><!-- 조치사항-->
+		<result property="appnRelis" column="APPN_RELIS" /><!-- 지정해제-->
+		<result property="photo" column="PHOTO" /><!-- 사진-->
+		<result property="fcltHg" column="FCLT_HG" /><!-- 시설제원 높이-->		
+		<result property="fcltSlp" column="FCLT_SLP" /><!-- 시설제원 평균경사-->
+		<result property="reinfcVal" column="REINFC_VAL" /><!-- 보강시설 측정값-->
+		<result property="reinfcJdgVal" column="REINFC_JDGVAL" /><!-- 보강시설 판정값-->
+		<result property="prtcVal" column="PRTC_VAL" /><!-- 보호시설 측정값-->
+		<result property="prtcJdgVal" column="PRTC_JDGVAL" /><!-- 보호시설 판정값-->
+		<result property="drngVal" column="DRNG_VAL" /><!-- 배수시설 측정값-->
+		<result property="drngJdgVal" column="DRNG_JDGVAL" /><!-- 배수시설 판정값-->
+		<result property="chkdamVal" column="CHKDAM_VAL" /><!-- 골막이 측정값-->
+		<result property="chkdamJdgVal" column="CHKDAM_JDGVAL" /><!-- 골막이 판정값-->
+		<result property="rvtmntVal" column="RVTMNT_VAL" /><!-- 기슭막이 측정값-->
+		<result property="rvtmntJdgVal" column="RVTMNT_JDGVAL" /><!-- 기슭막이 판정값-->
+		<result property="grdstablVal" column="GRDSTABL_VAL" /><!-- 바닥막이 측정값-->
+		<result property="grdstablJdgVal" column="GRDSTABL_JDGVAL" /><!-- 바닥막이 판정값-->
+		<result property="mooringJdgVal" column="MOORING_JDGVAL" /><!-- 계류상태 판정값-->
+		<result property="slopeJdgVal" column="SLOPE_JDGVAL" /><!-- 사면상태 판정값-->				
+		<result property="fcltHrz" column="FCLT_HRZ" /><!-- 시설제원 가로-->
+		<result property="fcltVtcl" column="FCLT_VTCL" /><!-- 시설제원 세로-->
+		<result property="fcltCstDstnc" column="FCLT_CSTDSTNC" /><!-- 시설제원 해안거리-->
+		<result property="cstPrvnfrstStrctuVal" column="CSTPRVNFRSTSTRCTU_VAL" /><!-- 해안방재림 주요구조물 측정값-->
+		<result property="cstPrvnfrstStrctuJdgVal" column="CSTPRVNFRSTSTRCTU_JDGVAL" /><!-- 해안방재림 주요구조물 판정값-->
+		<result property="cstPrvnfrstJdgVal" column="CSTPRVNFRST_JDGVAL" /><!-- 해안방재림 방재림 측정값-->
+		<result property="cstRdcPrvnStrctuVal" column="CSTRDCPRVNSTRCTU_VAL" /><!-- 해안방재림 측정값-->
+		<result property="cstRdcPrvnStrctuJdgVal" column="CSTRDCPRVNSTRCTU_JDGVAL" /><!-- 해안방재림 판정값-->
+		<result property="cstRdcPrvnJdgVal" column="CSTRDCPRVN_JDGVAL" /><!-- 침식방지 해안 판정값-->
+		<result property="fcltLng" column="FCLT_LNG" /><!-- 시설제원 길이-->
+		<result property="fcltRng" column="FCLT_RNG" /><!-- 시설제원 폭-->
+		<result property="opinion1" column="OPINION1" /><!-- 종합의견1 -->
+		<result property="opinion2" column="OPINION2" /><!-- 종합의견2 -->
+		<result property="opinion3" column="OPINION3" /><!-- 종합의견3 -->
+		<result property="opinion4" column="OPINION4" /><!-- 종합의견4 -->
+		<result property="opinion5" column="OPINION5" /><!-- 종합의견5 -->
+		<result property="photoTag" column="PHOTOTAG" /><!-- 사진태그 -->
+		<result property="sttusPrnt1" column="STTUSPRNT1" /><!-- 반수면  -->
+		<result property="sttusPrnt2" column="STTUSPRNT2" /><!-- 대수면 -->
+		<result property="sttusPrnt3" column="STTUSPRNT3" /><!-- 본체 -->
+		<result property="sttusPrnt4" column="STTUSPRNT4" /><!-- 좌안측벽 -->
+		<result property="sttusPrnt5" column="STTUSPRNT5" /><!-- 우안측벽 -->
+		<result property="dmgSttus" column="DMGSTTUS" /><!-- 피해발생현황 -->
+		<result property="trglnd" column="TRGLND" /><!-- 대상지 -->
+		<result property="dmgFclt" column="DMGFCLT" /><!-- 피해시설 -->
+		<result property="snddpsitVal" column="SNDDPSIT_VAL" /><!-- 저사량 -->
+		<result property="lcmap" column="LCMAP" /><!-- 대상지 위치도 -->
+	</resultMap>
+	
+	<select id="selectFckAprComptList" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO" resultMap="fckAprComptListVO">
+		<![CDATA[
+			 SELECT
+			 	A.GID AS GID,
+				A.MST_ID AS MST_ID,
+				B.SVYID AS  SVY_ID,
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) AS SVY_USER,
+				B.SVYTYPE AS SVY_TYPE,
+				JSON_ARRAY_LENGTH(NULLIF(B.TRGLND,'[]')::JSON) AS TRGLND_LEN,
+				JSON_ARRAY_LENGTH(NULLIF(B.TRGLND,'[]')::JSON) AS PHOTO_LEN,
+				JSON_ARRAY_LENGTH(NULLIF(B.DMGFCLT,'[]')::JSON) AS DMG_FCLT_PHOTO_LEN,
+				JSON_ARRAY_LENGTH(NULLIF(B.DMGSTTUS,'[]')::JSON) AS DMG_STTUS_PHOTO_LEN,
+		   		(COALESCE(NULLIF(REPLACE(B.DMGSTTUS,'gimg://',''),''),'[]')::JSON) AS DMGSTTUS,
+		       (COALESCE(NULLIF(REPLACE(B.TRGLND,'gimg://',''),''),'[]')::JSON) AS TRGLND,
+		       (COALESCE(NULLIF(REPLACE(B.DMGFCLT,'gimg://',''),''),'[]')::JSON) AS DMGFCLT,
+				TO_CHAR(A.CREAT_DT,'YYYY-MM-DD') AS CREAT_DT,
+				TO_CHAR(A.LAST_UPDT_PNTTM,'YYYY-MM-DD HH24:MI:SS') AS LAST_UPDT_PNTTM
+			 FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>	 
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="fckRslt != null and fckRslt != ''">	<![CDATA[ AND
+				B.FCKRSLT = #{fckRslt}	]]>
+			</if>
+			 ORDER BY A.LAST_UPDT_PNTTM DESC
+			 LIMIT  #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectFckAprComptListTotCnt" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO" resultType="int">
+		<![CDATA[
+			SELECT  COUNT(*) totcnt
+			  FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>	 
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			<if test="fckRslt != null and fckRslt != ''">	<![CDATA[ AND
+				B.FCKRSLT = #{fckRslt}	]]>
+			</if>
+	</select>
+	
+	<select id="selectFckAprComptDetail" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO" resultMap="fckAprComptDetailVO">
+		<![CDATA[
+		SELECT
+			A.GID AS GID
+	 	   ,   A.MSTID AS MST_ID
+		   ,   A.SVYDT AS SVY_YEAR
+		   ,   A.SVYID AS SVY_ID
+		   ,   A.SVYTYPE AS SVY_TYPE
+		   ,   COALESCE(ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.PX::FLOAT,NULL),A.LON::FLOAT),COALESCE(NULLIF(A.PY::FLOAT,NULL),A.LAT::FLOAT)),5186),4326)), 'D°M''SS.SS"C'),ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(A.PX::FLOAT,A.PY::FLOAT),5186),4326)), 'D°M''SS.SS"C')) AS SVY_LATLON
+		   ,   SPLIT_PART(COALESCE(ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.PX::FLOAT,NULL),A.LON::FLOAT),COALESCE(NULLIF(A.PY::FLOAT,NULL),A.LAT::FLOAT)),5186),4326)), 'D°M''SS.SS"C'),ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(A.PX::FLOAT,A.PY::FLOAT),5186),4326)), 'D°M''SS.SS"C')),' ',1) AS LAT
+		   ,   SPLIT_PART(COALESCE(ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(A.PX::FLOAT,NULL),A.LON::FLOAT),COALESCE(NULLIF(A.PY::FLOAT,NULL),A.LAT::FLOAT)),5186),4326)), 'D°M''SS.SS"C'),ST_AsLatLonText((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(A.PX::FLOAT,A.PY::FLOAT),5186),4326)), 'D°M''SS.SS"C')),' ',2) AS LON
+		   ,   A.SD AS SD
+		   ,   A.SGG AS SGG
+		   ,   A.EMD AS EMD
+		   ,   A.RI AS RI
+		   ,   A.JIBUN AS JIBUN
+		   ,   A.BONBUN AS BONBUN
+		   ,   A.BUBUN AS BUBUN
+		   ,   A.SVYDT AS SVY_DT
+		   ,   COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = B.LOGIN_ID),COALESCE(NULLIF(TRIM(A.SVYUSER),''),B.LOGIN_ID)) AS SVY_USER
+		   ,   B.LOGIN_ID AS LOGIN_ID
+		   ,   A.KND AS KND
+		   ,   A.SVYFORM AS SVY_FORM
+		   ,   A.ECNRRNUM AS ECNR_RNUM
+		   ,   A.NATIONSPOTNUM AS NATION_SPOT_NUM
+		   ,   A.DSGAREA AS DSG_AREA
+		   ,   A.FCLTYEAR AS FCLT_YEAR
+		   ,   A.FCLTUPRHG AS FCLT_UPR_HG
+		   ,   A.FCLTLWRHG AS FCLT_LWR_HG
+		   ,   A.FCLTSTKHG AS FCLT_STK_HG
+		   ,   A.ORGINLDAMVAL AS ORGINL_DAM_VAL
+		   ,   A.ORGINLDAMJDGVAL AS ORGINL_DAM_JDGVAL
+		   ,   A.SIDEWALLVAL AS SIDE_WALL_VAL
+		   ,   A.SIDEWALLJDGVAL AS SIDE_WALL_JDGVAL
+		   ,   A.DWNSPTVAL AS DWNSPT_VAL
+		   ,   A.DWNSPTJDGVAL AS DWNSPT_JDGVAL
+		   ,   A.SNDDPSITJDGVAL AS SNDDPSIT_JDGVAL
+		   ,   A.SNDDPSITVAL AS SNDDPSIT_VAL
+		   ,   A.FLUGTJDGVAL AS FLUGT_JDGVAL
+		   ,   A.VTNSTTUSJDGVAL AS VTNSTTUS_JDGVAL
+		   ,   A.SFFCJDGVAL AS SFFC_JDGVAL
+		   ,   A.ACCSSRDJDGVAL AS ACCSSRD_JDGVAL
+		   ,   A.ETCJDGVAL AS ETC_JDGVAL
+		   ,   A.FCKRSLT AS FCK_RSLT
+		   ,   A.MNGMTR AS MNGMTR
+		   ,   A.APPNRELIS AS APPN_RELIS
+		   ,   A.OPINION1 AS OPINION1
+		   ,   A.OPINION2 AS OPINION2
+		   ,   A.OPINION3 AS OPINION3
+		   ,   A.OPINION4 AS OPINION4
+		   ,   A.OPINION5 AS OPINION5
+		   ,   A.FCLTHG AS FCLT_HG
+		   ,   A.FCLTLNG AS FCLT_LNG
+		   ,   A.FCLTRNG AS FCLT_RNG
+		   ,   A.FCLTDEPT AS FCLT_DEPT
+		   ,   A.FCLTSLP AS FCLT_SLP
+		   ,   A.REINFCVAL AS REINFC_VAL
+		   ,   A.REINFCJDGVAL AS REINFC_JDGVAL
+		   ,   A.PRTCVAL AS PRTC_VAL
+		   ,   A.PRTCJDGVAL AS PRTC_JDGVAL
+		   ,   A.DRNGVAL AS DRNG_VAL
+		   ,   A.DRNGJDGVAL AS DRNG_JDGVAL
+		   ,   A.CHKDAMVAL AS CHKDAM_VAL
+		   ,   A.CHKDAMJDGVAL AS CHKDAM_JDGVAL
+		   ,   A.RVTMNTVAL AS RVTMNT_VAL
+		   ,   A.RVTMNTJDGVAL AS RVTMNT_JDGVAL
+		   ,   A.GRDSTABLVAL AS GRDSTABL_VAL
+		   ,   A.GRDSTABLJDGVAL AS GRDSTABL_JDGVAL
+		   ,   A.SLOPEJDGVAL AS SLOPE_JDGVAL
+		   ,   A.MOORINGJDGVAL AS MOORING_JDGVAL
+		   ,   REPLACE(A.PHOTO::TEXT,'gimg://','') AS PHOTO
+		   ,   A.FCLTHRZ AS FCLT_HRZ
+		   ,   A.FCLTVTCL AS FCLT_VTCL
+		   ,   A.FCLTDSTNC AS FCLT_CSTDSTNC
+		   ,   A.CSTPRVNFRSTSTRCTUVAL AS CSTPRVNFRSTSTRCTU_VAL
+		   ,   A.CSTPRVNFRSTSTRCTUJDGVAL AS CSTPRVNFRSTSTRCTU_JDGVAL
+		   ,   A.CSTPRVNFRSTJDGVAL AS CSTPRVNFRST_JDGVAL
+		   ,   A.CSTRDCPRVNSTRCTUVAL AS CSTRDCPRVNSTRCTU_VAL
+		   ,   A.CSTRDCPRVNSTRCTUJDGVAL AS CSTRDCPRVNSTRCTU_JDGVAL
+		   ,   A.CSTRDCPRVNJDGVAL AS CSTRDCPRVN_JDGVAL
+		   ,   REPLACE(A.PHOTOTAG::TEXT,'gimg://','') AS PHOTOTAG
+		   ,   COALESCE(((NULLIF(REGEXP_REPLACE(A.STTUSPRNT,'gimg://','','g'),'')::JSON->'반수면')::JSON->'사진')::JSON->0,'{}') AS STTUSPRNT1
+		   ,   COALESCE(((NULLIF(REGEXP_REPLACE(A.STTUSPRNT,'gimg://','','g'),'')::JSON->'대수면')::JSON->'사진')::JSON->0,'{}') AS STTUSPRNT2
+		   ,   COALESCE(((NULLIF(REGEXP_REPLACE(A.STTUSPRNT,'gimg://','','g'),'')::JSON->'본체')::JSON->'사진')::JSON->0,'{}') AS STTUSPRNT3
+		   ,   COALESCE(((NULLIF(REGEXP_REPLACE(A.STTUSPRNT,'gimg://','','g'),'')::JSON->'좌안측벽')::JSON->'사진')::JSON->0,'{}') AS STTUSPRNT4
+		   ,   COALESCE(((NULLIF(REGEXP_REPLACE(A.STTUSPRNT,'gimg://','','g'),'')::JSON->'우안측벽')::JSON->'사진')::JSON->0,'{}') AS STTUSPRNT5
+		   ,	(COALESCE(NULLIF(REPLACE(A.DMGSTTUS,'gimg://',''),''),'[]'))::JSON AS DMGSTTUS
+	       ,	COALESCE((SVY_MEMO::JSON->'피해발생현황'),'[]') AS DMGSTTUSPHOTO
+	       ,   (COALESCE(NULLIF(REPLACE(A.TRGLND,'gimg://',''),''),'[]'))::JSON AS TRGLND
+	       ,	COALESCE((SVY_MEMO::JSON->'대상지'),'[]') AS TRGLNDPHOTO
+	       ,   (COALESCE(NULLIF(REPLACE(A.DMGFCLT,'gimg://',''),''),'[]'))::JSON AS DMGFCLT
+	       ,	COALESCE((SVY_MEMO::JSON->'피해시설'),'[]') AS DMGFCLTPHOTO
+	       ,   COALESCE(A.LCMAP,'[]') AS LCMAP
+	       ,   CONCAT(C.MST_CORPNAME,'-',C.MST_PARTNAME) AS MSTNM
+	 	 FROM TN_FEIS_FCK_APRMEMO A, TN_FEIS_FCK_APRCOMPT B, TN_FEIS_APR_CNRSSPCE C
+		 WHERE A.GID = B.GID 
+		 AND A.MSTID = C.ID
+		 AND A.GID = CAST(#{gid} AS INTEGER)
+		]]>
+	</select>
+	
+	<update id="updateFckAprCompt">
+		<![CDATA[
+            UPDATE  TN_FEIS_FCK_APRCOMPT
+               SET LAST_UPDT_PNTTM = NOW()
+               , SVY_MEMO = (COALESCE(NULLIF(REPLACE(SVY_MEMO,'\\','\'),''),'{}'))::JSONB || CONCAT('{',
+          ]]>
+        <if test="svyUser != null">
+		<![CDATA[ CONCAT('"조사자" : "',#{svyUser},'",'),]]>
+        </if>
+        <if test="knd != null">
+		<![CDATA[ CONCAT('"종류" : "',#{knd},'",'),]]>
+        </if>
+        <if test="svyForm != null">
+		<![CDATA[ CONCAT('"형식" : "',#{svyForm},'",'),]]>
+        </if>
+        <if test="ecnrRnum != null">
+		<![CDATA[ CONCAT('"사방댐관리번호" : "',#{ecnrRnum},'",'),]]>
+        </if>
+        <if test="nationSpotNum != null">
+		<![CDATA[ CONCAT('"국가지점번호" : "',#{nationSpotNum},'",'),]]>
+        </if>
+        <if test="dsgArea != null">
+		<![CDATA[ CONCAT('"지정면적" : "',#{dsgArea},'",'),]]>
+        </if>
+        <if test="fcltYear != null">
+		<![CDATA[ CONCAT('"시설제원_년도" : "',#{fcltYear},'",'),]]>
+        </if>
+        <if test="fcltUprHg != null">
+		<![CDATA[ CONCAT('"시설제원_상장" : "',#{fcltUprHg},'",'),]]>
+        </if>
+        <if test="fcltLwrHg != null">
+		<![CDATA[ CONCAT('"시설제원_하장" : "',#{fcltLwrHg},'",'),]]>
+        </if>
+        <if test="fcltStkHg != null">
+		<![CDATA[ CONCAT('"시설제원_유효고" : "',#{fcltStkHg},'",'),]]>
+        </if>
+        <if test="orginlDamVal != null">
+		<![CDATA[ CONCAT('"본댐_측정값" : "',#{orginlDamVal},'",'),]]>
+        </if>
+        <if test="orginlDamJdgVal != null">
+		<![CDATA[ CONCAT('"본댐_판정값" : "',#{orginlDamJdgVal},'",'),]]>
+        </if>
+        <if test="sideWallVal != null">
+		<![CDATA[ CONCAT('"측벽_측정값" : "',#{sideWallVal},'",'),]]>
+        </if>
+        <if test="sideWallJdgVal != null">
+		<![CDATA[ CONCAT('"측벽_판정값" : "',#{sideWallJdgVal},'",'),]]>
+        </if>
+        <if test="dwnsptVal != null">
+		<![CDATA[ CONCAT('"물받이_측정값" : "',#{dwnsptVal},'",'),]]>
+        </if>
+        <if test="dwnsptJdgVal != null">
+		<![CDATA[ CONCAT('"물받이_판정값" : "',#{dwnsptJdgVal},'",'),]]>
+        </if>
+        <if test="flugtJdgVal != null">
+		<![CDATA[ CONCAT('"수문_판정값" : "',#{flugtJdgVal},'",'),]]>
+        </if>
+        <if test="vtnsttusJdgVal != null">
+		<![CDATA[ CONCAT('"식생상태_판정값" : "',#{vtnsttusJdgVal},'",'),]]>
+        </if>
+        <if test="sffcJdgVal != null">
+		<![CDATA[ CONCAT('"안전시설_판정값" : "',#{sffcJdgVal},'",'),]]>
+        </if>
+        <if test="accssrdJdgVal != null">
+		<![CDATA[ CONCAT('"접근도로_판정값" : "',#{accssrdJdgVal},'",'),]]>
+        </if>
+        <if test="etcJdgVal != null">
+		<![CDATA[ CONCAT('"기타_판정값" : "',#{etcJdgVal},'",'),]]>
+        </if>
+        <if test="snddpsitJdgVal != null">
+		<![CDATA[ CONCAT('"저사상태_판정값" : "',#{snddpsitJdgVal},'",'),]]>
+        </if>
+        <if test="snddpsitVal != null">
+		<![CDATA[ CONCAT('"저사상태_측정값" : "',#{snddpsitVal},'",'),]]>
+        </if>
+        <if test="fckRslt != null">
+		<![CDATA[ CONCAT('"최종점검결과" : "',#{fckRslt},'",'),]]>
+        </if>
+        <if test="mngmtr != null">
+		<![CDATA[ CONCAT('"조치사항" : "',#{mngmtr},'",'),]]>
+        </if>
+        <if test="appnRelis != null">
+		<![CDATA[ CONCAT('"지정해제" : "',#{appnRelis},'",'),]]>
+        </if>        
+        <if test="fcltHg != null">
+		<![CDATA[ CONCAT('"시설제원_높이" : "',#{fcltHg},'",'),]]>
+        </if>
+        <if test="fcltRng != null">
+		<![CDATA[ CONCAT('"시설제원_폭" : "',#{fcltRng},'",'),]]>
+        </if>
+        <if test="fcltSlp != null">
+		<![CDATA[ CONCAT('"시설제원_평균경사" : "',#{fcltSlp},'",'),]]>
+        </if>
+        <if test="reinfcVal != null">
+		<![CDATA[ CONCAT('"보강시설_측정값" : "',#{reinfcVal},'",'),]]>
+        </if>
+        <if test="reinfcJdgVal != null">
+		<![CDATA[ CONCAT('"보강시설_판정값" : "',#{reinfcJdgVal},'",'),]]>
+        </if>
+        <if test="prtcVal != null">
+		<![CDATA[ CONCAT('"보호시설_측정값" : "',#{prtcVal},'",'),]]>
+        </if>
+        <if test="prtcJdgVal != null">
+		<![CDATA[ CONCAT('"보호시설_판정값" : "',#{prtcJdgVal},'",'),]]>
+        </if>
+        <if test="drngVal != null">
+		<![CDATA[ CONCAT('"배수시설_측정값" : "',#{drngVal},'",'),]]>
+        </if>
+        <if test="drngJdgVal != null">
+		<![CDATA[ CONCAT('"배수시설_판정값" : "',#{drngJdgVal},'",'),]]>
+        </if>
+        <if test="slopeJdgVal != null">
+		<![CDATA[ CONCAT('"사면상태_판정값" : "',#{slopeJdgVal},'",'),]]>
+        </if>
+        <if test="chkdamVal != null">
+		<![CDATA[ CONCAT('"골막이_측정값" : "',#{chkdamVal},'",'),]]>
+        </if>
+        <if test="chkdamJdgVal != null">
+		<![CDATA[ CONCAT('"골막이_판정값" : "',#{chkdamJdgVal},'",'),]]>
+        </if>
+        <if test="rvtmntVal != null">
+		<![CDATA[ CONCAT('"기숡막이_측정값" : "',#{rvtmntVal},'",'),]]> <!-- 전자야장  오타. 기숡막이_측정값 > 기슭막이_측정값 -->
+        </if>
+        <if test="rvtmntJdgVal != null">
+		<![CDATA[ CONCAT('"기숡막이_판정값" : "',#{rvtmntJdgVal},'",'),]]>
+        </if>
+        <if test="grdstablVal != null">
+		<![CDATA[ CONCAT('"바닥막이_측정값" : "',#{grdstablVal},'",'),]]>
+        </if>
+        <if test="grdstablJdgVal != null">
+		<![CDATA[ CONCAT('"바닥막이_판정값" : "',#{grdstablJdgVal},'",'),]]>
+        </if>
+        <if test="mooringJdgVal != null">
+		<![CDATA[ CONCAT('"계류상태_판정값" : "',#{mooringJdgVal},'",'),]]>
+        </if>
+        <if test="cstPrvnfrstStrctuVal != null">
+		<![CDATA[ CONCAT('"방재림_주요구조물_측정값" : "',#{cstPrvnfrstStrctuVal},'",'),]]>
+        </if>
+        <if test="cstPrvnfrstStrctuJdgVal != null">
+		<![CDATA[ CONCAT('"방재림_주요구조물_판정값" : "',#{cstPrvnfrstStrctuJdgVal},'",'),]]>
+        </if>
+        <if test="cstPrvnfrstJdgVal != null">
+		<![CDATA[ CONCAT('"방재림_방재림_판정값" : "',#{cstPrvnfrstJdgVal},'",'),]]>
+        </if>
+        <if test="cstRdcPrvnStrctuVal != null">
+		<![CDATA[ CONCAT('"침식방지_주요구조물_측정값" : "',#{cstRdcPrvnStrctuVal},'",'),]]>
+        </if>
+        <if test="cstRdcPrvnStrctuJdgVal != null">
+		<![CDATA[ CONCAT('"침식방지_주요구조물_판정값" : "',#{cstRdcPrvnStrctuJdgVal},'",'),]]>
+        </if>
+        <if test="cstRdcPrvnJdgVal != null">
+		<![CDATA[ CONCAT('"침식방지_해안_판정값" : "',#{cstRdcPrvnJdgVal},'",'),]]>
+        </if>
+        <if test="fcltLng != null">
+		<![CDATA[ CONCAT('"시설제원_길이" : "',#{fcltLng},'",'),]]>
+        </if>
+        <if test="fcltDept != null">
+		<![CDATA[ CONCAT('"시설제원_깊이" : "',#{fcltDept},'",'),]]>
+        </if>
+        <if test="fcltHrz != null">
+		<![CDATA[ CONCAT('"시설제원_가로" : "',#{fcltHrz},'",'),]]>
+        </if>
+        <if test="fcltVtcl != null">
+		<![CDATA[ CONCAT('"시설제원_세로" : "',#{fcltVtcl},'",'),]]>
+        </if>
+        <if test="fcltCstDstnc != null">
+		<![CDATA[ CONCAT('"시설제원_거리" : "',#{fcltCstDstnc},'",'),]]>
+        </if>
+        <if test="opinion1 != null">
+        <![CDATA[ CONCAT('"종합의견1" : "',#{opinion1},'",'),]]>
+        </if>
+        <if test="opinion2 != null">
+        <![CDATA[ CONCAT('"종합의견2" : "',#{opinion2},'",'),]]>
+        </if>
+        <if test="opinion3 != null">
+        <![CDATA[ CONCAT('"종합의견3" : "',#{opinion3},'",'),]]>
+        </if>
+        <if test="opinion4 != null">
+        <![CDATA[ CONCAT('"종합의견4" : "',#{opinion4},'",'),]]>
+        </if>
+        <if test="opinion5 != null">
+        <![CDATA[ CONCAT('"종합의견5" : "',#{opinion5},'",'),]]>
+        </if>
+        <if test="dmgSttus != null and dmgSttus != ''">
+   		<![CDATA[ CONCAT('"피해발생현황" : ',#{dmgSttus},','),]]>
+        </if>
+        <if test="trglnd != null and trglnd != ''">
+   		<![CDATA[ CONCAT('"대상지" : ',#{trglnd},','),]]>
+        </if>
+        <if test="dmgFclt != null and dmgFclt != ''">
+   		<![CDATA[ CONCAT('"피해시설" : ',#{dmgFclt},','),]]>
+        </if>
+        <if test="photoTagList != null and photoTagList != ''">
+       	<![CDATA[ CONCAT('"사진태그" : ',#{photoTagList},','),]]>
+        </if>
+        <if test="sttusPrnt != null and sttusPrnt != ''">
+       	<![CDATA[ CONCAT('"현황도" : ',#{sttusPrnt},','),]]>
+        </if>
+        <if test="svySgg != null">
+		<![CDATA[ CONCAT('"시군구" : "',#{svySgg},'",'),]]>		
+        </if>
+        <if test="svyEmd != null">
+		<![CDATA[ CONCAT('"읍면동" : "',#{svyEmd},'",'),]]>
+        </if>
+        <if test="svyRi != null">
+		<![CDATA[ CONCAT('"리" : "',#{svyRi},'",'),]]>		
+        </if>
+        <if test="svyJibun != null">
+		<![CDATA[ CONCAT('"지번" : "',#{svyJibun},'",'),]]>		
+        </if>
+        <if test="svySd != null">
+		<![CDATA[ CONCAT('"시도" : "',#{svySd},'"')]]>
+        </if>
+<!--         <if test="photoTag1 != null || photoSrc != null"> -->
+<!--         	<![CDATA[ CONCAT('"사진태그" : [{"TAG" : "1.',#{photoTag1},'", "FILENAME" : "',#{photoSrc1},'"} '), ]]> -->
+<!-- 			<if test="photoTag2 != null || photoSrc2 != null">        	  -->
+<!--         		<![CDATA[ CONCAT(', {"TAG" : "2.',#{photoTag2},'", "FILENAME" : "',#{photoSrc2},'"}'), ]]> -->
+<!--         	</if> -->
+<!--         	<if test="photoTag3 != null || photoSrc3 != null">  -->
+<!--         		<![CDATA[ CONCAT(', {"TAG" : "3.',#{photoTag3},'", "FILENAME" : "',#{photoSrc3},'"}'), ]]> -->
+<!--         	</if> -->
+<!--         	<if test="photoTag4 != null || photoSrc4 != null">  -->
+<!--         		<![CDATA[ CONCAT(', {"TAG" : "4.',#{photoTag4},'", "FILENAME" : "',#{photoSrc4},'"}'), ]]> -->
+<!--         	</if>  -->
+<!--         	<if test="photoTag5 != null || photoSrc5 != null"> -->
+<!--         		<![CDATA[ CONCAT(', {"TAG" : "5.',#{photoTag5},'", "FILENAME" : "',#{photoSrc5},'"}'), ]]> -->
+<!--         	</if> -->
+<!--         	<if test="photoTag6 != null || photoSrc6 != null">  -->
+<!--         		<![CDATA[ CONCAT(', {"TAG" : "6.',#{photoTag6},'", "FILENAME" : "',#{photoSrc6},'"}'), ]]> -->
+<!--         	</if>  -->
+<!--         	<![CDATA[ CONCAT(']') ]]> -->
+<!--         </if> -->
+		<![CDATA[
+		,'}')::JSONB
+             WHERE GID = CAST(#{gid} AS INTEGER)
+          ]]>   
+	</update>
+	
+	<delete id="deleteFckAprCompt">
+		<![CDATA[
+			DELETE FROM TN_FEIS_FCK_APRCOMPT 
+             WHERE GID = CAST(#{gid} AS INTEGER)
+		]]>	 
+	</delete>
+	
+	<select id ="selectFckAprComptMaxYear" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'YYYY') AS YEAR FROM TN_FEIS_FCK_APRCOMPT a, TN_FEIS_APR_CNRSSPCE b
+		where a.MST_ID = b.ID
+	</select>
+	
+	<select id ="selectFckAprComptMaxMonth" resultType="String">
+		SELECT TO_CHAR(MAX(CREAT_DT),'MM') FROM TN_FEIS_FCK_APRCOMPT a, TN_FEIS_APR_CNRSSPCE b
+		where a.MST_ID = b.ID
+	</select>
+	
+	<select id ="selectFckAprComptYear" resultType="egovMap">
+		SELECT DISTINCT TO_CHAR(CREAT_DT,'YYYY') AS svyYear FROM TN_FEIS_FCK_APRCOMPT a, TN_FEIS_APR_CNRSSPCE b
+		where a.MST_ID = b.ID
+		ORDER BY svyYear DESC
+	</select>
+	
+	<select id ="selectFckAprProjDMS" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon1}::FLOAT, #{lat1}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS LAT1,
+			SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon1}::FLOAT, #{lat1}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS LON1
+			<if test="lat2 != null and lat2 != '' and lon2 != null and lon2 != ''">
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon2}::FLOAT, #{lat2}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',1) AS LAT2
+				, SPLIT_PART(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{lon2}::FLOAT, #{lat2}::FLOAT),5186),4326)), 'D°M''SS.SS"C'),' ',2) AS LON2
+			</if>
+	</select>
+	
+	<select id ="selectFckAprProjBessel" resultType="egovMap" parameterType="java.util.Map">
+		SELECT 
+			<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+				ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),4326),5186)) AS BPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{bpx}::FLOAT, #{bpy}::FLOAT),4326),5186)) AS BPY
+			</if>
+			<if test="epx != null and epx != '' and epy != null and epy != ''">
+				<if test="bpx != null and bpx != '' and bpy != null and bpy != ''">
+					,
+				</if>
+				ST_X(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),4326),5186)) AS EPX
+				, ST_Y(ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(#{epx}::FLOAT, #{epy}::FLOAT),4326),5186)) AS EPY
+			</if>
+	</select>
+	
+	<select id="selectFieldBookNm" resultType="egovMap">
+		SELECT 
+		 	B.MST_CORPNAME || '-' ||B.MST_PARTNAME AS FIELDBOOKNM, 
+		 	A.SVYID AS SVYID
+		 FROM TN_FEIS_FCK_APRMEMO A, TN_FEIS_APR_CNRSSPCE B
+		 WHERE A.MSTID = B.ID
+		 AND A.GID = CAST(#{gid} AS INTEGER)
+	</select>
+	
+	<select id="selectFckAprComptListSvyId" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO" resultMap="fckAprComptListVO">
+		<![CDATA[
+			 SELECT
+			 	COALESCE(B.SVYID,'') AS SVY_ID,
+				C.MST_CORPNAME || '-' ||C.MST_PARTNAME AS MST_NM
+			 FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>	 
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+	</select>
+	
+	<!-- 조사완료 목록 엑셀 저장 -->
+	<select id="selectAprSvyComptListExcel" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO" resultType="egovMap">
+		<![CDATA[
+			SELECT
+			 	LTRIM(COALESCE(B.SVYID,'')) AS SVYID,
+			 	LTRIM(COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),'')),A.LOGIN_ID)) AS SVY_USER,
+				LTRIM(COALESCE(B.SVYTYPE,'')) AS SVYTYPE,
+				LTRIM(COALESCE(B.SN,'')) AS SVYFID,
+				LTRIM(COALESCE(B.CREAT_DT::TEXT,'')) AS SVYDT,
+				LTRIM(COALESCE(TO_CHAR(B.CREAT_DT,'YYYY'),'')) AS SVYYEAR,
+				LTRIM(COALESCE(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(B.PX,null),A.SVY_LON)::FLOAT,COALESCE(NULLIF(B.PY,null),A.SVY_LAT)::FLOAT),5186),4326)), 'D° M'' S.SS"'),'')) AS BP,
+				LTRIM(COALESCE(ST_ASLATLONTEXT((ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(COALESCE(NULLIF(B.PX,null),A.SVY_LON)::FLOAT,COALESCE(NULLIF(B.PY,null),A.SVY_LAT)::FLOAT),5186),4326)), 'D° M'' S.SS"'),'')) AS EP,
+				LTRIM(COALESCE(B.SD,'')) AS SVYSD,
+				LTRIM(COALESCE(B.SGG,'')) AS SVYSGG,
+				LTRIM(COALESCE(B.SVYFORM,'')) AS SVYFORM,
+				LTRIM(COALESCE(B.EMD,'')) AS SVYEMD,
+				LTRIM(COALESCE(B.RI,'')) AS SVYRI,
+				LTRIM(COALESCE(B.JIBUN,'')) AS SVYJIBUN,
+				LTRIM(COALESCE(B.BONBUN,'')) AS BONBUN,
+				LTRIM(COALESCE(B.BUBUN,'')) AS BUBUN,
+				LTRIM(COALESCE(B.KND,'')) AS KND,
+				LTRIM(COALESCE(B.DSGAREA,'')) AS DSGAREA,
+				LTRIM(COALESCE(B.ETCJDGVAL,'')) AS ETCJDGVAL,
+				LTRIM(COALESCE(B.FLUGTJDGVAL,'')) AS FLUGTJDGVAL,
+				LTRIM(COALESCE(B.NATIONSPOTNUM,'')) AS NATIONSPOTNUM,
+				LTRIM(COALESCE(B.FCLTYEAR,'')) AS FCLTYEAR,
+				LTRIM(COALESCE(B.FCLTLNG,'')) AS FCLTLNG,
+				LTRIM(COALESCE(B.FCLTDEPT,'')) AS FCLTDEPT,
+				LTRIM(COALESCE(B.FCLTRNG,'')) AS FCLTRNG,
+				LTRIM(COALESCE(B.FCLTHG,'')) AS FCLTHG,
+				LTRIM(COALESCE(B.FCLTHRZ,'')) AS FCLTHRZ,
+				LTRIM(COALESCE(B.FCLTVTCL,'')) AS FCLTVTCL,
+				LTRIM(COALESCE(B.FCLTDSTNC,'')) AS FCLTDSTNC,
+				LTRIM(COALESCE(B.FCLTUPRHG,'')) AS FCLTUPRHG,
+				LTRIM(COALESCE(B.FCLTLWRHG,'')) AS FCLTLWRHG,
+				LTRIM(COALESCE(B.FCLTSTKHG,'')) AS FCLTSTKHG,
+				LTRIM(COALESCE(B.FCLTSLP,'')) AS FCLTSLP,
+				LTRIM(COALESCE(B.ECNRRNUM,'')) AS ECNRRNUM,
+				LTRIM(COALESCE(B.CHKDAMVAL,'')) AS CHKDAMVAL,
+				LTRIM(COALESCE(B.CHKDAMJDGVAL,'')) AS CHKDAMJDGVAL,
+				LTRIM(COALESCE(B.RVTMNTVAL,'')) AS RVTMNTVAL,
+				LTRIM(COALESCE(B.RVTMNTJDGVAL,'')) AS RVTMNTJDGVAL,
+				LTRIM(COALESCE(B.GRDSTABLVAL,'')) AS GRDSTABLVAL,
+				LTRIM(COALESCE(B.GRDSTABLJDGVAL,'')) AS GRDSTABLJDGVAL,
+				LTRIM(COALESCE(B.MOORINGJDGVAL,'')) AS MOORINGJDGVAL,
+				LTRIM(COALESCE(B.ORGINLDAMVAL,'')) AS ORGINLDAMVAL,
+				LTRIM(COALESCE(B.ORGINLDAMJDGVAL,'')) AS ORGINLDAMJDGVAL,
+				LTRIM(COALESCE(B.SIDEWALLVAL,'')) AS SIDEWALLVAL,
+				LTRIM(COALESCE(B.SIDEWALLJDGVAL,'')) AS SIDEWALLJDGVAL,
+				LTRIM(COALESCE(B.DWNSPTVAL,'')) AS DWNSPTVAL,
+				LTRIM(COALESCE(B.DWNSPTJDGVAL,'')) AS DWNSPTJDGVAL,
+				LTRIM(COALESCE(B.SNDDPSITJDGVAL,'')) AS SNDDPSITJDGVAL,
+				LTRIM(COALESCE(B.REINFCVAL,'')) AS REINFCVAL,
+				LTRIM(COALESCE(B.REINFCJDGVAL,'')) AS REINFCJDGVAL,
+				LTRIM(COALESCE(B.PRTCVAL,'')) AS PRTCVAL,
+				LTRIM(COALESCE(B.PRTCJDGVAL,'')) AS PRTCJDGVAL,
+				LTRIM(COALESCE(B.DRNGVAL,'')) AS DRNGVAL,
+				LTRIM(COALESCE(B.DRNGJDGVAL,'')) AS DRNGJDGVAL,
+				LTRIM(COALESCE(B.SLOPEJDGVAL,'')) AS SLOPEJDGVAL,
+				LTRIM(COALESCE(B.CSTPRVNFRSTSTRCTUVAL,'')) AS CSTPRVNFRSTSTRCTUVAL,
+				LTRIM(COALESCE(B.CSTPRVNFRSTSTRCTUJDGVAL,'')) AS CSTPRVNFRSTSTRCTUJDGVAL,
+				LTRIM(COALESCE(B.CSTPRVNFRSTJDGVAL,'')) AS CSTPRVNFRSTJDGVAL,
+				LTRIM(COALESCE(B.CSTRDCPRVNSTRCTUVAL,'')) AS CSTRDCPRVNSTRCTUVAL,
+				LTRIM(COALESCE(B.CSTRDCPRVNSTRCTUJDGVAL,'')) AS CSTRDCPRVNSTRCTUJDGVAL,
+				LTRIM(COALESCE(B.CSTRDCPRVNJDGVAL,'')) AS CSTRDCPRVNJDGVAL,
+				LTRIM(COALESCE(B.VTNSTTUSJDGVAL,'')) AS VTNSTTUSJDGVAL,
+				LTRIM(COALESCE(B.SFFCJDGVAL,'')) AS SFFCJDGVAL,
+				LTRIM(COALESCE(B.ACCSSRDJDGVAL,'')) AS ACCSSRDJDGVAL,
+				LTRIM(COALESCE(B.FCKRSLT,'')) AS FCKRSLT,
+				LTRIM(COALESCE(B.APPNRELIS,'')) AS APPNRELIS,
+				LTRIM(COALESCE(B.MNGMTR,'')) AS MNGMTR,
+				LTRIM(COALESCE(B.OPINION1,'')) AS OPINION1,
+				LTRIM(COALESCE(B.OPINION2,'')) AS OPINION2,
+				LTRIM(COALESCE(B.OPINION3,'')) AS OPINION3,
+				LTRIM(COALESCE(B.OPINION4,'')) AS OPINION4,
+				LTRIM(COALESCE(B.OPINION5,'')) AS OPINION5,
+				LTRIM(COALESCE(B.LCMAP,'')) AS LCMAP,
+				LTRIM(COALESCE(B.TRGLND,'')) AS TRGLND,
+				LTRIM(COALESCE(B.DMGSTTUS,'')) AS DMGSTTUS,
+				LTRIM(COALESCE(B.STTUSPRNT,'')) AS STTUSPRNT,
+				LTRIM(COALESCE(B.DMGFCLT,'')) AS DMGFCLT,
+				LTRIM(COALESCE(B.SNDDPSITVAL,'')) AS SNDDPSITVAL
+			 FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+			 WHERE A.GID = B.GID
+			 AND A.MST_ID = C.ID
+		]]>
+			<if test="svyType != null and svyType != ''">	<![CDATA[ AND
+				B.SVYTYPE = #{svyType} ]]>
+			</if>
+			<if test="svyYear != null and svyYear != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'YYYY') = #{svyYear} ]]>
+			</if>
+			<if test="svyMonth != null and svyMonth != ''">	<![CDATA[ AND
+				TO_CHAR(B.CREAT_DT,'MM') = #{svyMonth} ]]>
+			</if>
+			<if test="svySd != null and svySd != ''">	<![CDATA[ AND
+				B.SD = (SELECT CTPRVN_NM FROM TF_FEIS_CTPRVN WHERE CTPRVN_COD = #{svySd}) ]]>
+			</if>
+			<if test="svySgg != null and svySgg != ''">	<![CDATA[ AND
+				B.SGG = (SELECT SIGNGU_NM FROM TF_FEIS_SIGNGU WHERE SIGNGU_COD = #{svySgg}) ]]>
+			</if>
+			<if test="svyEmd != null and svyEmd != ''">	<![CDATA[ AND
+				B.EMD = (SELECT EMD_NM FROM TF_FEIS_EMD WHERE EMD_CODE = #{svyEmd}) ]]>
+			</if>
+			<if test="svyRi != null and svyRi != ''">	<![CDATA[ AND
+				B.RI = (SELECT LI_NM FROM TF_FEIS_LI WHERE LI_CODE = #{svyRi}) ]]>
+			</if>
+			<if test="svyId != null and svyId != ''">	<![CDATA[ AND
+				B.SVYID LIKE CONCAT ('%', #{svyId},'%')	]]>
+			</if>
+			<if test="svyUser != null and svyUser != ''">	<![CDATA[ AND
+				COALESCE((SELECT MBER_NM FROM TN_FEIS_GNRLMBER WHERE MBER_ID = A.LOGIN_ID),COALESCE(NULLIF(TRIM(B.SVYUSER),''),A.LOGIN_ID)) LIKE CONCAT ('%', #{svyUser},'%')	]]>
+			</if>
+			<if test="mstNm != null and mstNm != ''">	<![CDATA[ AND
+				C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')	]]>
+			</if>
+			ORDER BY NULLIF(REGEXP_REPLACE(B.SN,'[^0-9]','','g'),'')::INT,NULLIF(REGEXP_REPLACE(B.SN,'[0-9]','','g'),'')
+	</select>
+	
+	<!-- 조사완료지 현장사진정보 불러오기-->
+	<select id="selectFckAprComptPhotoInfo" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO" resultType="egovMap">
+		<![CDATA[
+			SELECT 
+				 REPLACE(B.PHOTO::TEXT,'gimg:///','') AS PHOTO
+				 , REPLACE(B.PHOTOTAG::TEXT,'gimg:///','') AS PHOTOTAG
+			FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C 
+			WHERE A.GID = B.GID
+				AND A.MST_ID = C.ID 
+				AND B.SVYID = #{id}
+				AND C.MST_CORPNAME ||'-'||C.MST_PARTNAME LIKE CONCAT ('%', #{mstNm},'%')
+		]]>
+	</select>
+	
+	<!-- 기간 별 조사완료지 최소날짜,최대날짜,총건수 -->
+	<select id="selectLastUpdateMinMaxDate" parameterType="or.sabang.sys.service.LocReCreateVO" resultType="egovMap">
+		<![CDATA[
+		SELECT 
+			 TO_CHAR(MIN(A.CREAT_DT),'YYYY-MM-DD') AS MINDT
+			,TO_CHAR(MAX(A.CREAT_DT),'YYYY-MM-DD') AS MAXDT
+			,COUNT(*) AS ALLCNT
+		FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C 
+		WHERE A.GID = B.GID
+		AND A.MST_ID = C.ID
+		]]>
+		<if test="startDate != null and startDate != ''">	<![CDATA[ AND
+			A.CREAT_DT >= TO_TIMESTAMP(#{startDate}||' 00:00:00','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		<if test="endDate != null and endDate != ''">	<![CDATA[ AND
+			A.CREAT_DT < TO_TIMESTAMP(#{endDate}||' 23:59:59','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+	</select>
+	
+	<!-- 기간 별 위치도 파라메터 전송값 조회 -->
+	<select id="updateLocReCreate" parameterType="or.sabang.sys.service.LocReCreateVO" resultType="egovMap">
+		SELECT 
+			B.GID AS GID,
+			B.SVYTYPE AS svyType,
+			C.MST_CORPNAME ||'-'||C.MST_PARTNAME AS mstPath,
+			A.SVY_LABEL AS svyLabel,
+			'APR' AS svySe,
+			COALESCE((SELECT MAPTYPE FROM TN_FEIS_LOCIMG_INFO D WHERE A.GID = D.GID LIMIT 1),'SATELLITE') AS MAPTYPE
+		FROM TN_FEIS_FCK_APRCOMPT A, TN_FEIS_FCK_APRMEMO B, TN_FEIS_APR_CNRSSPCE C
+		WHERE A.GID = B.GID
+		AND A.MST_ID = C.ID
+		<if test="startDate != null and startDate != ''">	<![CDATA[ AND
+			A.CREAT_DT >= TO_TIMESTAMP(#{startDate}||' 00:00:00','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		<if test="endDate != null and endDate != ''">	<![CDATA[ AND
+			A.CREAT_DT < TO_TIMESTAMP(#{endDate}||' 23:59:59','YYYY-MM-DD HH24:MI:SS') ]]>
+		</if>
+		ORDER BY A.CREAT_DT ASC
+	</select>
+	
+	<insert id="updateFckAprComptExcel" parameterType="or.sabang.sys.fck.apr.service.FckAprComptVO">
+		INSERT INTO TN_FEIS_FCK_APRCOMPT
+		(
+			GID
+			, MST_ID
+			, LOGIN_ID
+			, SVY_FID
+			, 
+		)
+	</insert>
+	
+	<!-- 공유방 권한 확인 -->
+	<select id="selectAuthorCheck" resultType="String">
+		SELECT USER_GRADE FROM TN_FEIS_CNRSSPCE_AUTHORMGT
+		WHERE MST_ID = #{id}
+			AND ESNTL_ID = #{esntlId}
+	</select>
+	
+	<!-- 권한 코드 확인 -->
+	<select id="selectAuthorCode" resultType="String">
+		SELECT AUTHOR_CODE FROM TN_FEIS_EMPLYRSCRTYESTBS 
+		WHERE SCRTY_DTRMN_TRGET_ID = #{esntlId}
+	</select>
+</mapper>

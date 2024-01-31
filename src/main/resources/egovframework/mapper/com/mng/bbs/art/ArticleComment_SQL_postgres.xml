@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ArticleComment">
+
+	<resultMap id="commentList" type="or.sabang.mng.bbs.art.service.CommentVO">
+		<result property="commentNo" column="COMMENT_NO"/>
+		<result property="nttId" column="NTT_ID"/>
+		<result property="bbsId" column="BBS_ID"/>
+		<result property="wrterId" column="WRTER_ID"/>
+		<result property="wrterNm" column="WRTER_NM"/>
+		<result property="commentPassword" column="PASSWORD"/>
+		<result property="commentCn" column="COMMENT_CN"/>
+		<result property="useAt" column="USE_AT"/>
+		<result property="frstRegisterPnttm" column="FRST_REGISTER_PNTTM"/>
+		<result property="frstRegisterNm" column="FRST_REGISTER_ID"/>
+		<result property="lastUpdusrPnttm" column="LAST_UPDUSR_PNTTM"/>
+		<result property="lastUpdusrId" column="LAST_UPDUSR_ID"/>
+	</resultMap>
+	
+	<resultMap id="commentDetail" type="or.sabang.mng.bbs.art.service.CommentVO">
+		<result property="commentNo" column="COMMENT_NO"/>
+		<result property="nttId" column="NTT_ID"/>
+		<result property="bbsId" column="BBS_ID"/>
+		<result property="wrterId" column="WRTER_ID"/>
+		<result property="wrterNm" column="WRTER_NM"/>
+		<result property="commentPassword" column="PASSWORD"/>
+		<result property="commentCn" column="COMMENT_CN"/>
+		<result property="useAt" column="USE_AT"/>
+		<result property="frstRegisterPnttm" column="FRST_REGISTER_PNTTM"/>
+		<result property="frstRegisterNm" column="FRST_REGISTER_NM"/>
+	</resultMap>
+	
+	<!-- 댓글 목록조회 -->
+	<select id="selectArticleCommentList" resultMap="commentList">
+			SELECT * 
+			FROM TN_FEIS_BBS_CM	
+			WHERE USE_AT = 'Y'
+				AND NTT_ID = #{nttId}
+			ORDER BY FRST_REGISTER_PNTTM ASC
+			LIMIT #{subRecordCountPerPage} OFFSET #{subFirstIndex}
+	</select>	
+	
+	<!-- 댓글 갯수조회 -->
+	<select id="selectArticleCommentListCnt" resultType="java.lang.Integer">
+		SELECT
+			COUNT(*)
+		FROM
+			TN_FEIS_BBS_CM
+		WHERE USE_AT = 'Y'
+			AND NTT_ID = #{nttId} 
+	</select>
+	
+	<!-- 댓글 등록 -->
+	<insert id="insertArticleComment" parameterType="or.sabang.mng.bbs.art.service.CommentVO">
+			INSERT INTO TN_FEIS_BBS_CM(NTT_ID,
+				BBS_ID, 
+				WRTER_ID, 
+				WRTER_NM, 
+				COMMENT_CN,
+			 	USE_AT, 
+			 	FRST_REGISTER_ID, 
+			 	FRST_REGISTER_PNTTM
+			)
+			VALUES
+			(#{nttId}, 
+				#{bbsId}, 
+				#{wrterId}, 
+				#{wrterNm},  
+			  	#{commentCn}, 
+			  	'Y',
+			  	#{frstRegisterId}, 
+			  	NOW()
+			 )
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateArticleComment" parameterType="or.sabang.mng.bbs.art.service.CommentVO">
+			UPDATE TN_FEIS_BBS_CM SET 
+				COMMENT_CN = #{commentCn}, 
+				LAST_UPDUSR_ID = #{lastUpdusrId},
+				LAST_UPDUSR_PNTTM = NOW()
+			WHERE COMMENT_NO = CAST(#{commentNo} AS NUMERIC)
+ 	</update>
+ 	
+ 	<!-- 댓글 삭제 -->
+	<update id="deleteArticleComment" parameterType="or.sabang.mng.bbs.art.service.CommentVO">
+			UPDATE TN_FEIS_BBS_CM SET 
+				USE_AT = 'N', 
+				LAST_UPDUSR_ID = #{lastUpdusrId},
+				LAST_UPDUSR_PNTTM = NOW()
+			WHERE COMMENT_NO = CAST(#{commentNo} AS NUMERIC)
+ 	</update>
+</mapper>

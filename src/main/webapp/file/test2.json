@@ -1,0 +1,72 @@
+{
+  "response": {
+    "header": {
+      "resultCode": "00",
+      "resultMsg": "NORMAL_SERVICE"
+    },
+    "body": {
+      "dataType": "JSON",
+      "items": {
+        "item": [
+          {
+            "areaId": "4211000000",
+            "areaName": "춘천",
+            "mnhAvgRhm": 63,
+            "mnhAvgTa": -4,
+            "mnhAvgWs": 1,
+            "mnhMaxTa": 7,
+            "mnhMinRhm": 14,
+            "mnhMinTa": -20,
+            "mnhSumRn": 0,
+            "mnhSumSs": 186,
+            "paCropName": "감자",
+            "paCropSpeId": "PA020101",
+            "paCropSpeName": "봄",
+            "wrnCd": "C2",
+            "wrnCount": 10,
+            "ym": "201601"
+          },
+          {
+            "areaId": "4211000000",
+            "areaName": "춘천",
+            "mnhAvgRhm": 63,
+            "mnhAvgTa": -4,
+            "mnhAvgWs": 1,
+            "mnhMaxTa": 7,
+            "mnhMinRhm": 14,
+            "mnhMinTa": -20,
+            "mnhSumRn": 0,
+            "mnhSumSs": 186,
+            "paCropName": "감자",
+            "paCropSpeId": "PA020101",
+            "paCropSpeName": "봄",
+            "wrnCd": "C3",
+            "wrnCount": 6,
+            "ym": "201601"
+          },
+          {
+            "areaId": "4211000000",
+            "areaName": "춘천",
+            "mnhAvgRhm": 63,
+            "mnhAvgTa": -4,
+            "mnhAvgWs": 1,
+            "mnhMaxTa": 7,
+            "mnhMinRhm": 14,
+            "mnhMinTa": -20,
+            "mnhSumRn": 0,
+            "mnhSumSs": 186,
+            "paCropName": "감자",
+            "paCropSpeId": "PA020101",
+            "paCropSpeName": "봄",
+            "wrnCd": "D2",
+            "wrnCount": 3,
+            "ym": "201601"
+          }
+        ]
+      },
+      "pageNo": 1,
+      "numOfRows": 10,
+      "totalCount": 3
+    }
+  }
+}

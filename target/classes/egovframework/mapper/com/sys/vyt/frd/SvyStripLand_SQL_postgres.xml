@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vytFrdStripLandDAO">
+	<resultMap id="vytFrdStripLandVO" type="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO">
+		<result property="id" column="ID" /><!-- 대상지 번호 -->
+		<result property="sld_nm" column="SLD_NM" /><!-- 대상지 명칭 -->
+		<result property="sld_create_user" column="SLD_CREATE_USER" /><!-- 생성자ID -->
+		<result property="sld_admin_user" column="SLD_ADMIN_USER" /><!-- 관리자ID -->
+		<result property="sldlabel" column="SLDLABEL" /><!-- 대상지Label-->
+		<result property="routetype" column="ROUTETYPE" /><!-- 노선종류 -->
+		<result property="frdtype" column="FRDTYPE" /><!-- 임도종류 -->
+		<result property="schdst" column="SCHDST" /><!-- 예정거리 -->
+		<result property="etc" column="ETC" /><!-- 비고 -->
+		<result property="creat_dt" column="CREAT_DT" /><!-- 등록일 -->
+		<result property="last_updt_pnttm" column="LAST_UPDT_PNTTM" /><!-- 수정일 -->
+		<result property="sd" column="SVYSD" /><!-- 시도 -->
+		<result property="sgg" column="SVYSGG" /><!-- 시군구 -->
+		<result property="emd" column="SVYEMD" /><!-- 읍면동 -->
+		<result property="ri" column="SVYRI" /><!-- 리 -->
+		<result property="jibun" column="SVYJIBUN" /><!-- 지번 -->
+		<result property="smgeometry" column="SMGEOMETRY" /><!-- 공간정보 -->
+	</resultMap>
+	
+	<resultMap id="analDownAllVO" type="or.sabang.sys.gis.service.AnalFileVO">
+		<result property="analId" column="analId"/>
+		<result property="fileStreCours" column="fileStreCours"/>
+		<result property="streFileNm" column="streFileNm"/>
+		<result property="orignlFileNm" column="orignlFileNm"/>
+		<result property="fileExtsn" column="fileExtsn"/>
+		<result property="analType" column="analType"/>
+	</resultMap>
+	
+	<!-- 대상지 목록조회 -->
+	<select id="selectVytFrdSldList" resultMap="vytFrdStripLandVO" parameterType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO">
+		<![CDATA[
+			SELECT
+				T1.ID AS ID
+				, T1.SVYSLD_NM AS SLD_NM
+				, T1.SVYSLD_CREATE_USER AS SLD_CREATE_USER
+				, TO_CHAR(CREAT_DT, 'YYYY-MM-DD') AS CREAT_DT
+				, (SELECT COUNT(*) FROM TF_FEIS_FRD_SVYSLDINFO T2 WHERE T2.SLD_ID = T1.ID AND T2.ROUTECODE = '01') TOTCNT
+			FROM  TN_FEIS_FRD_SVYSLDREGINFO T1
+			WHERE  1=1
+		]]>
+			<if test="sld_nm != null and sld_nm != ''">	<![CDATA[ AND
+				T1.SVYSLD_NM like CONCAT ('%', #{sld_nm},'%') ]]>
+			</if>
+			<if test="svy_year != null and svy_year != ''">	<![CDATA[ AND
+				EXTRACT(YEAR FROM CREAT_DT) = CAST(#{svy_year} AS INTEGER) ]]>
+			</if>
+			<if test="sld_create_user != null and sld_create_user != ''">	<![CDATA[ AND
+				T1.SVYSLD_CREATE_USER like CONCAT ('%', #{sld_create_user},'%') ]]>
+			</if>
+  		ORDER BY T1.CREAT_DT DESC, T1.ID DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	<!-- 대상지 갯수조회 -->
+	<select id="selectVytFrdSldListTotCnt" parameterType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO" resultType="int">
+		<![CDATA[
+			SELECT  COUNT(*) TOTCNT
+			FROM  TN_FEIS_FRD_SVYSLDREGINFO T1
+			WHERE  1=1
+		]]>
+			<if test="sld_nm != null and sld_nm != ''">	<![CDATA[ AND
+				T1.SVYSLD_NM like CONCAT ('%', #{sld_nm},'%') ]]>
+			</if>
+			<if test="svy_year != null and svy_year != ''">	<![CDATA[ AND
+				EXTRACT(YEAR FROM CREAT_DT) = CAST(#{svy_year} AS INTEGER) ]]>
+			</if>
+			<if test="sld_create_user != null and sld_create_user != ''">	<![CDATA[ AND
+				T1.SVYSLD_CREATE_USER like CONCAT ('%', #{sld_create_user},'%') ]]>
+			</if>
+	</select>
+	
+	<!-- 대상지 최대연도 조회 -->	
+	<select id ="selectVytFrdSldMaxYear" resultType="String">
+		SELECT CAST(MAX(EXTRACT(YEAR FROM creat_dt)) AS TEXT) AS SVYYEAR
+		FROM TN_FEIS_FRD_SVYSLDREGINFO
+	</select>
+	<!-- 대상지 연도목록 조회 -->	
+	<select id ="selectVytFrdSldYear" resultType="egovMap">
+		SELECT DISTINCT CAST(EXTRACT(YEAR FROM CREAT_DT) AS TEXT) AS SVYYEAR
+		FROM TN_FEIS_FRD_SVYSLDREGINFO ORDER BY SVYYEAR DESC
+	</select>
+	
+	<!-- 대상지 상세조회 -->
+	<select id="selectVytFrdSldDetail" parameterType="java.util.Map" resultMap="vytFrdStripLandVO">
+		<![CDATA[
+			SELECT  T1.ID AS ID
+			     ,  T1.SVYSLD_NM AS SLD_NM
+			     ,  T1.SVYSLD_CREATE_USER AS SLD_CREATE_USER
+			     ,  T1.SVYSLD_ADMIN_USER AS SLD_ADMIN_USER
+			     ,  TO_CHAR(T1.CREAT_DT, 'YYYY-MM-DD HH24:MM:SS') AS CREAT_DT
+			     ,  TO_CHAR(T1.LAST_UPDT_PNTTM, 'YYYY-MM-DD HH:MM:SS') AS LAST_UPDT_PNTTM
+			     ,  (SELECT COUNT(*) FROM TF_FEIS_FRD_SVYSLDINFO T2 WHERE T2.SLD_ID = T1.ID AND T2.ROUTECODE = '01') TOTCNT
+			FROM  TN_FEIS_FRD_SVYSLDREGINFO T1
+			WHERE  1=1
+			AND T1.ID = #{id}
+		]]>
+	</select>
+	
+	<!-- 대상지 리스트 조회 -->
+	<select id="selectVytFrdSldItemList" parameterType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO" resultType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO">
+		<![CDATA[
+		SELECT 
+			SMID AS SMID 
+			, SLD_LABEL AS SLDLABEL 
+			, ROUTETYPE AS ROUTETYPE
+			, FRDTYPE AS FRDTYPE
+			, SCHDST AS SCHDST
+			, SVYSD AS SD
+			, SVYSGG AS SGG
+			, SVYEMD AS EMD
+			, SVYRI AS RI
+			, SVYJIBUN AS JIBUN
+			, CREAT_DT AS CREAT_DT
+			, SLD_ID AS SLD_ID
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE 1=1
+		AND ROUTECODE = '01'
+		AND SLD_ID = CAST(#{id} AS INT)
+		]]>
+		ORDER BY SMID ASC
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+	<!-- 대상지 리스트 갯수 조회 -->
+	<select id="selectVytFrdSldItemListTotCnt" parameterType="java.util.Map" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) TOTCNT
+			FROM TF_FEIS_FRD_SVYSLDINFO
+			WHERE 1=1
+			AND ROUTECODE = '01'
+			AND SLD_ID = CAST(#{id} AS INT)
+		]]>
+	</select>
+	
+	<!-- 조사대상지 등록정보 등록 -->
+	<insert id="insertSldSpce" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		<![CDATA[
+			INSERT INTO TN_FEIS_FRD_SVYSLDREGINFO( 
+				SVYSLD_NM
+				, SVYSLD_CREATE_USER
+				, SVYSLD_ADMIN_USER
+				, CREAT_DT
+				, LAST_UPDT_PNTTM
+			)
+			VALUES(
+				#{sld_nm}
+				, #{sld_create_user}
+				, #{sld_create_user}
+				, now()
+				, now()
+			)
+		]]>
+	</insert>
+	
+	<!-- 대상지번호 없는 조회 -->
+	<select id="selectNoSldId" resultType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO">
+		SELECT 
+			SMID
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE 1=1
+		AND SLD_ID = 0
+		OR SLD_ID IS NULL
+	</select>
+	
+	<!-- 대상지번호 추가 -->
+	<update id="updateNoSldId" parameterType="java.util.Map">
+		UPDATE TF_FEIS_FRD_SVYSLDINFO SET
+			SLD_ID = CAST(#{id} AS INTEGER)
+			,COMPENTAUTH = #{compentauth}
+			,SUBCOMPENTAUTH = #{subcompentauth}
+			,ROUTETYPE = #{routetype}
+			,CREAT_DT= NOW()
+			,MST_ID = NULL
+			,ROUTECODE = '01'
+		WHERE 1=1
+		AND SMID IN
+		<foreach item="item" index="index" collection="smidList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</update>
+	
+	<!-- 대상지 삭제  -->
+	<delete id="deleteSldDetail" parameterType="java.util.Map">
+      	<![CDATA[
+      	    DELETE FROM TN_FEIS_FRD_SVYSLDREGINFO
+      	    WHERE ID = CAST(#{id} AS INTEGER)
+      	]]>
+   </delete>
+   	<!-- 대상지 일괄 삭제  -->
+	<delete id="deleteSldAll" parameterType="java.util.Map">
+      	<![CDATA[
+       	    DELETE FROM TF_FEIS_FRD_SVYSLDINFO
+       	    WHERE SLD_ID = CAST(#{id} AS INTEGER)
+       	]]>
+   </delete>
+   <!-- 대상지 단건 상세조회 -->
+   <select id="selectSldDetailOne" parameterType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO" resultType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO">
+   <![CDATA[
+	   	SELECT 
+			SMID AS SMID
+			, SLD_LABEL AS SLDLABEL
+			, ROUTETYPE AS ROUTETYPE
+			, FRDTYPE AS FRDTYPE
+			, SCHDST AS SCHDST
+			, ETC AS ETC
+			, SVYSD AS SD
+			, SVYSGG AS SGG
+			, SVYEMD AS EMD
+			, SVYRI AS RI
+			, SVYJIBUN AS JIBUN
+			, CREAT_DT AS CREAT_DT
+			, SPLIT_PART(ST_ASLATLONTEXT(ST_SetSRID(ST_MakePoint(cast(BPX as float), cast(BPY as float)), 4326) ,'D°M''SS.SS"C'),' ',2) AS BPX
+			, SPLIT_PART(ST_ASLATLONTEXT(ST_SetSRID(ST_MakePoint(cast(BPX as float), cast(BPY as float)), 4326) ,'D°M''SS.SS"C'),' ',1) AS BPY
+			, SPLIT_PART(ST_ASLATLONTEXT(ST_SetSRID(ST_MakePoint(cast(EPX1 as float), cast(EPY1 as float)), 4326) ,'D°M''SS.SS"C'),' ',2) AS EPX1
+			, SPLIT_PART(ST_ASLATLONTEXT(ST_SetSRID(ST_MakePoint(cast(EPX1 as float), cast(EPY1 as float)), 4326) ,'D°M''SS.SS"C'),' ',1) AS EPY1
+			, SPLIT_PART(ST_ASLATLONTEXT(ST_SetSRID(ST_MakePoint(cast(EPX2 as float), cast(EPY2 as float)), 4326) ,'D°M''SS.SS"C'),' ',2) AS EPX2
+			, SPLIT_PART(ST_ASLATLONTEXT(ST_SetSRID(ST_MakePoint(cast(EPX2 as float), cast(EPY2 as float)), 4326) ,'D°M''SS.SS"C'),' ',1) AS EPY2
+			, SLD_ID AS ID
+			, COMPENTAUTH AS COMPENTAUTH
+			, SUBCOMPENTAUTH AS SUBCOMPENTAUTH
+			, CULTURE AS CULTURE
+			, ECONTRMAP AS ECONTRMAP
+			, ENDSPC AS ENDSPC
+			, SPCFRSPRT AS SPCFRSPRT
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE 1=1
+	]]>
+	<![CDATA[
+		AND ROUTECODE = '01'
+		AND SMID = CAST(#{smid} AS INTEGER)
+	]]>
+   </select>
+    <!-- 대상지 단건 수정-->
+	<update id="updateSldDetailOne">
+		UPDATE TF_FEIS_FRD_SVYSLDINFO
+		SET SLD_LABEL = #{sldlabel} 
+			, ROUTETYPE = #{routetype}
+			, FRDTYPE = #{frdtype}
+			, SCHDST = CAST(#{schdst} AS DOUBLE PRECISION)
+			, ETC = #{etc}
+			, SVYSD = #{sd}
+			, SVYSGG = #{sgg}
+			, SVYEMD = #{emd}
+			, SVYRI = #{ri}
+			, SVYJIBUN = #{jibun}
+			, BPX = #{bpx}
+			, BPY = #{bpy}
+			, EPX1 = #{epx1}
+			, EPY1 = #{epy1}
+			, EPX2 = #{epx2}
+			, EPY2 = #{epy2}
+			, ECONTRMAP = #{ecoNtrMap}
+			, ENDSPC = #{endSpc}
+			, SPCFRSPRT = #{spcFrsPrt}
+		WHERE 1=1
+		<![CDATA[
+			AND SMID = CAST(#{smid} AS INTEGER)
+		]]>
+	</update>
+	<!-- 대상지 단건 삭제  -->
+	<delete id="deleteSldDetailOne" parameterType="java.util.Map">
+      	<![CDATA[
+       	    DELETE FROM TF_FEIS_FRD_SVYSLDINFO
+       	    WHERE SMID = CAST(#{smid} AS INTEGER)
+       	]]>
+   </delete>
+   
+   <!-- 분석파일 삭제 -->
+   <delete id="deleteFrdAnalFile" parameterType="java.util.Map">
+		<![CDATA[
+			DELETE FROM TN_FEIS_FRD_ANALFILE 
+			WHERE 1=1
+			AND SMID = CAST(#{smid} AS INTEGER)
+		]]>	 
+	</delete>
+   
+   <select id="selectCenterPnt" parameterType="hashMap" resultType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO">
+   		SELECT
+			ST_X(ST_CENTROID(ST_ENVELOPE(SMGEOMETRY))) AS LON
+			, ST_Y(ST_CENTROID(ST_ENVELOPE(SMGEOMETRY))) AS LAT
+			, SLD_LABEL AS SLDLABEL
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE 1=1 
+		<![CDATA[
+			AND ROUTECODE = #{routeCode}
+			AND SMID = CAST(#{smid} AS INTEGER)
+		]]>
+   </select>
+   
+   <select id="selectSggOne" parameterType="hashMap" resultType="EgovMap">
+   		SELECT
+   		<if test="tbType == 'emd'">
+				SIGNGU_COD
+				, EMD_CODE
+			FROM TF_FEIS_EMD
+		</if>
+		WHERE 1=1 
+		AND ST_WITHIN(ST_SETSRID(ST_MAKEPOINT(#{lon}, #{lat}),5186), SMGEOMETRY)
+   </select>
+   
+   <select id="selectEmdList" parameterType="String" resultType="EgovMap">
+		SELECT
+			EMD_CODE
+		FROM TF_FEIS_EMD
+		WHERE 1=1
+		AND SIGNGU_COD = #{sggCode}
+   </select>
+   
+   <select id="selectCultureSmidList" parameterType="String" resultType="String">
+   <![CDATA[
+	    WITH LINE AS (
+		    SELECT ST_SETSRID(SMGEOMETRY, 5186) AS GEOM
+		    FROM TF_FEIS_FRD_SVYSLDINFO
+		    WHERE SMID = CAST(#{smid} AS INTEGER)
+		    AND ROUTECODE = '01'
+		),
+		ENLARGED_RECTANGLE AS (
+		    SELECT 
+		        ST_BUFFER(ST_ENVELOPE(LINE.GEOM), 100, 'endcap=square join=mitre') AS GEOM
+		    FROM 
+		        LINE
+		)
+		SELECT 
+		     ARRAY_TO_STRING(ARRAY_AGG(SMID),',')
+		FROM 
+		    LINE, ENLARGED_RECTANGLE, TF_FEIS_CULTURAL
+		WHERE 1=1
+		AND ST_INTERSECTS(TF_FEIS_CULTURAL.SMGEOMETRY, ENLARGED_RECTANGLE.GEOM)
+		AND TF_FEIS_CULTURAL.CULT_TYPE IN ('01', '02', '04')
+	]]>
+   </select>
+   
+   <select id="selectCultureCenterPnt" parameterType="List" resultType="EgovMap">
+  	SELECT
+	    ST_X(ST_CENTROID(ST_UNION(A.SMGEOMETRY))) AS X
+	    , ST_Y(ST_CENTROID(ST_UNION(A.SMGEOMETRY))) AS Y
+    FROM
+    (
+        SELECT 
+        *
+        FROM 
+        TF_FEIS_CULTURAL
+        WHERE 1=1
+        AND SMID IN
+		<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+    ) A
+   </select>
+   
+   <!-- 분석 결과 저장 -->
+   <insert id="insertAnalFile">
+	   INSERT INTO TN_FEIS_FRD_ANALFILE
+		( 
+			  ANAL_ID
+			, FILE_STRE_COURS
+			, STRE_FILE_NM
+			, ORIGNL_FILE_NM
+			, FILE_EXTSN
+			, FILE_SIZE
+			, ANAL_TYPE
+			, SLD_ID
+			, SMID
+			, CREAT_USER
+		<if test="fileExtsn != 'zip'">
+			, STAT_DATA
+		</if>
+			, BUFFER_SIZE
+			, ROUTE_CODE
+		)
+			VALUES
+		(
+			#{analId}
+			, #{fileStreCours}
+			, #{streFileNm}
+			, #{orignlFileNm}
+			, #{fileExtsn}
+			, CAST(#{fileSize} AS INT)
+			, #{analType}
+			, #{sldId}
+			, CAST(#{smid} AS INTEGER)
+			, #{creatUser}
+		<if test="fileExtsn != 'zip'">
+			, #{statData}
+		</if>	
+			, #{bufferSize}
+			, #{routeCode}
+		)
+		ON CONFLICT ON CONSTRAINT TN_FEIS_FRD_ANALFILE_UN
+		DO UPDATE
+		SET 
+			SLD_ID = #{sldId}
+			, FILE_EXTSN = #{fileExtsn}
+			, FILE_SIZE = CAST(#{fileSize} AS INT)
+			, FILE_STRE_COURS = #{fileStreCours}
+			, STRE_FILE_NM = #{streFileNm}
+			, ORIGNL_FILE_NM = #{orignlFileNm}
+			, ANAL_TYPE = #{analType}
+			, ANAL_ID = #{analId}
+			, CREAT_DT = NOW()
+			, CREAT_USER = #{creatUser}
+		<if test="fileExtsn != 'zip'">
+			, STAT_DATA = #{statData}
+		</if>
+			, BUFFER_SIZE = #{bufferSize}
+			, ROUTE_CODE = #{routeCode}
+   </insert>
+   
+   <select id="selectAnalImg" parameterType="String" resultType="or.sabang.sys.gis.service.AnalFileVO">
+		SELECT
+			FILE_STRE_COURS
+			, STRE_FILE_NM
+			, ORIGNL_FILE_NM
+			, GID
+			, STAT_DATA::JSONB->>'비율' AS STATDATA
+			, STAT_DATA::JSONB->>'최고'||','||(STAT_DATA::JSONB->'비율'->>(STAT_DATA::JSONB->>'최고')) AS STATMAXDATA
+			, STAT_DATA::JSONB->>'최고' AS STATMAXVALUE
+			, STAT_DATA::JSONB->>'최소' AS STATMINVALUE
+			, STAT_DATA::JSONB->>'평균' AS STATAVGVALUE
+			, FILE_EXTSN AS FILEEXTSN
+		FROM TN_FEIS_FRD_ANALFILE
+		WHERE 1=1
+		AND ROUTE_CODE = #{routeCode}
+		AND SMID = CAST(#{smid} AS INTEGER)
+   </select>
+   
+   <update id="updateCultureList" parameterType="hashMap" >
+   	UPDATE TF_FEIS_FRD_SVYSLDINFO
+   		SET CULTURE = #{culList}
+   	WHERE SMID = CAST(#{smid} AS INTEGER)
+   </update>
+   
+   <!-- 문화재 조회 -->
+     <select id="selectCultureName" parameterType="List" resultType="EgovMap">
+        SELECT 
+        	CULT_NM
+        	, CULT_TYPE
+        FROM 
+        TF_FEIS_CULTURAL
+        WHERE 1=1
+        AND SMID IN
+		<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+   </select>
+   
+   <select id="selectAnalFileDownDetail" resultType="or.sabang.sys.gis.service.AnalFileVO" parameterType="String">
+    	SELECT 
+    		  GID AS GID
+    		, SLD_ID AS SLDID
+    		, ANAL_ID AS ANALID
+    		, FILE_STRE_COURS AS FILESTRECOURS
+    		, STRE_FILE_NM AS STREFILENM
+    		, ORIGNL_FILE_NM AS ORIGNLFILENM
+    		, FILE_EXTSN AS FILEEXTSN
+    		, FILE_SIZE AS FILESIZE
+    		, ANAL_TYPE AS ANALTYPE
+    		, TO_CHAR(CREAT_DT,'YYYY-MM-DD HH24:MI:SS') AS CREATDT
+    		, CREAT_USER AS CREATUSER
+    	FROM TN_FEIS_FRD_ANALFILE
+    	WHERE GID = CAST(#{sn} AS INTEGER)
+    </select>
+    
+    <select id="selectParcelList" resultType="or.sabang.sys.vyt.frd.service.VytFrdStripLandVO" parameterType="String">
+		SELECT
+			A.A1 AS PNUCODE
+			, A.A3 AS ADDR
+			, A.A4 AS JIBUN
+		FROM TF_FEIS_LGSTR A
+		JOIN TF_FEIS_FRD_SVYSLDINFO B ON ST_INTERSECTS(A.SMGEOMETRY, B.SMGEOMETRY)
+		WHERE B.SMID = CAST(#{smid} AS INTEGER)
+		AND B.ROUTECODE = '01'
+    </select>
+    
+   	<!-- 대상지명 중복체크 -->
+	<select id="selectVytFrdCheckSldName" resultType="int" parameterType="String">
+		SELECT COUNT(SVYSLD_NM) FROM TN_FEIS_FRD_SVYSLDREGINFO WHERE SVYSLD_NM=#{sldNm}
+	</select>
+	
+	<!-- 다른 노선 smid, 및 버퍼용 합쳐진 지오메트리 조회 -->
+	<select id="selectAnotherSmid" parameterType="String" resultType="EgovMap">
+		SELECT 
+			SMID
+			, ROUTECODE
+		FROM TF_FEIS_FRD_SVYSLDINFO
+		WHERE 1=1
+		AND SLD_LABEL = #{sldLabel}
+	</select>
+	
+	<select id="selectDownloadAnalAll" resultMap="analDownAllVO" parameterType="or.sabang.sys.vyt.frd.service.VytFrdSvyComptVO">
+		SELECT 
+			ANAL_ID AS analId
+			, FILE_STRE_COURS AS fileStreCours
+			, STRE_FILE_NM AS streFileNm
+			, CASE 
+				WHEN ORIGNL_FILE_NM = 'destloc' THEN '대상지 위치'
+				WHEN ORIGNL_FILE_NM = 'admin' THEN '행정구역'
+				WHEN ORIGNL_FILE_NM = 'rllgstr' THEN '관계지적도'
+				WHEN ORIGNL_FILE_NM = 'culture' THEN '문화재보존관리지도'
+				WHEN ORIGNL_FILE_NM = 'frtp' THEN '임상분포도'
+				WHEN ORIGNL_FILE_NM = 'fror' THEN '임종분포도'
+				WHEN ORIGNL_FILE_NM = 'agcls' THEN '영급분포도'
+				WHEN ORIGNL_FILE_NM = 'dmcls' THEN '경급분포도'
+				WHEN ORIGNL_FILE_NM = 'dnst' THEN '밀도분포도'
+				WHEN ORIGNL_FILE_NM = 'koftr' THEN '수종분포도'
+				WHEN ORIGNL_FILE_NM = 'slope' THEN '경사분포도'
+				WHEN ORIGNL_FILE_NM = 'aspect' THEN '향분포도'
+				WHEN ORIGNL_FILE_NM = 'dem' THEN '표고분포도'
+				WHEN ORIGNL_FILE_NM = 'soil' THEN '토양분포도'
+				WHEN ORIGNL_FILE_NM = 'geology' THEN '지질분포도'
+				WHEN ORIGNL_FILE_NM = 'prrck' THEN '모암분포도'
+				WHEN ORIGNL_FILE_NM = 'accma' THEN '퇴적양식분포도'
+				WHEN ORIGNL_FILE_NM = 'rock' THEN '암석노출도'
+				WHEN ORIGNL_FILE_NM = 'nature' THEN '생태자연도'
+				WHEN ORIGNL_FILE_NM = 'animal' THEN '멸종위기 동식물 분석'
+				WHEN ORIGNL_FILE_NM = 'forestFire' THEN '산불취약지도'
+				WHEN ORIGNL_FILE_NM = 'landslide' THEN '산사태위험등급도'
+				ELSE ORIGNL_FILE_NM
+			END AS orignlFileNm
+			, FILE_EXTSN AS fileExtsn
+			, ANAL_TYPE AS analType
+		FROM TN_FEIS_FRD_ANALFILE
+		WHERE SMID = CAST(#{smid} AS INT)
+	</select>
+</mapper>
